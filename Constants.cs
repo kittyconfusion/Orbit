@@ -3,7 +3,7 @@ namespace Orbit;
 public static class Constant{
     public const double originalG = 0.000000000066743; //kg m sec
 
-    public static readonly double G = originalG; // * Math.Pow(10, -6) * Math.Pow(10, -6);
+    public static readonly double G = originalG / 1000; // * Math.Pow(10, -6) * Math.Pow(10, -6);
 
     //public static readonly double MassOfSun = 2 * Math.Pow(10, 26); //2 * 10^30 kg
 

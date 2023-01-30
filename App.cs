@@ -71,6 +71,7 @@ public class OrbitDraw : Gtk.DrawingArea {
     private void Draw(object sender, DrawnArgs args)
     {
 		int offset = 400;
+		double scale = 4000;
 		//A new CairoHelper should be created every draw call according to documentation
         using (var cr = Gdk.CairoHelper.Create( this.GdkWindow ))
         {
@@ -80,21 +81,21 @@ public class OrbitDraw : Gtk.DrawingArea {
 				if(!Shared.drawingCopy[index].hasTrail) { continue; }
 
 				Vector2d[] trail = Shared.drawingCopy[index].trail;
-				int trailOffset = Shared.drawingCopy[index].trailOffset;
+				int trailOffset = Shared.drawingCopy[index].trailOffset + 1;
 				int trailLength = trail.Length;
 
 				double transPerLine = 1f / trail.Length;
 				double transparency = 1f;
 				
-				cr.MoveTo(trail[trailOffset].X / 10000 + offset, trail[trailOffset].Y / 10000 + offset);
-
-				for(int i = trailOffset; i < trailOffset + trailLength; i++) {
+				//cr.MoveTo(trail[trailOffset].X / 10000 + offset, trail[trailOffset].Y / 10000 + offset);
+				//Console.Write(trailOffset + " " +  (trailOffset + trailLength - 1));
+				for(int i = trailOffset; i < trailOffset + trailLength - 1; i++) {
 					//cr.SetSourceRGB(transparency,0,0);
 					//transparency -= transPerLine;
 					
 
 					Vector2d point = trail[i % trailLength];
-					cr.LineTo(point.X / 10000 + 0.5 + offset, point.Y / 10000 + 0.5 + offset);
+					cr.LineTo(point.X / scale + 0.5 + offset, point.Y / scale + 0.5 + offset);
 				}
 				cr.Stroke();
 			}
@@ -106,7 +107,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
 
-				cr.Arc(m.position.X / 10000 + offset, m.position.Y / 10000 + offset, 4, 0, 2 * Math.PI);
+				cr.Arc(m.position.X / scale + offset, m.position.Y / scale + offset, 4, 0, 2 * Math.PI);
 				cr.StrokePreserve(); //Saves circle for filling in
 				cr.Fill(); //Currently fills with same color as outline
 

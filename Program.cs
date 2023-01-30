@@ -30,20 +30,22 @@ static void StartApplication() {
 }
 
 static void StartPhysics() {
-    Mass earth = new(5.9736 * Math.Pow(10,18),new Vector2d(),new Vector2d(), stationary: true);
-    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022,0), new Vector2d(0, 385000), trailSteps: 1000);
+    Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(),new Vector2d(), stationary: true);
+    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0), new Vector2d(0, 385000), trailSteps: 1200, trailSkip: 0);
     
     PhysicsRunner fr = new();
     fr.AddMass(earth);
     fr.AddMass(moon);
+
+    double deltaTime = 3600; //How many seconds per update
+    double multiplier = 86400 * 2; //How many seconds per real second
+
     while(Shared.Running) {
-        Console.WriteLine(moon.mi.position);
-        fr.Update();
-        Thread.Sleep(1000);
+        //Console.WriteLine(moon.mi.velocity);
+        fr.Update(deltaTime);
+        Thread.Sleep((int)(1000 * (deltaTime / multiplier)));
         
         //Task.Delay(100);
-
-    
     }
 }
 

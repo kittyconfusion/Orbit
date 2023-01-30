@@ -25,7 +25,9 @@ internal class Mass{
         mi.velocity = velocity;
         mi.position = position;
         mi.trailSkip = trailSkip;
+        //mi.trailOffset = -trailSteps;
         mi.trail = new Vector2d[trailSteps];
+        for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
 
         this.GM = mass * Constant.G;
 
@@ -37,6 +39,7 @@ internal class MassInfo {
     internal int index;
     internal string name;
     internal int trailSkip;
+    internal int trailCounter;
     internal Vector2d[] trail;
     internal int trailOffset;
     internal bool hasTrail;
@@ -57,6 +60,7 @@ internal class MassInfo {
         velocity = m.velocity;
         position = m.position;
         m.trail.CopyTo(trail, 0);
+        trailOffset = m.trailOffset;
     }
     internal void CopyNewInfo(MassInfo m) {
         velocity = m.velocity;
