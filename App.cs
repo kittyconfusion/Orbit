@@ -63,7 +63,7 @@ public class OrbitDraw : Gtk.DrawingArea {
     public OrbitDraw(int width, int height)
     {
 		//ExposeEvent has been replaced with Drawn in GDK 3
-		Drawn += Draw;
+		Drawn += new DrawnHandler(Draw);
 		Events |= EventMask.ScrollMask | EventMask.Button1MotionMask | EventMask.ButtonPressMask | EventMask.ButtonReleaseMask;
 
 		ScrollEvent += new ScrollEventHandler(ScrollZoom);
@@ -100,17 +100,11 @@ public class OrbitDraw : Gtk.DrawingArea {
 			scale *= 0.98;
 			offset.X += (args.Event.X - (WidthRequest  / 2)) * (oldscale - scale);
 			offset.Y += (args.Event.Y - (HeightRequest / 2)) * (oldscale - scale);
-
-			//Console.WriteLine(scale + " " + ((args.Event.X - (WidthRequest  / 2)) * (oldscale - scale)));
-			//Console.WriteLine((((WidthRequest / 2) - args.Event.X) * 1) + " " + (((HeightRequest / 2) - args.Event.Y)) * 1);
 		}
 		else if(args.Event.Direction == ScrollDirection.Down) {
 			scale *= 1.02;
 			offset.X += (args.Event.X - (WidthRequest  / 2)) * (oldscale - scale);
 			offset.Y += (args.Event.Y - (HeightRequest / 2)) * (oldscale - scale);
-
-			//Console.WriteLine(scale + " " + ((args.Event.X - (WidthRequest  / 2)) * (oldscale - scale)));
-			//Console.WriteLine((((WidthRequest / 2) - args.Event.X) * 1) + " " + (((HeightRequest / 2) - args.Event.Y)) * 1);
 		}
 		
 	}
@@ -124,8 +118,9 @@ public class OrbitDraw : Gtk.DrawingArea {
 		drawOffset = Shared.drawingCopy[1].position;
 		Vector2d windowCenter = new Vector2d(WidthRequest, HeightRequest) / 2 + 0.5;
 		//A new CairoHelper should be created every draw call according to documentation
-
-        using (var cr = Gdk.CairoHelper.Create( this.Window ))
+		
+        //using (var cr = Gdk.CairoHelper.Create( this.Window ))
+		using (var cr = args.Cr)
         {
 			cr.LineWidth = 2;
 
