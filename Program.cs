@@ -32,6 +32,7 @@ static void StartPhysics() {
 }
 
 Thread thr1 = new Thread(StartPhysics);
-Thread thr2 = new Thread(StartApplication);
+//Thread thr2 = new Thread(StartApplication);
 thr1.Start();
-thr2.Start();
+//thr2.Start();
+StartApplication();
