@@ -5,6 +5,7 @@ namespace Orbit;
 internal static class Shared {
     internal static bool Running = true;
     internal static int massObjects = 0;
+    internal static object DataLock = new();
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
     
@@ -15,8 +16,10 @@ internal static class Shared {
         return massObjects - 1;
     }
     internal static void ReadyDrawingCopy() {
-        for(int i = 0; i < massObjects; i++) {
-            drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
+        lock(DataLock) {
+            for(int i = 0; i < massObjects; i++) {
+                drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
+            }
         }
     }
     internal static void ReadyWorkingCopy() {

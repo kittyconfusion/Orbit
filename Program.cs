@@ -2,26 +2,6 @@
 using Orbit;
 using Gtk;
 
-
-
-//gtk invoke
-/*
-StationaryMass sun = new(10000000, new Vector2d(0,0));
-Planet planet = new(100000,new Vector2d(0, 2 * Math.PI), new Vector2d(1, 0), sun);
-Console.WriteLine("start");
-using (StreamWriter writer = new StreamWriter("xy.txt"))  
-{  
-    for(int i = 0; i < 500000; i++ ) {
-        planet.Update(0.005);
-        writer.WriteLine(planet.mass.position.X + " " + planet.mass.position.Y);
-        //Console.WriteLine(planet.mass.velocity);
-    }
-}
-Console.WriteLine("end");
-*/
-
-
-
 static void StartApplication() {
     Application.Init();
     new App();
@@ -30,21 +10,23 @@ static void StartApplication() {
 }
 
 static void StartPhysics() {
-    Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(),new Vector2d(), stationary: true);
-    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0), new Vector2d(0, 385000), trailSteps: 1200, trailSkip: 0);
+    Mass sun   = new(1.989  * Math.Pow(10,24), new Vector2d(), new Vector2d(), stationary: true);
+    Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(29.76, 0),new Vector2d(0, 149600000), trailSteps: 200);
+    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0) + earth.mi.velocity, new Vector2d(0, 385000) + earth.mi.position, trailSteps: 200, trailSkip: 0);
     
     PhysicsRunner fr = new();
+    fr.AddMass(sun);
     fr.AddMass(earth);
     fr.AddMass(moon);
 
-    double deltaTime = 3600; //How many seconds per update
-    double multiplier = 86400 * 2; //How many seconds per real second
+    double deltaTime = 3600 * 1; //How many seconds per update
+    double multiplier = 86400 * 6; //How many seconds per real second
 
     while(Shared.Running) {
         //Console.WriteLine(moon.mi.velocity);
         fr.Update(deltaTime);
         Thread.Sleep((int)(1000 * (deltaTime / multiplier)));
-        
+        //Console.WriteLine(earth.mi.velocity + " " + moon.mi.velocity);
         //Task.Delay(100);
     }
 }

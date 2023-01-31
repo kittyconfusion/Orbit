@@ -12,7 +12,7 @@
  * and drag in the scribble area to draw squiggles. Resize the window
  * to clear the area.
  */
-
+/*
 using System;
 using Gtk;
 using Gdk;
@@ -211,3 +211,4 @@ namespace Orbit
 		}
 	}
 }
+*/

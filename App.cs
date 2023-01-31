@@ -8,8 +8,6 @@ class App : Gtk.Window
     DrawingArea da;
     Gdk.Color col;
 
-	private Cairo.Surface surface = null;
-
     public App() : base("Orbit 🐱‍🏍")
     {
         SetDefaultSize(390, 240);
@@ -41,39 +39,93 @@ class App : Gtk.Window
 
 		// Ask to receive events the drawing area doesn't normally
 		// subscribe to
-		da.Events |= EventMask.LeaveNotifyMask | EventMask.ButtonPressMask |
-			EventMask.PointerMotionMask | EventMask.PointerMotionHintMask;
+		//da.Events |= EventMask.LeaveNotifyMask | EventMask.ButtonPressMask |
+		//	EventMask.PointerMotionMask | EventMask.PointerMotionHintMask;
 		//da.QueueDraw();
-		ShowAll ();
-		
 
-		GLib.Timeout.Add(50, new GLib.TimeoutHandler(UpdateData));
+		ShowAll ();
+
+		GLib.Timeout.Add(40, new GLib.TimeoutHandler(UpdateData));
     }
 
 	internal bool UpdateData() {
-		Shared.ReadyDrawingCopy();
 		this.da.QueueDraw();
 		return true;
 	}
 }
 
-public class OrbitDraw : Gtk.DrawingArea {       
+public class OrbitDraw : Gtk.DrawingArea {
+    private double scale = 400000;
+	private Vector2d offset = new(400, 400);
+	private Vector2d lastMouse = new();
+	private bool moved = false;
+
     public OrbitDraw(int width, int height)
     {
 		//ExposeEvent has been replaced with Drawn in GDK 3
 		Drawn += Draw;
+		Events |= EventMask.ScrollMask | EventMask.Button1MotionMask | EventMask.ButtonPressMask | EventMask.ButtonReleaseMask;
+
+		ScrollEvent += new ScrollEventHandler(ScrollZoom);
+		ButtonPressEvent += new ButtonPressEventHandler(ClickWindow);
+		ButtonReleaseEvent += new ButtonReleaseEventHandler(ReleaseWindow);
+		MotionNotifyEvent += new MotionNotifyEventHandler(MoveWindow);
 
 		WidthRequest = width;
 		HeightRequest = height;
 		
     }
 
+	private void ClickWindow(object o, ButtonPressEventArgs args) {
+		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
+		moved = false;
+	}
+	private void ReleaseWindow(object o, ButtonReleaseEventArgs args) {
+		if(!moved) { Click(args.Event.X, args.Event.Y); }
+	}
+	private void MoveWindow(object o, MotionNotifyEventArgs args) {
+		moved = true;
+		offset.X += (lastMouse.X - args.Event.X) * scale;
+		offset.Y += (lastMouse.Y - args.Event.Y) * scale;
+
+		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
+	}
+	private void Click(double x, double y) {
+
+		Console.WriteLine(scale + " " + offset);
+	}
+	private void ScrollZoom (object o, ScrollEventArgs args) {
+		double oldscale = scale;
+		if(args.Event.Direction == ScrollDirection.Up) {
+			scale *= 0.98;
+			offset.X += (args.Event.X - (WidthRequest  / 2)) * (oldscale - scale);
+			offset.Y += (args.Event.Y - (HeightRequest / 2)) * (oldscale - scale);
+
+			//Console.WriteLine(scale + " " + ((args.Event.X - (WidthRequest  / 2)) * (oldscale - scale)));
+			//Console.WriteLine((((WidthRequest / 2) - args.Event.X) * 1) + " " + (((HeightRequest / 2) - args.Event.Y)) * 1);
+		}
+		else if(args.Event.Direction == ScrollDirection.Down) {
+			scale *= 1.02;
+			offset.X += (args.Event.X - (WidthRequest  / 2)) * (oldscale - scale);
+			offset.Y += (args.Event.Y - (HeightRequest / 2)) * (oldscale - scale);
+
+			//Console.WriteLine(scale + " " + ((args.Event.X - (WidthRequest  / 2)) * (oldscale - scale)));
+			//Console.WriteLine((((WidthRequest / 2) - args.Event.X) * 1) + " " + (((HeightRequest / 2) - args.Event.Y)) * 1);
+		}
+		
+	}
+
     private void Draw(object sender, DrawnArgs args)
     {
-		int offset = 400;
-		double scale = 4000;
+		Shared.ReadyDrawingCopy();
+
+		double inverseScale = 1 / scale;
+		Vector2d drawOffset = offset;
+		drawOffset = Shared.drawingCopy[1].position;
+		Vector2d windowCenter = new Vector2d(WidthRequest, HeightRequest) / 2 + 0.5;
 		//A new CairoHelper should be created every draw call according to documentation
-        using (var cr = Gdk.CairoHelper.Create( this.GdkWindow ))
+
+        using (var cr = Gdk.CairoHelper.Create( this.Window ))
         {
 			cr.LineWidth = 2;
 
@@ -85,35 +137,31 @@ public class OrbitDraw : Gtk.DrawingArea {
 				int trailLength = trail.Length;
 
 				double transPerLine = 1f / trail.Length;
-				double transparency = 1f;
 				
-				//cr.MoveTo(trail[trailOffset].X / 10000 + offset, trail[trailOffset].Y / 10000 + offset);
-				//Console.Write(trailOffset + " " +  (trailOffset + trailLength - 1));
 				for(int i = trailOffset; i < trailOffset + trailLength - 1; i++) {
-					//cr.SetSourceRGB(transparency,0,0);
-					//transparency -= transPerLine;
 					
+					Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
 
-					Vector2d point = trail[i % trailLength];
-					cr.LineTo(point.X / scale + 0.5 + offset, point.Y / scale + 0.5 + offset);
+					cr.LineTo(point.X, point.Y);
 				}
 				cr.Stroke();
 			}
-			
-			//Reset transparency
-			//cr.SetSourceRGBA(0,0,0,1);
 
 			//Draw mass circles
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
+				Vector2d point = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
 
-				cr.Arc(m.position.X / scale + offset, m.position.Y / scale + offset, 4, 0, 2 * Math.PI);
+				cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
 				cr.StrokePreserve(); //Saves circle for filling in
 				cr.Fill(); //Currently fills with same color as outline
-
 			}
 			
 			cr.GetTarget().Dispose();
         }
     }
+	private int MassToRadius(double mass, double inverseScale)
+		=> Math.Max(0, (int)(Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
+	private Vector2d WorldToScreen(Vector2d point, double inverseScale, Vector2d drawOffset, Vector2d windowCenter) 
+		=> ((point - drawOffset) * inverseScale) + windowCenter;
 }
