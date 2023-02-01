@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 namespace Orbit;
 
 internal static class Shared {
+    internal static double deltaTime = 3600 * 8; //How many hours per update
+    internal static double multiplier = 86400 * 6; //How many days per real second
     internal static bool Running = true;
     internal static int massObjects = 0;
     internal static object DataLock = new();

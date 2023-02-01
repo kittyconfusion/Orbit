@@ -21,22 +21,25 @@ class App : Gtk.Window
 		Frame drawFrame = new Frame();
 		drawFrame.ShadowType = ShadowType.In;
 
-		hbox.PackStart (drawFrame, true, true, 0);
-
 		da = new OrbitDraw(200,200);
 		drawFrame.Add (da);
 		
 		Frame infoFrame = new Frame();
-		
-		hbox.PackEnd(infoFrame, false, false, 0);
-
 		li = new OrbitInfo();
-		
 		infoFrame.Add(li);
 
-		ShowAll ();
+		Frame settingsFrame = new Frame();
+		OrbitSettings os = new();
+		settingsFrame.Add(os);
 
-		GLib.Timeout.Add(40, new GLib.TimeoutHandler(() => {this.da.QueueDraw(); return true;}));
+		hbox.PackStart(settingsFrame, false, true, 0);
+		hbox.PackStart (drawFrame, true, true, 0);
+		hbox.PackEnd(infoFrame, false, true, 0);
+
+		ShowAll ();
+		li.InitHide();		
+
+		GLib.Timeout.Add(40, new GLib.TimeoutHandler(() => UpdateData()));
     }
 
 	internal bool UpdateData() {

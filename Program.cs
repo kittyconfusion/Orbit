@@ -1,12 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Orbit;
+﻿using Orbit;
 using Gtk;
 
 static void StartApplication() {
     Application.Init();
     new App();
     Application.Run();
-
 }
 
 static void StartPhysics() {
@@ -19,20 +17,12 @@ static void StartPhysics() {
     fr.AddMass(earth);
     fr.AddMass(moon);
 
-    double deltaTime = 3600 * 1; //How many seconds per update
-    double multiplier = 86400 * 6; //How many seconds per real second
-
     while(Shared.Running) {
-        //Console.WriteLine(moon.mi.velocity);
-        fr.Update(deltaTime);
-        Thread.Sleep((int)(1000 * (deltaTime / multiplier)));
-        //Console.WriteLine(earth.mi.velocity + " " + moon.mi.velocity);
-        //Task.Delay(100);
+        fr.Update(Shared.deltaTime);
+        Thread.Sleep((int)(1000 * (Shared.deltaTime / Shared.multiplier)));
     }
 }
 
 Thread thr1 = new Thread(StartPhysics);
-//Thread thr2 = new Thread(StartApplication);
 thr1.Start();
-//thr2.Start();
 StartApplication();
