@@ -28,7 +28,7 @@ public class OrbitSettings : Gtk.ListBox {
         timeScale.Value = Shared.multiplier / 86400;
         
         Label sensitivityLabel = new("Zoom Sensitivity");
-        HScale sensitivity = new(0.5, 2, 0.1);
+        HScale sensitivity = new(0.5, 4, 0.1);
         sensitivity.Value = 1;
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);

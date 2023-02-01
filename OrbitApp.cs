@@ -39,7 +39,7 @@ class App : Gtk.Window
 		ShowAll ();
 		li.InitHide();		
 
-		GLib.Timeout.Add(40, new GLib.TimeoutHandler(() => UpdateData()));
+		GLib.Timeout.Add(20, new GLib.TimeoutHandler(() => UpdateData()));
     }
 
 	internal bool UpdateData() {
