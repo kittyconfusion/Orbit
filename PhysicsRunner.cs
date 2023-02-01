@@ -40,9 +40,9 @@ internal class PhysicsRunner {
                 mi.position += (m.mi.velocity * deltaTime);
                 
 
-                //mi.trail[m.mi.trailOffset] = m.mi.position;
-                //mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
-                
+                mi.trail[m.mi.trailOffset] = m.mi.position;
+                mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
+                /*
                 mi.trailCounter++;
 
                 if(mi.trailCounter >= mi.trailSkip) {
@@ -50,6 +50,7 @@ internal class PhysicsRunner {
                     mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
                     mi.trailCounter = 0;
                 }
+                */
                 
             }
         }
