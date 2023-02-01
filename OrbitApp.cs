@@ -4,8 +4,8 @@ using Gdk;
 namespace Orbit;
 class App : Gtk.Window
 {
-    
     DrawingArea da;
+	OrbitInfo li;
     Gdk.Color col;
 
     public App() : base("Orbit 🐱‍🏍")
@@ -30,7 +30,7 @@ class App : Gtk.Window
 		
 		hbox.PackEnd(infoFrame, false, false, 0);
 
-		var li = new OrbitInfo();
+		li = new OrbitInfo();
 		
 		infoFrame.Add(li);
 
@@ -38,4 +38,10 @@ class App : Gtk.Window
 
 		GLib.Timeout.Add(40, new GLib.TimeoutHandler(() => {this.da.QueueDraw(); return true;}));
     }
+
+	internal bool UpdateData() {
+		da.QueueDraw();
+		li.Refresh();
+		return true;
+	}
 }

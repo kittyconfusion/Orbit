@@ -2,8 +2,6 @@ namespace Orbit;
 
 internal class PhysicsRunner {
     List<Mass> masses;
-    const double FourPISquared = 4 * Math.PI * Math.PI;
-
     internal PhysicsRunner() {
         masses = new();
     }
