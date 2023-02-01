@@ -16,6 +16,7 @@ public class OrbitSettings : Gtk.ListBox {
         timeUnits.AppendText("Minutes");
         timeUnits.AppendText("Hours");
         timeUnits.AppendText("Days");
+        timeUnits.AppendText("Weeks");
         timeUnits.Changed += UnitChange;
         Add(timeUnits);
         
@@ -44,9 +45,12 @@ public class OrbitSettings : Gtk.ListBox {
             timeScale.SetRange(1, 10);
             multiplier = timeScale.Value * 86400;
         }
-
+        else if(timeUnits.Active == 4) {
+            timeScale.SetRange(1, 8);
+            multiplier = timeScale.Value * 604800;
+        }
         Shared.multiplier = multiplier;
-        Shared.deltaTime = multiplier / 30;
+        Shared.deltaTime = Math.Min(3600 * 8, multiplier / 30);
     }
     private void UnitChange(object? o, EventArgs args) {
         ChangeTime();
