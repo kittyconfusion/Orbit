@@ -33,7 +33,7 @@ static void StartPhysics() {
             
         }
         
-        Thread.Sleep(33);
+        Thread.Sleep(10);
         
         timeTook += time.ElapsedMilliseconds;
         time.Restart();
