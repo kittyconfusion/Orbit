@@ -29,7 +29,8 @@ public class OrbitInfo : Gtk.ListBox {
     }
     private void KeyPress(object o, KeyPressEventArgs args) {
         if(args.Event.Key == Gdk.Key.space) {
-            Console.WriteLine(massChoose.Active - 1);
+            Shared.trackedMass = massChoose.Active - 1;
+            Console.WriteLine(Shared.trackedMass);
         }
     }
 }

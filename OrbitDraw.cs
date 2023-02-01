@@ -41,6 +41,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	}
 	private void MoveWindow(object o, MotionNotifyEventArgs args) {
 		moved = true;
+		Shared.trackedMass = -1;
 		offset += (lastMouse-new Vector2d(args.Event.X,args.Event.Y)) * scale;
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}
@@ -53,7 +54,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
 			scale *= args.Event.Direction == ScrollDirection.Up ? 0.98 : 1.02;
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
-			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(WidthRequest, HeightRequest) / 2) * (oldscale - scale);
+			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
 	}
 
@@ -62,9 +63,12 @@ public class OrbitDraw : Gtk.DrawingArea {
 		Shared.ReadyDrawingCopy();
 
 		double inverseScale = 1 / scale;
+
+		if (Shared.trackedMass > -1) {
+			offset = Shared.drawingCopy[Shared.trackedMass].position;
+		}
 		Vector2d drawOffset = offset;
-		//drawOffset = Shared.drawingCopy[1].position;
-		Vector2d windowCenter = new Vector2d(WidthRequest, HeightRequest) / 2 + 0.5;
+		Vector2d windowCenter = new Vector2d(AllocatedWidth, AllocatedHeight) / 2 + 0.5;
 		
 		//A new CairoHelper should be created every draw call according to documentation
 		using (var cr = args.Cr)

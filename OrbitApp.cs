@@ -36,11 +36,6 @@ class App : Gtk.Window
 
 		ShowAll ();
 
-		GLib.Timeout.Add(40, new GLib.TimeoutHandler(UpdateData));
+		GLib.Timeout.Add(40, new GLib.TimeoutHandler(() => {this.da.QueueDraw(); return true;}));
     }
-
-	internal bool UpdateData() {
-		this.da.QueueDraw();
-		return true;
-	}
 }
