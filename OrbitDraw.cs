@@ -52,7 +52,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
-			scale *= args.Event.Direction == ScrollDirection.Up ? 0.98 : 1.02;
+			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.03 : 0.03) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
@@ -79,12 +79,12 @@ public class OrbitDraw : Gtk.DrawingArea {
 				if(!Shared.drawingCopy[index].hasTrail) { continue; }
 
 				Vector2d[] trail = Shared.drawingCopy[index].trail;
-				int trailOffset = Shared.drawingCopy[index].trailOffset + 1;
+				int trailOffset = Shared.drawingCopy[index].trailOffset;
 				int trailLength = trail.Length;
 
 				double transPerLine = 1f / trail.Length;
 				
-				for(int i = trailOffset; i < trailOffset + trailLength - 1; i++) {
+				for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 					
 					Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
 

@@ -1,6 +1,8 @@
 namespace Orbit;
+using System.Diagnostics;
 
 internal class PhysicsRunner {
+    Stopwatch s = Stopwatch.StartNew(); 
     List<Mass> masses;
     internal PhysicsRunner() {
         masses = new();
@@ -11,7 +13,7 @@ internal class PhysicsRunner {
     internal void Update(double deltaTime)
     {
         lock(Shared.DataLock) {
-            Shared.ReadyWorkingCopy();
+            //Shared.ReadyWorkingCopy();
             foreach(Mass m in masses) {
                 if(m.mi.stationary) { continue; }
                 
@@ -37,11 +39,24 @@ internal class PhysicsRunner {
                 mi.velocity += (m.SumForces() / m.mi.mass) * deltaTime;
                 
                 m.ClearForces();
+                //Vector2d oldpos = mi.position;
+                //Console.Write(mi.position + " ");
                 mi.position += (m.mi.velocity * deltaTime);
+                //Console.Write(mi.position + " | ");
+
+                //Console.WriteLine("Update: " + s.ElapsedMilliseconds);
+                //s.Restart();
                 
 
-                mi.trail[m.mi.trailOffset] = m.mi.position;
-                mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
+                
+                mi.trail[mi.trailOffset] = mi.position;
+                mi.trailOffset = (mi.trailOffset + 1) % mi.trail.Length;
+                /*
+                for(int i = mi.trailOffset; i < mi.trailOffset + mi.trail.Length; i++) {
+                    Console.Write(mi.trail[i % mi.trail.Length] + " ");
+                }
+                Console.WriteLine(mi.position - oldpos);
+                */
                 /*
                 mi.trailCounter++;
 

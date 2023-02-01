@@ -7,7 +7,7 @@ namespace Orbit;
 public class OrbitSettings : Gtk.ListBox {
     ComboBoxText timeUnits;
     HScale timeScale;
-
+    public static double ZoomSensitivity = 1;
     public OrbitSettings() {
         WidthRequest = 140;
 
@@ -26,7 +26,15 @@ public class OrbitSettings : Gtk.ListBox {
 
         timeUnits.Active = 3;
         timeScale.Value = Shared.multiplier / 86400;
+        
+        Label sensitivityLabel = new("Zoom Sensitivity");
+        HScale sensitivity = new(0.5, 2, 0.1);
+        sensitivity.Value = 1;
+        sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
+        Add(sensitivityLabel);
+        Add(sensitivity);
     }
+
     private void ChangeTime() {
         double multiplier = 1;
         if (timeUnits.Active == 0) {
