@@ -3,7 +3,6 @@ internal class Mass{
     
     internal MassInfo mi;
     internal List<Vector2d> forces = new();
-    internal double GM; 
 
     internal Vector2d SumForces() {
         Vector2d sum = new();
@@ -16,8 +15,8 @@ internal class Mass{
         forces.Clear();
     }
 
-    public Mass(double mass, Vector2d velocity, Vector2d position, 
-        bool hasTrail = true, bool stationary = false, int trailSteps = 400, int trailSkip = 0) {
+    public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
+        bool hasTrail = true, bool stationary = false, int trailSteps = 400, int trailSkip = 2) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;
@@ -25,11 +24,9 @@ internal class Mass{
         mi.velocity = velocity;
         mi.position = position;
         mi.trailSkip = trailSkip;
-        //mi.trailOffset = -trailSteps;
+        mi.name = name;
         mi.trail = new Vector2d[trailSteps];
         for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
-
-        this.GM = mass * Constant.G;
 
         mi.index = Shared.AddMass(mi);
     }
@@ -75,8 +72,8 @@ internal class MassInfo {
     {
         MassInfo m = new();
 
-        m.index = index;
         m.name = name;
+        m.index = index;
         m.trailSkip = trailSkip;
         m.trail = trail;
         m.trailOffset = trailOffset;

@@ -9,12 +9,11 @@ internal class PhysicsRunner {
     }
     internal void AddMass(Mass m) {
         masses.Add(m);
-        Shared.AddMass(m.mi);
     }
     internal void Update(double deltaTime)
     {
         lock(Shared.DataLock) {
-
+            Shared.ReadyWorkingCopy();
             foreach(Mass m in masses) {
                 if(m.mi.stationary) { continue; }
                 
@@ -43,16 +42,17 @@ internal class PhysicsRunner {
                 mi.position += (m.mi.velocity * deltaTime);
                 
 
-                mi.trail[m.mi.trailOffset] = m.mi.position;
-                mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
-                /*
+                //mi.trail[m.mi.trailOffset] = m.mi.position;
+                //mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
+                
                 mi.trailCounter++;
-                if(mi.trailCounter >= mi.trailOffset) {
+
+                if(mi.trailCounter >= mi.trailSkip) {
                     mi.trail[m.mi.trailOffset] = m.mi.position;
                     mi.trailOffset = (m.mi.trailOffset + 1) % m.mi.trail.Length;
                     mi.trailCounter = 0;
                 }
-                */
+                
             }
         }
     }
