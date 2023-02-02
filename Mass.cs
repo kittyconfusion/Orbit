@@ -16,7 +16,7 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSteps = 200, int trailSkip = 5) {
+        bool hasTrail = true, bool stationary = false, int trailSteps = 100, int trailSkip = 5) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;
@@ -56,6 +56,7 @@ internal class MassInfo {
         position = m.position;
         m.trail.CopyTo(trail, 0);
         trailOffset = m.trailOffset;
+        mass = m.mass;
     }
     internal void CopyNewInfo(MassInfo m) {
         velocity = m.velocity;

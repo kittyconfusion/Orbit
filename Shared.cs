@@ -11,7 +11,7 @@ internal static class Shared {
     internal static int trackedMass = -1;
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
-    
+    internal static ConcurrentStack<string[]> changesToMake = new();
     internal static int AddMass(MassInfo m) {
         massInfos.AddOrUpdate(massObjects, m, (key, oldValue) => m);
         drawingCopy.AddOrUpdate(massObjects, m.FullCopy(), (key, oldValue) => m.FullCopy());

@@ -10,9 +10,43 @@ internal class PhysicsRunner {
         masses.Add(m);
         m.mi.index = Shared.AddMass(m.mi);
     }
+    internal void ProcessDataChanges() {
+        //Change[0] is type, change[1] is value, change[2] is index to change
+        string[] change;
+        while (Shared.changesToMake.TryPop(out change!)) {
+            MassInfo mass = masses[Int32.Parse(change[2])].mi;
+            switch(change[0]) {
+                case "position":
+                    mass.position = ParseVector2dFromString(change[1], mass.position);
+                    break;
+                case "velocity":
+                    mass.velocity = ParseVector2dFromString(change[1], mass.velocity);
+                    break;
+                case "mass":
+                    try {
+                        mass.mass = Double.Parse(change[1] , System.Globalization.NumberStyles.Float);
+                    } catch {}
+                    break;
+            }
+        }
+    }
+    internal Vector2d ParseVector2dFromString(string s, Vector2d ifNull) {
+        char[] toTrim = {' ', '(', ')'};
+        s = s.Trim(toTrim);
+        s.Split(',');
+        try {
+            return new Vector2d(Double.Parse(s.Split(',')[0] , System.Globalization.NumberStyles.Float),
+                                Double.Parse(s.Split(',')[1] , System.Globalization.NumberStyles.Float));
+        }
+        catch {
+            return ifNull;
+        }
+        
+    }
     internal void Update(double deltaTime)
     {
         lock(Shared.DataLock) {
+            ProcessDataChanges();
             //Shared.ReadyWorkingCopy();
             foreach(Mass m in masses) {
                 if(m.mi.stationary) { continue; }

@@ -33,17 +33,27 @@ public class OrbitInfo : Gtk.ListBox {
         Label positionLabel = new("Position (km)");
         theRest.Add("positionLabel", positionLabel);
         Entry position = new();
+        position.Changed += (object? o, EventArgs a) => {if(position.IsFocus) {
+            Shared.changesToMake.Push(new string[] {"position", position.Text, selectedMassIndex.ToString()});
+        }};
         theRest.Add("position", position);
 
         Label velocityLabel = new("Velocity (km/s)");
         theRest.Add("velocityLabel", velocityLabel);
         Entry velocity = new();
+        velocity.Changed += (object? o, EventArgs a) => {if(velocity.IsFocus) {
+            Shared.changesToMake.Push(new string[] {"velocity", velocity.Text, selectedMassIndex.ToString()});
+        }};
         theRest.Add("velocity", velocity);
 
         Label massLabel = new("Mass (Gg)");
         theRest.Add("massLabel", massLabel);
         Entry mass = new();
+        mass.Changed += (object? o, EventArgs a) => {if(mass.IsFocus) {
+            Shared.changesToMake.Push(new string[] {"mass", mass.Text, selectedMassIndex.ToString()});
+        }};
         theRest.Add("mass", mass);
+
 
         foreach(Widget w in theRest.Values) {
             Add(w);

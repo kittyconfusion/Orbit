@@ -10,8 +10,8 @@ static void StartApplication() {
 
 static void StartPhysics() {
     Mass sun   = new(1.989  * Math.Pow(10,24), new Vector2d(), new Vector2d(), name: "Sun", stationary: true);
-    Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSteps: 400, trailSkip: 10);
-    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0) + earth.mi.velocity, new Vector2d(0, 385000) + earth.mi.position, name: "Moon", trailSteps: 200, trailSkip: 10);
+    Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 10);
+    Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0) + earth.mi.velocity, new Vector2d(0, 385000) + earth.mi.position, name: "Moon", trailSkip: 10);
     
     Mass mercury = new(0.330 * Math.Pow(10,18), new Vector2d(47.4, 0), new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50);
     Mass venus   = new(4.87  * Math.Pow(10,18), new Vector2d(35.0, 0), new Vector2d(0,108200000), name: "Venus", trailSteps: 100);
