@@ -13,11 +13,16 @@ static void StartPhysics() {
     Mass earth = new(5.9736 * Math.Pow(10,18), new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSteps: 400, trailSkip: 10);
     Mass moon  = new(7.346  * Math.Pow(10,16), new Vector2d(1.022, 0) + earth.mi.velocity, new Vector2d(0, 385000) + earth.mi.position, name: "Moon", trailSteps: 200, trailSkip: 10);
     
+    Mass mercury = new(0.330 * Math.Pow(10,18), new Vector2d(47.4, 0), new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50);
+    Mass venus   = new(4.87  * Math.Pow(10,18), new Vector2d(35.0, 0), new Vector2d(0,108200000), name: "Venus", trailSteps: 100);
+
     //Mass test = new(1 * Math.Pow(10,18), new Vector2d(1,0), new Vector2d(), trailSteps: 10);
 
     PhysicsRunner fr = new();
     //fr.AddMass(test);
     fr.AddMass(sun);
+    fr.AddMass(mercury);
+    fr.AddMass(venus);
     fr.AddMass(earth);
     fr.AddMass(moon);
 

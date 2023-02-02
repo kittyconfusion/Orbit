@@ -16,7 +16,7 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSteps = 400, int trailSkip = 2) {
+        bool hasTrail = true, bool stationary = false, int trailSteps = 200, int trailSkip = 5) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;
@@ -27,8 +27,6 @@ internal class Mass{
         mi.name = name;
         mi.trail = new Vector2d[trailSteps];
         for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
-
-        mi.index = Shared.AddMass(mi);
     }
 }
 

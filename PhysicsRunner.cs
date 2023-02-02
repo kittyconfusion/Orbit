@@ -8,6 +8,7 @@ internal class PhysicsRunner {
     }
     internal void AddMass(Mass m) {
         masses.Add(m);
+        m.mi.index = Shared.AddMass(m.mi);
     }
     internal void Update(double deltaTime)
     {
