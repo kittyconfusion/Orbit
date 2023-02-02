@@ -7,9 +7,11 @@ namespace Orbit;
 public class OrbitInfo : Gtk.ListBox {
     ComboBoxText massChoose = new();
     OrderedDictionary theRest = new();
-    int selectedMass = -1;
+    int selectedMassIndex = -1;
+    MassInfo selectedMass = new();
+    static readonly string[] UpdateKeys = {"position", "velocity", "mass"};
     public OrbitInfo() {
-        WidthRequest = 250;
+        WidthRequest = 150;
 
         //Needed for keyboard input
 		CanFocus = true;
@@ -27,24 +29,37 @@ public class OrbitInfo : Gtk.ListBox {
 
         Add(massChoose);
         massChoose.Changed += OnChooseMass;
-
-        Label positionLabel = new("Position");
-        positionLabel.CanFocus = false;
+        
+        Label positionLabel = new("Position (km)");
         theRest.Add("positionLabel", positionLabel);
-
         Entry position = new();
         theRest.Add("position", position);
+
+        Label velocityLabel = new("Velocity (km/s)");
+        theRest.Add("velocityLabel", velocityLabel);
+        Entry velocity = new();
+        theRest.Add("velocity", velocity);
+
+        Label massLabel = new("Mass (Gg)");
+        theRest.Add("massLabel", massLabel);
+        Entry mass = new();
+        theRest.Add("mass", mass);
 
         foreach(Widget w in theRest.Values) {
             Add(w);
             w.Hide();
         }
+        
+        for(int i = 0; i <= theRest.Keys.Count; i++) {
+            this.GetRowAtIndex(i).Selectable = false;
+        }
+
     }
 
     private void OnChooseMass(object? o, EventArgs args) {
-        selectedMass = massChoose.Active - 1;
+        selectedMassIndex = massChoose.Active - 1;
         
-        if(selectedMass == -1) {
+        if(selectedMassIndex == -1) {
             foreach(Widget w in theRest.Values) {
                 w.Hide();
             }
@@ -55,12 +70,29 @@ public class OrbitInfo : Gtk.ListBox {
             }
         }
     }
+    internal string UIString(string key) {
+        switch(key) {
+            case "position":
+                return selectedMass.position.ToRoundedString();
+            case "velocity":
+                return selectedMass.velocity.ToRoundedString(digits: 3);
+            case "mass":
+                return selectedMass.mass.ToString();
+            default:
+                return "";
+        }
+    }
 
     internal void Refresh() {
-        if(selectedMass == -1) { return; }
-        MassInfo m = Shared.drawingCopy[selectedMass];
-        ((Entry)theRest["position"]).Text = m.position.ToRoundedString();
-        //((ComboBoxText)theRest["position"]).AppendText("");
+        if(selectedMassIndex == -1) { return; }
+        selectedMass = Shared.drawingCopy[selectedMassIndex];
+
+        foreach(string s in UpdateKeys) {
+            Entry row = (Entry)theRest[s]!;
+            if(!row.IsFocus) {
+                row.Text = UIString(s);
+            }
+        }
     }
 
     private void KeyPress(object o, KeyPressEventArgs args) {

@@ -9,7 +9,7 @@ public class OrbitSettings : Gtk.ListBox {
     HScale timeScale;
     public static double ZoomSensitivity = 1;
     public OrbitSettings() {
-        WidthRequest = 140;
+        WidthRequest = 100;
 
         timeUnits = new();
         timeUnits.AppendText("Seconds");
@@ -33,6 +33,10 @@ public class OrbitSettings : Gtk.ListBox {
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
         Add(sensitivity);
+
+        for(int i = 0; i <= 3; i++) {
+            this.GetRowAtIndex(i).Selectable = false;
+        }
     }
 
     private void ChangeTime() {

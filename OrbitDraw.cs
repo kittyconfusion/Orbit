@@ -9,7 +9,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private Vector2d lastMouse = new();
 	private bool moved = false;
 
-    public OrbitDraw(int width, int height)
+    public OrbitDraw()
     {
 		//ExposeEvent has been replaced with Drawn in GDK 3
 		Drawn += new DrawnHandler(Draw);
@@ -21,9 +21,6 @@ public class OrbitDraw : Gtk.DrawingArea {
 		ButtonReleaseEvent += new ButtonReleaseEventHandler(ReleaseWindow);
 		MotionNotifyEvent += new MotionNotifyEventHandler(MoveWindow);
 		KeyPressEvent += new KeyPressEventHandler(KeyPress);
-
-		WidthRequest = width;
-		HeightRequest = height;
 
 		//Needed for keyboard input
 		CanFocus = true;
@@ -52,7 +49,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
-			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.03 : 0.03) * OrbitSettings.ZoomSensitivity);
+			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.04 : 0.04) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
@@ -76,10 +73,11 @@ public class OrbitDraw : Gtk.DrawingArea {
 			cr.LineWidth = 2;
 
 			for(int index = 0; index < Shared.massObjects; index++) {
-				if(!Shared.drawingCopy[index].hasTrail) { continue; }
+				MassInfo m = Shared.drawingCopy[index];
+				if(!m.hasTrail) { continue; }
 
-				Vector2d[] trail = Shared.drawingCopy[index].trail;
-				int trailOffset = Shared.drawingCopy[index].trailOffset;
+				Vector2d[] trail = m.trail;
+				int trailOffset = m.trailOffset;
 				int trailLength = trail.Length;
 
 				double transPerLine = 1f / trail.Length;
@@ -90,9 +88,11 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 					cr.LineTo(point.X, point.Y);
 				}
+				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
+				cr.LineTo(finalPoint.X, finalPoint.Y);
 				cr.Stroke();
 			}
-
+			
 			//Draw mass circles
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
