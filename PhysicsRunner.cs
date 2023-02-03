@@ -45,8 +45,6 @@ internal class PhysicsRunner {
     }
     internal void Update(double deltaTime)
     {
-        lock(Shared.DataLock) {
-            ProcessDataChanges();
             //Shared.ReadyWorkingCopy();
             foreach(Mass m in masses) {
                 if(m.mi.stationary) { continue; }
@@ -84,7 +82,7 @@ internal class PhysicsRunner {
                     mi.trailCounter = 0;
                 }
             }
-        }
+        
     }
 
     private double CalculateDistance(double x, double y)

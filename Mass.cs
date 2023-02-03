@@ -16,7 +16,8 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSteps = 100, int trailSkip = 5) {
+        bool hasTrail = true, bool stationary = false, int trailSteps = 150, int trailSkip = 4) {
+        if(name == "") { name = GenerateName(); }
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;
@@ -27,6 +28,18 @@ internal class Mass{
         mi.name = name;
         mi.trail = new Vector2d[trailSteps];
         for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
+    }
+
+    private string GenerateName()
+    {
+        string[] adjectives = File.ReadAllLines("adjectives.txt");
+        string[] animals = File.ReadAllLines("animals.txt");
+        
+        Random r = new();
+        string adjective = adjectives[r.Next(0, adjectives.Length - 1)];
+        string animal = animals[r.Next(0, animals.Length - 1)];
+        
+        return adjective + " " + animal;
     }
 }
 

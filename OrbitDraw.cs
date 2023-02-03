@@ -4,31 +4,29 @@ using Gdk;
 namespace Orbit;
 
 public class OrbitDraw : Gtk.DrawingArea {
+	private OrbitInfo infoWindow;
     private double scale = 450000;
 	private Vector2d offset = new();
 	private Vector2d lastMouse = new();
 	private bool moved = false;
 
-    public OrbitDraw()
+    public OrbitDraw(OrbitInfo infoWindow)
     {
 		//ExposeEvent has been replaced with Drawn in GDK 3
 		Drawn += new DrawnHandler(Draw);
 		Events |= EventMask.ScrollMask | EventMask.Button1MotionMask | EventMask.ButtonPressMask | EventMask.ButtonReleaseMask
-		| EventMask.KeyPressMask;
+		| EventMask.KeyPressMask | EventMask.KeyReleaseMask;
 
 		ScrollEvent += new ScrollEventHandler(ScrollZoom);
 		ButtonPressEvent += new ButtonPressEventHandler(ClickWindow);
 		ButtonReleaseEvent += new ButtonReleaseEventHandler(ReleaseWindow);
 		MotionNotifyEvent += new MotionNotifyEventHandler(MoveWindow);
-		KeyPressEvent += new KeyPressEventHandler(KeyPress);
 
 		//Needed for keyboard input
 		CanFocus = true;
+		this.infoWindow = infoWindow;
     }
 
-	private void KeyPress(object o, KeyPressEventArgs args) {
-		//TO DO (use Gdk.Key)
-	}
 	private void ClickWindow(object o, ButtonPressEventArgs args) {
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 		moved = false;
@@ -39,6 +37,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void MoveWindow(object o, MotionNotifyEventArgs args) {
 		moved = true;
 		Shared.trackedMass = -1;
+		infoWindow.toFollow.Active = false;
 		offset += (lastMouse-new Vector2d(args.Event.X,args.Event.Y)) * scale;
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}
@@ -49,7 +48,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
-			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.04 : 0.04) * OrbitSettings.ZoomSensitivity);
+			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.05 : 0.05) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
@@ -71,7 +70,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		using (var cr = args.Cr)
         {
 			cr.LineWidth = 2;
-
+			cr.SetSourceRGB(0.6,0.6,0.6);
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
 				if(!m.hasTrail) { continue; }
@@ -92,7 +91,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 				cr.LineTo(finalPoint.X, finalPoint.Y);
 				cr.Stroke();
 			}
-			
+			cr.SetSourceRGB(0,0,0);
 			//Draw mass circles
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];

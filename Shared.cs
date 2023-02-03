@@ -6,6 +6,7 @@ internal static class Shared {
     internal static double deltaTime = 3600 * 8; //How many hours per update
     internal static double multiplier = 86400 * 6 * 3; //How many days per real second
     internal static bool Running = true;
+    internal static bool Paused = false;
     internal static int massObjects = 0;
     internal static object DataLock = new();
     internal static int trackedMass = -1;

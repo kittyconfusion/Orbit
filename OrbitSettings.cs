@@ -7,10 +7,28 @@ namespace Orbit;
 public class OrbitSettings : Gtk.ListBox {
     ComboBoxText timeUnits;
     HScale timeScale;
+    internal CheckButton paused;
     public static double ZoomSensitivity = 1;
     public OrbitSettings() {
         WidthRequest = 100;
 
+        MenuBar optionMenu = new MenuBar();
+        MenuItem add = new MenuItem("Add");
+        Menu filemenu = new Menu();
+        add.Submenu = filemenu;
+
+        MenuItem exit = new MenuItem("New Mass");
+        exit.Activated += (object? o, EventArgs e) => {Console.WriteLine("hi");};
+        filemenu.Append(exit);
+
+        optionMenu.Append(add);
+
+        VBox vbox = new VBox(false, 2);
+        vbox.PackStart(optionMenu, false, false, 0);
+
+        Add(vbox);
+
+        HBox time = new();
         timeUnits = new();
         timeUnits.AppendText("Seconds");
         timeUnits.AppendText("Minutes");
@@ -18,7 +36,12 @@ public class OrbitSettings : Gtk.ListBox {
         timeUnits.AppendText("Days");
         timeUnits.AppendText("Weeks");
         timeUnits.Changed += UnitChange;
-        Add(timeUnits);
+
+        paused = new("Pause");
+        paused.Toggled += (object? o, EventArgs a) => {Shared.Paused = paused.Active;};
+        time.Add(timeUnits);
+        time.Add(paused);
+        Add(time);
         
         timeScale = new(0,60,1);
         timeScale.ValueChanged += UnitChange; 
