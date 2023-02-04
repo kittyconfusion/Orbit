@@ -18,7 +18,11 @@ public class OrbitSettings : Gtk.ListBox {
         add.Submenu = filemenu;
 
         MenuItem exit = new MenuItem("New Mass");
-        exit.Activated += (object? o, EventArgs e) => {Console.WriteLine("hi");};
+        exit.Activated += (object? o, EventArgs e) => {
+            paused!.Active = true;
+            Shared.Paused = true;
+            Shared.changesToMake.Push(new string[] {"new mass","","-1"});
+        };
         filemenu.Append(exit);
 
         optionMenu.Append(add);
@@ -57,7 +61,7 @@ public class OrbitSettings : Gtk.ListBox {
         Add(sensitivityLabel);
         Add(sensitivity);
 
-        for(int i = 0; i <= 3; i++) {
+        for(int i = 0; i <= 4; i++) {
             this.GetRowAtIndex(i).Selectable = false;
         }
     }

@@ -14,7 +14,11 @@ internal class PhysicsRunner {
         //Change[0] is type, change[1] is value, change[2] is index to change
         string[] change;
         while (Shared.changesToMake.TryPop(out change!)) {
-            MassInfo mass = masses[Int32.Parse(change[2])].mi;
+            MassInfo mass = new();
+            if(change[2] != "-1") {
+                mass = masses[Int32.Parse(change[2])].mi;
+            }
+            
             switch(change[0]) {
                 case "position":
                     mass.position = ParseVector2dFromString(change[1], mass.position);
@@ -26,6 +30,9 @@ internal class PhysicsRunner {
                     try {
                         mass.mass = Double.Parse(change[1] , System.Globalization.NumberStyles.Float);
                     } catch {}
+                    break;
+                case "new mass":
+                    AddMass(new Mass(1,new Vector2d(), new Vector2d()));
                     break;
             }
         }
