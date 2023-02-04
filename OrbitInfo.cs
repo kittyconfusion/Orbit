@@ -6,7 +6,9 @@ namespace Orbit;
 
 public class OrbitInfo : Gtk.ListBox {
     ComboBoxText massChoose = new();
+    ComboBoxText followChoose = new();
     internal CheckButton toFollow = new("Follow");
+    CheckButton trailDraw;
     OrderedDictionary theRest = new();
     int selectedMassIndex = -1;
     MassInfo selectedMass = new();
@@ -14,11 +16,13 @@ public class OrbitInfo : Gtk.ListBox {
     static readonly string[] UpdateKeys = {"position", "velocity", "mass"};
     public OrbitInfo() {
         WidthRequest = 140;
+        SelectionMode = SelectionMode.None;
 
         //Needed for keyboard input
 		CanFocus = true;
 
-        massChoose.Changed += OnChooseMass;
+        Label massBoxLabel = new("Choose a mass");
+        Add(massBoxLabel);
 
         HBox massBox = new();
         massBox.Add(massChoose);
@@ -34,20 +38,35 @@ public class OrbitInfo : Gtk.ListBox {
         massBox.Add(toFollow);
         Add(massBox);
 
+        theRest.Add("separator1", new Separator(Orientation.Horizontal));
+
+        Label nameLabel = new("Name");
+        theRest.Add("nameLabel", nameLabel);
+        Entry name = new();
+
+        name.Activated += (object? o, EventArgs a) => {
+            GetRowAtIndex(4).GrabFocus();
+            Shared.drawingCopy[selectedMassIndex].name = name.Text;
+            RefreshMassChoose();
+        };
+        theRest.Add("name", name);
+        theRest.Add("separator2", new Separator(Orientation.Horizontal));
+
         Label positionLabel = new("Position (km)");
         theRest.Add("positionLabel", positionLabel);
         Entry position = new();
         position.Activated += (object? o, EventArgs a) => {
-            GetRowAtIndex(2).GrabFocus();
+            GetRowAtIndex(7).GrabFocus();
             Shared.changesToMake.Push(new string[] {"position", position.Text, selectedMassIndex.ToString()});
         };
+
         theRest.Add("position", position);
 
         Label velocityLabel = new("Velocity (km/s)");
         theRest.Add("velocityLabel", velocityLabel);
         Entry velocity = new();
         velocity.Activated += (object? o, EventArgs a) => {
-            GetRowAtIndex(4).GrabFocus();
+            GetRowAtIndex(9).GrabFocus();
             Shared.changesToMake.Push(new string[] {"velocity", velocity.Text, selectedMassIndex.ToString()});
         };
         theRest.Add("velocity", velocity);
@@ -56,28 +75,49 @@ public class OrbitInfo : Gtk.ListBox {
         theRest.Add("massLabel", massLabel);
         Entry mass = new();
         mass.Activated += (object? o, EventArgs a) => {
-            GetRowAtIndex(6).GrabFocus();
+            GetRowAtIndex(11).GrabFocus();
             Shared.changesToMake.Push(new string[] {"mass", mass.Text, selectedMassIndex.ToString()});
         };
         theRest.Add("mass", mass);
 
-        Label nameLabel = new("Name");
-        theRest.Add("nameLabel", nameLabel);
-        Entry name = new();
-        name.Activated += (object? o, EventArgs a) => {
-            GetRowAtIndex(8).GrabFocus();
-            Shared.drawingCopy[selectedMassIndex].name = name.Text;
-            RefreshMassChoose();
+
+        theRest.Add("separator3", new Separator(Orientation.Horizontal));
+
+        HBox followBox = new();
+        Label trailFollowLabel = new("Length");
+        trailDraw = new("Draw");
+        trailDraw.Toggled += (object? o, EventArgs a) => {
+            selectedMass.hasTrail = trailDraw.Active;
         };
-        theRest.Add("name", name);
+        
+        HBox trailBox = new();
+        trailBox.Add(new Label("Trail"));
+        trailBox.Add(followChoose);
+        
+        theRest.Add("trailBox", trailBox);
+
+        followBox.Add(trailFollowLabel);
+        Entry trailLength = new();
+        trailLength.WidthChars = 2;
+        followBox.Add(trailLength);
+        followBox.Add(trailDraw);
+        theRest.Add("followBox", followBox);
+
+        //theRest.Add("followChoose", followChoose);
+
+        followChoose.Changed += (object? o, EventArgs args) => {
+            if(followChoose.Active != -1) {
+                Console.WriteLine(followChoose.Active);
+            }
+        };
+        massChoose.Changed += (object? o, EventArgs args) => {
+            OnChooseMass();
+            followChoose.Active = selectedMass.followingIndex + 1;
+        };
 
         foreach(Widget w in theRest.Values) {
             Add(w);
             w.Hide();
-        }
-        
-        for(int i = 0; i <= theRest.Keys.Count; i++) {
-            this.GetRowAtIndex(i).Selectable = false;
         }
     }
 
@@ -93,8 +133,8 @@ public class OrbitInfo : Gtk.ListBox {
 
         for(int i = 0; i < Shared.massObjects; i++) {
             MassInfo m = Shared.drawingCopy[i];
-            if(m.name.Length > 16) {
-                massChoose.AppendText(m.name.Substring(0,14) + "..");
+            if(m.name.Length > 15) {
+                massChoose.AppendText(m.name.Substring(0,13) + "..");
             }
             else {
                 massChoose.AppendText(m.name);
@@ -102,10 +142,10 @@ public class OrbitInfo : Gtk.ListBox {
         }
 
         massChoose.Active = currentlySelected;
-        OnChooseMass(null, EventArgs.Empty);
+        OnChooseMass();
     }
 
-    private void OnChooseMass(object? o, EventArgs args) {
+    private void OnChooseMass() {
         //Would otherwise be set to -2 during initialization
         selectedMassIndex = Math.Max(-1, massChoose.Active - 1);
         
@@ -115,6 +155,23 @@ public class OrbitInfo : Gtk.ListBox {
             }
             selectedMass = Shared.drawingCopy[selectedMassIndex];
             ((Entry)theRest["name"]!).Text = selectedMass.name;
+            trailDraw.Active = selectedMass.hasTrail;
+
+            //Update the follow trail mass list
+            followChoose.RemoveAll();
+            followChoose.AppendText("No follow");
+
+            for(int i = 0; i < Shared.massObjects; i++) {
+                MassInfo m = Shared.drawingCopy[i];
+                if(m.name.Length > 15 && m.index != selectedMassIndex) {
+                    followChoose.AppendText(m.name.Substring(0,13) + "..");
+                }
+                else if (m.index != selectedMassIndex) {
+                    followChoose.AppendText(m.name);
+                }
+                followChoose.Active = selectedMass.followingIndex + 1;
+            }
+
         }
         else {
             foreach(Widget w in theRest.Values) {

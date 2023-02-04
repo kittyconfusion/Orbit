@@ -8,7 +8,7 @@ internal class PhysicsRunner {
     }
     internal void AddMass(Mass m) {
         masses.Add(m);
-        m.mi.index = Shared.AddMass(m.mi);
+        Shared.AddMass(m.mi);
     }
     internal void ProcessDataChanges() {
         //Change[0] is type, change[1] is value, change[2] is index to change

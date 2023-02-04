@@ -51,8 +51,8 @@ internal class MassInfo {
     internal Vector2d[] trail;
     internal int trailOffset;
     internal bool hasTrail;
-
     internal bool stationary;
+    internal int followingIndex;
 
     internal Vector2d velocity;
     internal double mass;
@@ -60,6 +60,7 @@ internal class MassInfo {
 
     public MassInfo() {
         trail = new Vector2d[0];
+        followingIndex = -1;
         name = "";
     }
 

@@ -13,22 +13,17 @@ internal static class Shared {
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentStack<string[]> changesToMake = new();
-    internal static int AddMass(MassInfo m) {
+    internal static void AddMass(MassInfo m) {
+        m.index = massObjects;
         massInfos.AddOrUpdate(massObjects, m, (key, oldValue) => m);
         drawingCopy.AddOrUpdate(massObjects, m.FullCopy(), (key, oldValue) => m.FullCopy());
         massObjects++;
-        return massObjects - 1;
     }
     internal static void ReadyDrawingCopy() {
         lock(DataLock) {
             for(int i = 0; i < massObjects; i++) {
                 drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
             }
-        }
-    }
-    internal static void ReadyWorkingCopy() {
-        for(int i = 0; i < massObjects; i++) {
-            massInfos[i].CopyNewInfo(drawingCopy[i]);
         }
     }
 }

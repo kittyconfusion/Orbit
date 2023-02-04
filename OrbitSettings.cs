@@ -11,6 +11,7 @@ public class OrbitSettings : Gtk.ListBox {
     public static double ZoomSensitivity = 1;
     public OrbitSettings() {
         WidthRequest = 100;
+        SelectionMode = SelectionMode.None;
 
         MenuBar optionMenu = new MenuBar();
         MenuItem add = new MenuItem("Add");
@@ -60,10 +61,6 @@ public class OrbitSettings : Gtk.ListBox {
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
         Add(sensitivity);
-
-        for(int i = 0; i <= 4; i++) {
-            this.GetRowAtIndex(i).Selectable = false;
-        }
     }
 
     private void ChangeTime() {
