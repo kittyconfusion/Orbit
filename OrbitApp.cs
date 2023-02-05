@@ -1,5 +1,4 @@
 using Gtk;
-using Gdk;
 
 namespace Orbit;
 class App : Gtk.Window
@@ -13,7 +12,6 @@ class App : Gtk.Window
         SetDefaultSize(950, 600);
         SetPosition(WindowPosition.Center);
         DeleteEvent += delegate { Shared.Running = false; Application.Quit(); };
-
 		
 		Paned p1 = new(Orientation.Horizontal);
 		Paned p2 = new(Orientation.Horizontal);

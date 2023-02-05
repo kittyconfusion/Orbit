@@ -1,6 +1,4 @@
 using Gtk;
-using Gdk;
-using System.Collections.Specialized;
 
 namespace Orbit;
 
@@ -78,11 +76,11 @@ public class OrbitSettings : Gtk.ListBox {
             multiplier = timeScale.Value * 3600;
         }
         else if (timeUnits.Active == 3) {
-            timeScale.SetRange(1, 10);
+            timeScale.SetRange(1, 14);
             multiplier = timeScale.Value * 86400;
         }
         else if(timeUnits.Active == 4) {
-            timeScale.SetRange(1, 8);
+            timeScale.SetRange(1, 52);
             multiplier = timeScale.Value * 604800;
         }
         Shared.multiplier = multiplier;

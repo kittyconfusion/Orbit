@@ -1,5 +1,4 @@
 using Gtk;
-using Gdk;
 using System.Collections.Specialized;
 
 namespace Orbit;

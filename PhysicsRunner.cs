@@ -1,6 +1,4 @@
 namespace Orbit;
-using System.Diagnostics;
-
 internal class PhysicsRunner {
     List<Mass> masses;
     internal PhysicsRunner() {
@@ -52,7 +50,7 @@ internal class PhysicsRunner {
                     }
                     break;
                 case "trail length":
-                    mass.trail = new Vector2d[int.Parse(change[1])];
+                    mass.trail = new Vector2d[Math.Min(10000,int.Parse(change[1]))];
                     mass.trailOffset = 0;
                     if(mass.followingIndex != -1) {
                         for(int i = 0; i < mass.trail.Length; i++) { 
