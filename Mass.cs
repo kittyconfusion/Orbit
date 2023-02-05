@@ -66,11 +66,15 @@ internal class MassInfo {
 
     internal void CopyPhysicsInfo(MassInfo m)
     {
+        if(trail.Length != m.trail.Length) {
+            trail = new Vector2d[m.trail.Length];
+        }
         velocity = m.velocity;
         position = m.position;
+        mass = m.mass;
         m.trail.CopyTo(trail, 0);
         trailOffset = m.trailOffset;
-        mass = m.mass;
+        followingIndex = m.followingIndex;
     }
     internal void CopyNewInfo(MassInfo m) {
         velocity = m.velocity;
@@ -95,6 +99,7 @@ internal class MassInfo {
         m.velocity = velocity;
         m.mass = mass;
         m.position = position;
+        m.followingIndex = followingIndex;
         
         return m;
     }

@@ -8,6 +8,7 @@ public class OrbitInfo : Gtk.ListBox {
     ComboBoxText massChoose = new();
     ComboBoxText followChoose = new();
     internal CheckButton toFollow = new("Follow");
+    Entry trailLength;
     CheckButton trailDraw;
     OrderedDictionary theRest = new();
     int selectedMassIndex = -1;
@@ -97,7 +98,19 @@ public class OrbitInfo : Gtk.ListBox {
         theRest.Add("trailBox", trailBox);
 
         followBox.Add(trailFollowLabel);
-        Entry trailLength = new();
+        trailLength = new();
+        trailLength.Activated += (object? o, EventArgs a) => {
+            GetRowAtIndex(14).GrabFocus();
+            if(int.TryParse(trailLength.Text, out int result)) {
+                if(result > 0) {
+                    Shared.changesToMake.Push(new string[] {"trail length", trailLength.Text, selectedMassIndex.ToString()});
+                }
+            }
+            //Reset text to actual value
+            else {
+                trailLength.Text = selectedMass.trail.Length.ToString();
+            }
+        };
         trailLength.WidthChars = 2;
         followBox.Add(trailLength);
         followBox.Add(trailDraw);
@@ -106,8 +119,9 @@ public class OrbitInfo : Gtk.ListBox {
         //theRest.Add("followChoose", followChoose);
 
         followChoose.Changed += (object? o, EventArgs args) => {
-            if(followChoose.Active != -1) {
-                Console.WriteLine(followChoose.Active);
+            if(followChoose.Active != -1 && selectedMassIndex != -1) {
+                int index = followChoose.Active - 1 < selectedMassIndex ? followChoose.Active - 1: followChoose.Active;
+                Shared.changesToMake.Push(new string[] {"trail follow", index.ToString(), selectedMassIndex.ToString()});
             }
         };
         massChoose.Changed += (object? o, EventArgs args) => {
@@ -171,6 +185,7 @@ public class OrbitInfo : Gtk.ListBox {
                 }
                 followChoose.Active = selectedMass.followingIndex + 1;
             }
+            trailLength.Text = selectedMass.trail.Length.ToString();
 
         }
         else {

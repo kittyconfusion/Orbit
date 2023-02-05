@@ -48,7 +48,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
-			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.05 : 0.05) * OrbitSettings.ZoomSensitivity);
+			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.06 : 0.06) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
@@ -81,11 +81,18 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 				double transPerLine = 1f / trail.Length;
 				
-				for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
-					
-					Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
-
-					cr.LineTo(point.X, point.Y);
+				if(m.followingIndex != -1) {
+					Vector2d followingPosition = Shared.drawingCopy[m.followingIndex].position;
+					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
+						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
+						cr.LineTo(point.X, point.Y);
+					}
+				}
+				else {
+					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
+						Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
+						cr.LineTo(point.X, point.Y);
+					}
 				}
 				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
 				cr.LineTo(finalPoint.X, finalPoint.Y);
