@@ -125,7 +125,6 @@ public class OrbitInfo : Gtk.ListBox {
         };
         massChoose.Changed += (object? o, EventArgs args) => {
             OnChooseMass();
-            followChoose.Active = selectedMass.followingIndex + 1;
         };
 
         foreach(Widget w in theRest.Values) {
@@ -182,8 +181,9 @@ public class OrbitInfo : Gtk.ListBox {
                 else if (m.index != selectedMassIndex) {
                     followChoose.AppendText(m.name);
                 }
-                followChoose.Active = selectedMass.followingIndex + 1;
             }
+            followChoose.Active = selectedMass.followingIndex <= selectedMassIndex ? selectedMass.followingIndex + 1: selectedMass.followingIndex;
+            
             trailLength.Text = selectedMass.trail.Length.ToString();
 
         }
