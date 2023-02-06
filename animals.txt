@@ -75,6 +75,7 @@ Caterpillar
 Cattle
 Catfish
 Chameleon
+Cheese
 Centipede
 Chicken
 Chimpanzee
@@ -111,7 +112,7 @@ Dalmation
 Dacshund
 Damsel fly
 Dart Frog
-Devi Fish (Giant Sting ray)
+Stingray
 Diamond back rattler
 Dik-dik
 Dingo

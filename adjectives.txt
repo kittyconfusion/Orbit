@@ -15,10 +15,12 @@ Sidereal
 Solar
 Stellar
 Globular
+Spherical
 Floating
 Alien
 Regular
 Reptilian
+Rogue
 Spacious
 Nebular
 Cometary
