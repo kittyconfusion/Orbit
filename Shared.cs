@@ -10,6 +10,7 @@ internal static class Shared {
     internal static int massObjects = 0;
     internal static object DataLock = new();
     internal static int trackedMass = -1;
+    internal static int selectedMassIndex = -1;
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentStack<string[]> changesToMake = new();
@@ -18,6 +19,23 @@ internal static class Shared {
         massInfos.AddOrUpdate(massObjects, m, (key, oldValue) => m);
         drawingCopy.AddOrUpdate(massObjects, m.FullCopy(), (key, oldValue) => m.FullCopy());
         massObjects++;
+    }
+    internal static void RemoveMass(int index) {
+        massInfos.Remove(index, out _);
+        drawingCopy.Remove(index, out _);
+
+        for(int i = index + 1; i < massObjects; i++) {
+            massInfos.Remove(i, out MassInfo? m);
+            m!.index = i-1;
+            massInfos.AddOrUpdate(i-1, m, (key, oldValue) => m);
+            
+            drawingCopy.Remove(i, out MassInfo? mm);
+            mm!.index = i-1;
+            drawingCopy.AddOrUpdate(i-1, mm, (key, oldValue) => mm);
+
+        }
+        massObjects -= 1;
+        trackedMass -= 1;
     }
     internal static void ReadyDrawingCopy() {
         lock(DataLock) {

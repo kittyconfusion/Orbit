@@ -37,7 +37,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void MoveWindow(object o, MotionNotifyEventArgs args) {
 		moved = true;
 		Shared.trackedMass = -1;
-		infoWindow.toFollow.Active = false;
+		((CheckButton)infoWindow.GetWidget("toFollow")).Active = false;
 		offset += (lastMouse-new Vector2d(args.Event.X,args.Event.Y)) * scale;
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}

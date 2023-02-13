@@ -67,7 +67,8 @@ class App : Gtk.Window
 	}
 	private void OnKeyRelease(object o, KeyReleaseEventArgs args) {
 		if(args.Event.Key == Gdk.Key.f && Control) {
-			li.toFollow.Active = !li.toFollow.Active;
+			CheckButton follow = (CheckButton)li.GetWidget("toFollow");
+			follow.Active = !follow.Active;
 		}
 		if(args.Event.Key == Gdk.Key.p && Control) {
 			Shared.Paused = !Shared.Paused;

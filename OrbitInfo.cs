@@ -6,11 +6,8 @@ namespace Orbit;
 public class OrbitInfo : Gtk.ListBox {
     ComboBoxText massChoose = new();
     ComboBoxText followChoose = new();
-    internal CheckButton toFollow = new("Follow");
-    Entry trailLength;
-    CheckButton trailDraw;
-    OrderedDictionary theRest = new();
-    int selectedMassIndex = -1;
+    List<Widget> PrimaryWidgets = new();
+    OrderedDictionary UpdatableWidgets = new();
     MassInfo selectedMass = new();
     int expectedNumberOfMasses = 0;
     static readonly string[] UpdateKeys = {"position", "velocity", "mass"};
@@ -26,7 +23,8 @@ public class OrbitInfo : Gtk.ListBox {
 
         HBox massBox = new();
         massBox.Add(massChoose);
-       
+        
+        CheckButton toFollow = new("Follow");
         toFollow.Toggled += (object? o, EventArgs a) => {
             if(toFollow.Active) {
                 Shared.trackedMass = massChoose.Active - 1;
@@ -38,54 +36,53 @@ public class OrbitInfo : Gtk.ListBox {
         massBox.Add(toFollow);
         Add(massBox);
 
-        theRest.Add("separator1", new Separator(Orientation.Horizontal));
+        UpdatableWidgets.Add("toFollow", toFollow);
 
-        Label nameLabel = new("Name");
-        theRest.Add("nameLabel", nameLabel);
+        PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
+
+        PrimaryWidgets.Add(new Label("Name"));
         Entry name = new();
-
+        UpdatableWidgets.Add("name", name);
+        PrimaryWidgets.Add(name);
         name.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(4).GrabFocus();
-            Shared.drawingCopy[selectedMassIndex].name = name.Text;
+            Shared.drawingCopy[Shared.selectedMassIndex].name = name.Text;
             RefreshMassChoose();
         };
-        theRest.Add("name", name);
-        theRest.Add("separator2", new Separator(Orientation.Horizontal));
 
-        Label positionLabel = new("Position (km)");
-        theRest.Add("positionLabel", positionLabel);
+        PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
+
+        PrimaryWidgets.Add(new Label("Position (km)"));
         Entry position = new();
+        UpdatableWidgets.Add("position", position);
+        PrimaryWidgets.Add(position);
         position.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(7).GrabFocus();
-            Shared.changesToMake.Push(new string[] {"position", position.Text, selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"position", position.Text, Shared.selectedMassIndex.ToString()});
         };
 
-        theRest.Add("position", position);
+        PrimaryWidgets.Add(new Label("Velocity (km/s)"));
 
-        Label velocityLabel = new("Velocity (km/s)");
-        theRest.Add("velocityLabel", velocityLabel);
         Entry velocity = new();
+        UpdatableWidgets.Add("velocity", velocity);
+        PrimaryWidgets.Add(velocity);
         velocity.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(9).GrabFocus();
-            Shared.changesToMake.Push(new string[] {"velocity", velocity.Text, selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"velocity", velocity.Text, Shared.selectedMassIndex.ToString()});
         };
-        theRest.Add("velocity", velocity);
 
-        Label massLabel = new("Mass (Gg)");
-        theRest.Add("massLabel", massLabel);
+        PrimaryWidgets.Add(new Label("Mass (Gg)"));
         Entry mass = new();
+        UpdatableWidgets.Add("mass", mass);
+        PrimaryWidgets.Add(mass);
         mass.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(11).GrabFocus();
-            Shared.changesToMake.Push(new string[] {"mass", mass.Text, selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"mass", mass.Text, Shared.selectedMassIndex.ToString()});
         };
-        theRest.Add("mass", mass);
 
+        PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
 
-        theRest.Add("separator3", new Separator(Orientation.Horizontal));
-
-        HBox followBox = new();
-        Label trailFollowLabel = new("Length");
-        trailDraw = new("Draw");
+        CheckButton trailDraw = new("Draw");
         trailDraw.Toggled += (object? o, EventArgs a) => {
             selectedMass.hasTrail = trailDraw.Active;
         };
@@ -94,15 +91,16 @@ public class OrbitInfo : Gtk.ListBox {
         trailBox.Add(new Label("Trail"));
         trailBox.Add(followChoose);
         
-        theRest.Add("trailBox", trailBox);
+        PrimaryWidgets.Add(trailBox);
+        UpdatableWidgets.Add("followChoose", followChoose);
+        UpdatableWidgets.Add("trailDraw", trailDraw);
 
-        followBox.Add(trailFollowLabel);
-        trailLength = new();
+        Entry trailLength = new();
         trailLength.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(14).GrabFocus();
             if(int.TryParse(trailLength.Text, out int result)) {
                 if(result > 0) {
-                    Shared.changesToMake.Push(new string[] {"trail length", trailLength.Text, selectedMassIndex.ToString()});
+                    Shared.changesToMake.Push(new string[] {"trail length", trailLength.Text, Shared.selectedMassIndex.ToString()});
                 }
             }
             //Reset text to actual value
@@ -111,23 +109,26 @@ public class OrbitInfo : Gtk.ListBox {
             }
         };
         trailLength.WidthChars = 2;
+
+        HBox followBox = new();
+        followBox.Add(new Label("Length"));
         followBox.Add(trailLength);
         followBox.Add(trailDraw);
-        theRest.Add("followBox", followBox);
 
-        //theRest.Add("followChoose", followChoose);
+        PrimaryWidgets.Add(followBox);
+        UpdatableWidgets.Add("trailLength", trailLength);
 
         followChoose.Changed += (object? o, EventArgs args) => {
-            if(followChoose.Active != -1 && selectedMassIndex != -1) {
-                int index = followChoose.Active - 1 < selectedMassIndex ? followChoose.Active - 1: followChoose.Active;
-                Shared.changesToMake.Push(new string[] {"trail follow", index.ToString(), selectedMassIndex.ToString()});
+            if(followChoose.Active != -1 && Shared.selectedMassIndex != -1) {
+                int index = followChoose.Active - 1 < Shared.selectedMassIndex ? followChoose.Active - 1: followChoose.Active;
+                Shared.changesToMake.Push(new string[] {"trail follow", index.ToString(), Shared.selectedMassIndex.ToString()});
             }
         };
         massChoose.Changed += (object? o, EventArgs args) => {
             OnChooseMass();
         };
 
-        foreach(Widget w in theRest.Values) {
+        foreach(Widget w in PrimaryWidgets) {
             Add(w);
             w.Hide();
         }
@@ -159,15 +160,15 @@ public class OrbitInfo : Gtk.ListBox {
 
     private void OnChooseMass() {
         //Would otherwise be set to -2 during initialization
-        selectedMassIndex = Math.Max(-1, massChoose.Active - 1);
+        Shared.selectedMassIndex = Math.Max(-1, massChoose.Active - 1);
         
-        if(selectedMassIndex > -1) {
-            foreach(Widget w in theRest.Values) {
+        if(Shared.selectedMassIndex > -1) {
+            foreach(Widget w in PrimaryWidgets) {
                 w.Show();
             }
-            selectedMass = Shared.drawingCopy[selectedMassIndex];
-            ((Entry)theRest["name"]!).Text = selectedMass.name;
-            trailDraw.Active = selectedMass.hasTrail;
+            selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];
+            ((Entry)UpdatableWidgets["name"]!).Text = selectedMass.name;
+            ((ToggleButton)UpdatableWidgets["trailDraw"]!).Active = selectedMass.hasTrail;
 
             //Update the follow trail mass list
             followChoose.RemoveAll();
@@ -175,35 +176,35 @@ public class OrbitInfo : Gtk.ListBox {
 
             for(int i = 0; i < Shared.massObjects; i++) {
                 MassInfo m = Shared.drawingCopy[i];
-                if(m.name.Length > 15 && m.index != selectedMassIndex) {
+                if(m.name.Length > 15 && m.index != Shared.selectedMassIndex) {
                     followChoose.AppendText(m.name.Substring(0,13) + "..");
                 }
-                else if (m.index != selectedMassIndex) {
+                else if (m.index != Shared.selectedMassIndex) {
                     followChoose.AppendText(m.name);
                 }
             }
-            followChoose.Active = selectedMass.followingIndex <= selectedMassIndex ? selectedMass.followingIndex + 1: selectedMass.followingIndex;
+            followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            trailLength.Text = selectedMass.trail.Length.ToString();
+            ((Entry)UpdatableWidgets["trailLength"]!).Text = selectedMass.trail.Length.ToString();
 
         }
         else {
-            foreach(Widget w in theRest.Values) {
+            foreach(Widget w in PrimaryWidgets) {
                 w.Hide();
             }
         }
-        if(toFollow.Active) {
+        if(((CheckButton)UpdatableWidgets["toFollow"]!).Active) {
             Shared.trackedMass = massChoose.Active - 1;
         }
     }
     internal string UIString(string key) {
         switch(key) {
             case "position":
-                return selectedMass.position.ToRoundedString();
+                return selectedMass.position.ToScientificString();
             case "velocity":
                 return selectedMass.velocity.ToRoundedString(digits: 3);
             case "mass":
-                return selectedMass.mass.ToString();
+                return selectedMass.mass.ToString("E2");
             default:
                 return "";
         }
@@ -215,11 +216,11 @@ public class OrbitInfo : Gtk.ListBox {
             RefreshMassChoose();
             expectedNumberOfMasses = Shared.massObjects;
         }
-        if(selectedMassIndex == -1) { return; }
-        selectedMass = Shared.drawingCopy[selectedMassIndex];
-
+        if(Shared.selectedMassIndex == -1) { return; }
+        selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];
+        
         foreach(string s in UpdateKeys) {
-            Entry row = (Entry)theRest[s]!;
+            Entry row = (Entry)UpdatableWidgets[s]!;
             if(!row.IsFocus) {
                 row.Text = UIString(s);
             }
@@ -227,8 +228,11 @@ public class OrbitInfo : Gtk.ListBox {
     }
 
     internal void InitHide() {
-        foreach(Widget w in theRest.Values) {
+        foreach(Widget w in PrimaryWidgets) {
             w.Hide();
         }
+    }
+    internal Widget GetWidget(string key) { 
+        return (Widget)UpdatableWidgets[key]!;
     }
 }

@@ -45,8 +45,11 @@ public struct Vector2d
     {
         return "(" + X + ", " + Y + ")";
     }
-    public string ToRoundedString(int digits = 0)
+    public string ToScientificString(int digits = 0)
     {
-        return "(" + Math.Round(X, digits) + ", " + Math.Round(Y, digits) + ")";
+        return "(" + Math.Round(X, digits).ToString("E3") + ", " + Math.Round(Y, digits).ToString("E3") + ")";
+    }
+    public string ToRoundedString(int digits = 0) {
+        return "(" + Math.Round(X, digits).ToString() + ", " + Math.Round(Y, digits).ToString() + ")";
     }
 }

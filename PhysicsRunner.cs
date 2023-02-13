@@ -33,6 +33,11 @@ internal class PhysicsRunner {
                 case "new mass":
                     AddMass(new Mass(1e+18,new Vector2d(), new Vector2d()));
                     break;
+                case "remove mass":
+                    int index = Convert.ToInt32(change[2]);
+                    masses.RemoveAt(index);
+                    Shared.RemoveMass(index);
+                    break;
                 case "trail follow":
                     if(mass.followingIndex != Convert.ToInt32(change[1])) {
                         mass.followingIndex = Convert.ToInt32(change[1]);
@@ -63,7 +68,6 @@ internal class PhysicsRunner {
                         }
                     }
                     break;
-                    
             }
         }
     }
