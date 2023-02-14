@@ -99,7 +99,6 @@ internal class PhysicsRunner {
     }
     internal void Update(double deltaTime)
     {
-            //Shared.ReadyWorkingCopy();
             foreach(Mass m in masses) {
                 MassInfo mi = m.mi;
                 if(mi.stationary) { continue; }

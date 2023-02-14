@@ -27,10 +27,12 @@ internal static class Shared {
         for(int i = index + 1; i < massObjects; i++) {
             massInfos.Remove(i, out MassInfo? m);
             m!.index = i-1;
+            m!.followingIndex = Math.Max(-1, m!.followingIndex - 1);
             massInfos.AddOrUpdate(i-1, m, (key, oldValue) => m);
             
             drawingCopy.Remove(i, out MassInfo? mm);
             mm!.index = i-1;
+            m!.followingIndex = Math.Max(-1, m!.followingIndex - 1);
             drawingCopy.AddOrUpdate(i-1, mm, (key, oldValue) => mm);
 
         }
