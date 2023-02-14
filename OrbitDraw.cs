@@ -48,7 +48,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
-			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.06 : 0.06) * OrbitSettings.ZoomSensitivity);
+			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.08 : 0.08) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(0.001, scale); //Limit to 1px per meter
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}

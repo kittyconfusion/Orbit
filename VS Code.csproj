@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>&#xD;
+  <ItemGroup>&#xD;&#xD;
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.38"/>

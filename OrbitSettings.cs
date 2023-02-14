@@ -14,10 +14,13 @@ public class OrbitSettings : Gtk.ListBox {
         MenuBar optionMenu = new MenuBar();
         MenuItem add = new MenuItem("Add");
         MenuItem remove = new MenuItem("Remove");
+        MenuItem load = new MenuItem("Load");
         Menu addMenu = new();
         Menu removeMenu = new();
+        Menu loadMenu = new();
         add.Submenu = addMenu;
         remove.Submenu = removeMenu;
+        load.Submenu = loadMenu;
 
         MenuItem newMass = new("New Mass");
         newMass.Activated += (object? o, EventArgs e) => {
@@ -43,16 +46,35 @@ public class OrbitSettings : Gtk.ListBox {
                 m.Destroy();
                 if (result == Gtk.ResponseType.Ok)
                 {
-                    for(int i = 0; i < Shared.massObjects; i++) {
-                        Shared.changesToMake.Push(new string[] {"remove mass", "", i.ToString()});
-                    }
+                    Shared.changesToMake.Push(new string[] {"remove all masses", "", "-1"});
                 }
         };
         removeMenu.Append(removeCurrentMass);
         removeMenu.Append(removeAllMasses);
 
+        MenuItem loadPreset = new("Preset");
+        Menu presets = new();
+        loadPreset.Submenu = presets;
+        loadMenu.Append(loadPreset);
+
+        MenuItem solarSystem = new("Solar System");
+        presets.Append(solarSystem);
+        solarSystem.Activated += (object? o, EventArgs e) => {
+            Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
+        };
+
+        MenuItem hulseTaylor = new ("Hulse-Taylor binary (not correct)");
+        presets.Append(hulseTaylor);
+        hulseTaylor.Activated += (object? o, EventArgs e) => {
+            Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
+            timeUnits!.Active = 1;
+            timeScale!.Value = 30;
+            ChangeTime();
+        };
+
         optionMenu.Append(add);
         optionMenu.Append(remove);
+        optionMenu.Append(load);
 
         VBox vbox = new VBox(false, 2);
         vbox.PackStart(optionMenu, false, false, 0);
@@ -82,7 +104,7 @@ public class OrbitSettings : Gtk.ListBox {
         ChangeTime();
         
         Label sensitivityLabel = new("Zoom Sensitivity");
-        HScale sensitivity = new(0.5, 4, 0.1);
+        HScale sensitivity = new(0.5, 5, 0.1);
         sensitivity.Value = 1;
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);

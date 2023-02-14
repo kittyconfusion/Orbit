@@ -38,6 +38,9 @@ internal class PhysicsRunner {
                     masses.RemoveAt(index);
                     Shared.RemoveMass(index);
                     break;
+                case "remove all masses":
+                    ClearAllMasses();
+                    break;
                 case "trail follow":
                     if(mass.followingIndex != Convert.ToInt32(change[1])) {
                         mass.followingIndex = Convert.ToInt32(change[1]);
@@ -68,7 +71,17 @@ internal class PhysicsRunner {
                         }
                     }
                     break;
+                case "load preset":
+                    ClearAllMasses();
+                    LoadPreset(change[1]);
+                    break;
             }
+        }
+    }
+    internal void ClearAllMasses() {
+        for(int i = Shared.massObjects - 1; i >= 0; i--) {
+            masses.RemoveAt(i);
+            Shared.RemoveMass(i);
         }
     }
     internal Vector2d ParseVector2dFromString(string s, Vector2d ifNull) {
@@ -135,6 +148,29 @@ internal class PhysicsRunner {
     private double CalculateDistance(double x, double y)
     {
         return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+    }
+    internal void LoadPreset(string name) {
+        switch (name){
+            case "solar system":
+                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: false));
+                
+                AddMass(new Mass (0.330 * Math.Pow(10,18), new Vector2d(47.4, 0),  new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50));
+                AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSteps: 100));
+                AddMass(new Mass (5.9736* Math.Pow(10,18), new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 0));
+                AddMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50));
+                AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSteps: 200, trailSkip: 25));
+
+                AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSteps: 225, trailSkip: 70));
+                AddMass(new Mass ( 568  * Math.Pow(10,18), new Vector2d( 9.7, 0), new Vector2d(0,1432000000), name: "Saturn",  trailSteps: 250, trailSkip: 140));
+                AddMass(new Mass ( 86.8 * Math.Pow(10,18), new Vector2d( 6.8, 0), new Vector2d(0,2867000000), name: "Uranus",  trailSteps: 275, trailSkip: 200));
+                AddMass(new Mass ( 102  * Math.Pow(10,18), new Vector2d( 5.4, 0), new Vector2d(0,4515000000), name: "Neptune", trailSteps: 300, trailSkip: 300));
+                break;
+
+            case "hulse-taylor binary":
+                AddMass(new Mass(Constant.MassOfSun * 1.387, new Vector2d(0, 110), new Vector2d(7466000/2, 0), name: "Neutron Star", trailSteps: 800, trailSkip: 2));
+                AddMass(new Mass(Constant.MassOfSun * 1.441, new Vector2d(0, -110), new Vector2d(-746600/2, 0), name: "Pulsar", trailSteps: 800, trailSkip: 2));
+                break;
+        }
     }
 }
 
