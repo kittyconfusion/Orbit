@@ -82,41 +82,52 @@ public class OrbitInfo : Gtk.ListBox {
 
         PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
 
-        CheckButton trailDraw = new("Draw");
-        trailDraw.Toggled += (object? o, EventArgs a) => {
-            selectedMass.hasTrail = trailDraw.Active;
-        };
-        
         HBox trailBox = new();
         trailBox.Add(new Label("Trail"));
         trailBox.Add(followChoose);
         
         PrimaryWidgets.Add(trailBox);
         UpdatableWidgets.Add("followChoose", followChoose);
-        UpdatableWidgets.Add("trailDraw", trailDraw);
 
-        Entry trailLength = new();
-        trailLength.Activated += (object? o, EventArgs a) => {
-            GetRowAtIndex(14).GrabFocus();
-            if(int.TryParse(trailLength.Text, out int result)) {
-                if(result > 0) {
-                    Shared.changesToMake.Push(new string[] {"trail length", trailLength.Text, Shared.selectedMassIndex.ToString()});
-                }
-            }
-            //Reset text to actual value
-            else {
-                trailLength.Text = selectedMass.trail.Length.ToString();
-            }
+        HScale trailLength = new(1, 1000, 50);
+        trailLength.ValueChanged += (object? o, EventArgs args) => {
+            Shared.changesToMake.Push(new string[] {"trail length", trailLength.Value.ToString(), Shared.selectedMassIndex.ToString()});
+            UpdateTrailTimeEstimate(selectedMass.trailSkip, trailLength.Value);
         };
-        trailLength.WidthChars = 2;
 
-        HBox followBox = new();
-        followBox.Add(new Label("Length"));
-        followBox.Add(trailLength);
-        followBox.Add(trailDraw);
+        HBox trailLengthBox = new();
+        trailLengthBox.Add(new Label("Length"));
+        trailLengthBox.Add(new Label("Quality"));
 
-        PrimaryWidgets.Add(followBox);
+        PrimaryWidgets.Add(trailLengthBox);
         UpdatableWidgets.Add("trailLength", trailLength);
+
+        HScale trailQuality = new(1, 10, 1);
+        trailQuality.ValueChanged += (object? o, EventArgs args) => {
+            Shared.changesToMake.Push(new string[] {"trail skip", Math.Pow(2, 10 - trailQuality.Value).ToString(), Shared.selectedMassIndex.ToString()});
+            UpdateTrailTimeEstimate(Math.Pow(2, 10 - trailQuality.Value), selectedMass.trail.Length);
+        };
+
+        HBox trailQualityBox = new();
+        trailQualityBox.Add(trailLength);
+        trailQualityBox.Add(trailQuality);
+
+        PrimaryWidgets.Add(trailQualityBox);
+        UpdatableWidgets.Add("trailQuality", trailQuality);
+
+        HBox trailInfoDrawBox = new();
+
+        CheckButton trailDraw = new("Draw");
+        trailDraw.Toggled += (object? o, EventArgs a) => {
+            selectedMass.hasTrail = trailDraw.Active;
+        };
+        Label trailTime = new();
+        trailInfoDrawBox.Add(trailDraw);
+        trailInfoDrawBox.Add(trailTime);
+        
+        PrimaryWidgets.Add(trailInfoDrawBox);
+        UpdatableWidgets.Add("trailDraw", trailDraw);
+        UpdatableWidgets.Add("trailTime", trailTime);
 
         followChoose.Changed += (object? o, EventArgs args) => {
             if(followChoose.Active != -1 && Shared.selectedMassIndex != -1) {
@@ -185,7 +196,9 @@ public class OrbitInfo : Gtk.ListBox {
             }
             followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            ((Entry)UpdatableWidgets["trailLength"]!).Text = selectedMass.trail.Length.ToString();
+            ((HScale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length;
+            ((HScale)UpdatableWidgets["trailQuality"]!).Value = 10 - Math.Log2(selectedMass.trailSkip);
+            UpdateTrailTimeEstimate(selectedMass.trailSkip, selectedMass.trail.Length);
 
         }
         else {
@@ -196,6 +209,9 @@ public class OrbitInfo : Gtk.ListBox {
         if(((CheckButton)UpdatableWidgets["toFollow"]!).Active) {
             Shared.trackedMass = massChoose.Active - 1;
         }
+    }
+    internal void UpdateTrailTimeEstimate(double trailSkip, double trailLength) {
+        ((Label)UpdatableWidgets["trailTime"]!).Text = (Math.Round(trailSkip * (trailLength - 1) / 30, 1)).ToString() + " weeks";
     }
     internal string UIString(string key) {
         switch(key) {
