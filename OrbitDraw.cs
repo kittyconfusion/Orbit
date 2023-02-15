@@ -121,6 +121,10 @@ public class OrbitDraw : Gtk.DrawingArea {
     }
 	private int MassToRadius(double mass, double inverseScale)
 		=> Math.Max(0, (int)(Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
+	private double MassToGlyphSize(double mass, double inverseScale) {
+		double size = Math.Min(28, Math.Log(mass) + 1.65 * Math.Log(inverseScale) - 4.5);
+		return size >= 10 ? size : 0;
+	}
 	private Vector2d WorldToScreen(Vector2d point, double inverseScale, Vector2d drawOffset, Vector2d windowCenter) 
 		=> ((point - drawOffset) * inverseScale) + windowCenter;
 }
