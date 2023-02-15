@@ -49,7 +49,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
 			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.08 : 0.08) * OrbitSettings.ZoomSensitivity);
-			scale = Math.Max(0.001, scale); //Limit to 1px per meter
+			scale = Math.Max(5, scale); //Limit to 1px per 5km
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
 	}
@@ -106,14 +106,26 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 				cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
 				cr.StrokePreserve(); //Saves circle for filling in
-				cr.Fill(); //Currently fills with same color as outline
+				
+				double radius = MassToGlyphSize(m.mass, inverseScale);
+				if (radius > 0) {		
+					cr.SetFontSize((int)Math.Min(30, radius));
+					cr.ShowText(m.name);
+				}
+
+				cr.Fill(); //Currently fills with same color as outline				
 			}
 			
 			cr.GetTarget().Dispose();
         }
     }
-	private int MassToRadius(double mass, double inverseScale)
-		=> Math.Max(0, (int)(Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
+	private double MassToRadius(double mass, double inverseScale)
+		=> Math.Max(0, (Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
+	private double MassToGlyphSize(double mass, double inverseScale) {
+		double size = Math.Log(mass) + 1.75 * Math.Log(inverseScale) - 5.5;
+		return size >= 8 ? size : 0;
+	}
+
 	private Vector2d WorldToScreen(Vector2d point, double inverseScale, Vector2d drawOffset, Vector2d windowCenter) 
 		=> ((point - drawOffset) * inverseScale) + windowCenter;
 }
