@@ -89,10 +89,10 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailBox);
         UpdatableWidgets.Add("followChoose", followChoose);
 
-        HScale trailLength = new(1, 1000, 50);
+        Scale trailLength = new(Orientation.Horizontal, 0, 1000, 10);
         trailLength.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail length", trailLength.Value.ToString(), Shared.selectedMassIndex.ToString()});
-            UpdateTrailTimeEstimate(selectedMass.trailSkip, trailLength.Value);
+            Shared.changesToMake.Push(new string[] {"trail length", Math.Max(1,trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
+            UpdateTrailTimeEstimate(selectedMass.trailSkip, Math.Max(1,trailLength.Value));
         };
 
         HBox trailLengthBox = new();
@@ -102,7 +102,7 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailLengthBox);
         UpdatableWidgets.Add("trailLength", trailLength);
 
-        HScale trailQuality = new(1, 10, 1);
+        Scale trailQuality = new(Orientation.Horizontal, 1, 10, 1);
         trailQuality.ValueChanged += (object? o, EventArgs args) => {
             Shared.changesToMake.Push(new string[] {"trail skip", Math.Pow(2, 10 - trailQuality.Value).ToString(), Shared.selectedMassIndex.ToString()});
             UpdateTrailTimeEstimate(Math.Pow(2, 10 - trailQuality.Value), selectedMass.trail.Length);
@@ -196,8 +196,8 @@ public class OrbitInfo : Gtk.ListBox {
             }
             followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            ((HScale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length;
-            ((HScale)UpdatableWidgets["trailQuality"]!).Value = 10 - Math.Log2(selectedMass.trailSkip);
+            ((Scale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length;
+            ((Scale)UpdatableWidgets["trailQuality"]!).Value = 10 - Math.Log2(selectedMass.trailSkip);
             UpdateTrailTimeEstimate(selectedMass.trailSkip, selectedMass.trail.Length);
 
         }

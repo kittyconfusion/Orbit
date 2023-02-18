@@ -70,7 +70,8 @@ public class OrbitDraw : Gtk.DrawingArea {
 		using (var cr = args.Cr)
         {
 			cr.LineWidth = 2;
-			cr.SetSourceRGB(0.6,0.6,0.6);
+			cr.SetSourceRGB(0.6, 0.6, 0.6);
+			
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
 				if(!m.hasTrail) { continue; }
@@ -79,19 +80,40 @@ public class OrbitDraw : Gtk.DrawingArea {
 				int trailOffset = m.trailOffset;
 				int trailLength = trail.Length;
 
-				double transPerLine = 1f / trail.Length;
+				double transparency = 0;
 				
+				int perUpdate = trailLength / 10;
+				int counter = 0;
+
 				if(m.followingIndex != -1) {
 					Vector2d followingPosition = Shared.drawingCopy[m.followingIndex].position;
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
 						cr.LineTo(point.X, point.Y);
+
+						if(counter > perUpdate) {
+							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+							cr.Stroke();
+							counter = -1;
+							transparency += 0.1;
+							i--;
+						}
+						counter++;
 					}
 				}
 				else {
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
 						cr.LineTo(point.X, point.Y);
+						if(counter > perUpdate) {
+							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+							cr.Stroke();
+							counter = -1;
+							transparency += 0.1;
+							i--;
+						}
+						counter++;
+						
 					}
 				}
 				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);

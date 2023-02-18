@@ -4,7 +4,7 @@ namespace Orbit;
 
 public class OrbitSettings : Gtk.ListBox {
     ComboBoxText timeUnits;
-    HScale timeScale;
+    Scale timeScale;
     internal CheckButton paused;
     public static double ZoomSensitivity = 1;
     public OrbitSettings() {
@@ -96,7 +96,7 @@ public class OrbitSettings : Gtk.ListBox {
         time.Add(paused);
         Add(time);
         
-        timeScale = new(0,52,1);
+        timeScale = new(Orientation.Horizontal, 0,52,1);
         timeScale.ValueChanged += (object? o, EventArgs args) => {ChangeTime();}; 
         Add(timeScale);
 
@@ -104,7 +104,7 @@ public class OrbitSettings : Gtk.ListBox {
         ChangeTime();
         
         Label sensitivityLabel = new("Zoom Sensitivity");
-        HScale sensitivity = new(0.5, 5, 0.1);
+        Scale sensitivity = new(Orientation.Horizontal, 0.5, 5, 0.1);
         sensitivity.Value = 1;
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
