@@ -12,15 +12,34 @@ public class OrbitSettings : Gtk.ListBox {
         SelectionMode = SelectionMode.None;
 
         MenuBar optionMenu = new MenuBar();
-        MenuItem add = new MenuItem("Add");
-        MenuItem remove = new MenuItem("Remove");
+
+        MenuItem mass = new MenuItem("Mass");
         MenuItem load = new MenuItem("Load");
+        MenuItem view = new MenuItem("View");
+
+        Menu massMenu = new();
+        Menu loadMenu = new();
+        Menu viewMenu = new();
+
+        optionMenu.Append(mass);
+        optionMenu.Append(load);
+        optionMenu.Append(view);
+        
+        mass.Submenu = massMenu;
+        load.Submenu = loadMenu;
+        view.Submenu = viewMenu;
+
+        MenuItem add = new("Add Mass");
+        MenuItem remove = new("Remove Mass");
+
         Menu addMenu = new();
         Menu removeMenu = new();
-        Menu loadMenu = new();
+
         add.Submenu = addMenu;
         remove.Submenu = removeMenu;
-        load.Submenu = loadMenu;
+
+        massMenu.Append(add);
+        massMenu.Append(remove);
 
         MenuItem newMass = new("New Mass");
         newMass.Activated += (object? o, EventArgs e) => {
@@ -72,9 +91,11 @@ public class OrbitSettings : Gtk.ListBox {
             ChangeTime();
         };
 
-        optionMenu.Append(add);
-        optionMenu.Append(remove);
-        optionMenu.Append(load);
+        MenuItem drawTrails = new("Set all trail draw");
+        MenuItem resetTrailsToMass = new("Set all trail follow");
+
+        viewMenu.Append(drawTrails);
+        viewMenu.Append(resetTrailsToMass);
 
         VBox vbox = new VBox(false, 2);
         vbox.PackStart(optionMenu, false, false, 0);
