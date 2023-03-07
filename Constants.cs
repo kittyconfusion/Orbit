@@ -50,4 +50,8 @@ public struct Vector2d
     public string ToRoundedString(int digits = 0) {
         return "(" + Math.Round(X, digits).ToString() + ", " + Math.Round(-Y, digits).ToString() + ")";
     }
+    public Vector2d ToAstronomicalUnits() 
+        => new Vector2d(X / 149600000, Y / 149600000);
+    public Vector2d ToKmUnits()
+        => new Vector2d(X * 149600000, Y * 149600000);
 }

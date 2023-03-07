@@ -9,8 +9,9 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private Vector2d offset = new();
 	private Vector2d lastMouse = new();
 	private bool moved = false;
+	OrbitSessionSettings se;
 
-    public OrbitDraw(OrbitInfo infoWindow)
+    public OrbitDraw(OrbitInfo infoWindow, OrbitSessionSettings se)
     {
 		//ExposeEvent has been replaced with Drawn in GDK 3
 		Drawn += new DrawnHandler(Draw);
@@ -25,6 +26,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		//Needed for keyboard input
 		CanFocus = true;
 		this.infoWindow = infoWindow;
+		this.se = se;
     }
 
 	private void ClickWindow(object o, ButtonPressEventArgs args) {
@@ -85,7 +87,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 				int perUpdate = trailLength / 10;
 				int counter = 0;
 
-				if(m.followingIndex != -1) {
+				if(m.followingIndex != -1 && se.drawTrails) {
 					Vector2d followingPosition = Shared.drawingCopy[m.followingIndex].position;
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
@@ -101,7 +103,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 						counter++;
 					}
 				}
-				else {
+				else if(se.drawTrails) {
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
 						cr.LineTo(point.X, point.Y);

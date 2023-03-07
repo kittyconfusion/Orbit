@@ -7,9 +7,14 @@ public class OrbitSettings : Gtk.ListBox {
     Scale timeScale;
     internal CheckButton paused;
     public static double ZoomSensitivity = 1;
-    public OrbitSettings() {
+    OrbitSessionSettings se;
+    internal Dictionary<string, MenuItem> MenuButtons = new();
+    public OrbitSettings(OrbitSessionSettings se) {
+        this.se = se;
         WidthRequest = 100;
         SelectionMode = SelectionMode.None;
+
+        //AccelGroup agr = new AccelGroup();
 
         MenuBar optionMenu = new MenuBar();
 
@@ -91,9 +96,50 @@ public class OrbitSettings : Gtk.ListBox {
             ChangeTime();
         };
 
-        MenuItem drawTrails = new("Set all trail draw");
-        MenuItem resetTrailsToMass = new("Set all trail follow");
+        CheckMenuItem globalDrawTrails = new("Draw Trails");
+        globalDrawTrails.Active = se.drawTrails;
+        globalDrawTrails.Toggled += (object? o, EventArgs a) => {se.drawTrails = globalDrawTrails.Active;};
+        MenuButtons.Add("Global Trail Draw", globalDrawTrails);
 
+        MenuItem positionUnits = new("Set Position Unit");
+        Menu positionUnitsMenu = new();
+        positionUnits.Submenu = positionUnitsMenu;
+
+        MenuItem kmOption = new("km");
+        kmOption.Activated += (object? o, EventArgs e) => {
+            se.positionDisplayUnits = "km";
+        };
+        MenuItem auOption = new("AU");
+        auOption.Activated += (object? o, EventArgs e) => {
+            se.positionDisplayUnits = "AU";
+        };
+
+        positionUnitsMenu.Append(auOption);
+        positionUnitsMenu.Append(kmOption);
+
+        //globalDrawTrails.AddAccelerator("activate", agr, new AccelKey(Gdk.Key.t, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
+
+        CheckMenuItem drawTrails        = new("Set All Trail Draw");
+        drawTrails.Active = true;
+        drawTrails.Toggled += (object? o, EventArgs a) => {
+            for(int i = 0; i < Shared.massObjects; i++) {
+                Shared.drawingCopy[i].hasTrail = drawTrails.Active;
+            }
+        };
+        MenuItem resetTrailsToMass = new("Follow Current Mass");
+        resetTrailsToMass.Activated += (object? o, EventArgs a) => {
+
+            for(int i = 0; i < Shared.massObjects; i++) {
+                if(i != Shared.selectedMassIndex) {
+                    Shared.changesToMake.Push(new string[] {"trail follow", Shared.selectedMassIndex.ToString(), i.ToString()});
+                    //Shared.changesToMake.Push(new string[] {"trail follow", i.ToString(), Shared.selectedMassIndex.ToString()});
+                }
+            }
+            
+        };
+
+        viewMenu.Append(globalDrawTrails);
+        viewMenu.Append(positionUnits);
         viewMenu.Append(drawTrails);
         viewMenu.Append(resetTrailsToMass);
 

@@ -18,8 +18,11 @@ internal class PhysicsRunner {
             }
             
             switch(change[0]) {
-                case "position":
+                case "positionkm":
                     mass.position = ParseVector2dFromString(change[1], mass.position);
+                    break;
+                case "positionAU":
+                    mass.position = ParseVector2dFromString(change[1], mass.position.ToAstronomicalUnits()).ToKmUnits();
                     break;
                 case "velocity":
                     mass.velocity = ParseVector2dFromString(change[1], mass.velocity);
@@ -166,8 +169,8 @@ internal class PhysicsRunner {
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSteps: 200, trailSkip: 64, followingIndex: 0));
                 AddMass(new Mass ( 568  * Math.Pow(10,18), new Vector2d( 9.7, 0), new Vector2d(0,1432000000), name: "Saturn",  trailSteps: 250, trailSkip: 128, followingIndex: 0));
-                AddMass(new Mass ( 86.8 * Math.Pow(10,18), new Vector2d( 6.8, 0), new Vector2d(0,2867000000), name: "Uranus",  trailSteps: 250, trailSkip: 256, followingIndex: 0));
-                AddMass(new Mass ( 102  * Math.Pow(10,18), new Vector2d( 5.4, 0), new Vector2d(0,4515000000), name: "Neptune", trailSteps: 300, trailSkip: 256, followingIndex: 0));
+                AddMass(new Mass ( 86.8 * Math.Pow(10,18), new Vector2d( 6.8, 0), new Vector2d(0,2867000000), name: "Uranus",  trailSteps: 275, trailSkip: 128, followingIndex: 0));
+                AddMass(new Mass ( 102  * Math.Pow(10,18), new Vector2d( 5.4, 0), new Vector2d(0,4515000000), name: "Neptune", trailSteps: 300, trailSkip: 128, followingIndex: 0));
                 break;
 
             case "hulse-taylor binary":

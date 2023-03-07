@@ -6,9 +6,12 @@ class App : Gtk.Window
     OrbitDraw da;
 	OrbitInfo li;
 	OrbitSettings os;
+	OrbitSessionSettings se;
 	bool Control = false;
     public App() : base("Orbit 🐱‍🏍")
     {
+		se = new();
+
         SetDefaultSize(950, 600);
         SetPosition(WindowPosition.Center);
         DeleteEvent += delegate { Shared.Running = false; Application.Quit(); };
@@ -19,15 +22,15 @@ class App : Gtk.Window
 		p2.WidthRequest = 650;
 		
 		Frame infoFrame = new Frame();
-		li = new OrbitInfo();
+		li = new OrbitInfo(se);
 		infoFrame.Add(li);
 
 		Frame settingsFrame = new Frame();
-		os = new();
+		os = new(se);
 		settingsFrame.Add(os);
 
 		Frame drawFrame = new Frame();
-		da = new OrbitDraw(li);
+		da = new OrbitDraw(li, se);
 		drawFrame.Add (da);
 		da.WidthRequest = 400;
 
@@ -77,5 +80,14 @@ class App : Gtk.Window
 		if(args.Event.Key == Gdk.Key.Control_L || args.Event.Key == Gdk.Key.Control_R) {
 			Control = false;
 		}
+		if(args.Event.Key == Gdk.Key.t && Control) {
+			se.drawTrails = !se.drawTrails;
+			((CheckMenuItem)os.MenuButtons["Global Trail Draw"]!).Active = se.drawTrails;
+		}
 	}
+}
+
+public class OrbitSessionSettings {
+	public bool drawTrails = true;
+	public string positionDisplayUnits = "AU";
 }

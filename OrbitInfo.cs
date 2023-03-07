@@ -11,7 +11,9 @@ public class OrbitInfo : Gtk.ListBox {
     MassInfo selectedMass = new();
     int expectedNumberOfMasses = 0;
     static readonly string[] UpdateKeys = {"position", "velocity", "mass"};
-    public OrbitInfo() {
+    OrbitSessionSettings se;
+    public OrbitInfo(OrbitSessionSettings se) {
+        this.se = se;
         WidthRequest = 140;
         SelectionMode = SelectionMode.None;
 
@@ -52,16 +54,21 @@ public class OrbitInfo : Gtk.ListBox {
 
         PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
 
-        PrimaryWidgets.Add(new Label("Position (km)"));
+        Label positionLabel = new("Position (AU)");
+        UpdatableWidgets.Add("positionLabel", positionLabel);
+        PrimaryWidgets.Add(positionLabel);
+
         Entry position = new();
         UpdatableWidgets.Add("position", position);
         PrimaryWidgets.Add(position);
         position.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(7).GrabFocus();
-            Shared.changesToMake.Push(new string[] {"position", position.Text, Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"position" + se.positionDisplayUnits, position.Text, Shared.selectedMassIndex.ToString()});
         };
 
-        PrimaryWidgets.Add(new Label("Velocity (km/s)"));
+        Label velocityLabel = new("Velocity (km/s)");
+        UpdatableWidgets.Add("velocityLabel", velocityLabel);
+        PrimaryWidgets.Add(velocityLabel);
 
         Entry velocity = new();
         UpdatableWidgets.Add("velocity", velocity);
@@ -216,11 +223,19 @@ public class OrbitInfo : Gtk.ListBox {
     internal string UIString(string key) {
         switch(key) {
             case "position":
-                return selectedMass.position.ToScientificString();
+                if(se.positionDisplayUnits == "AU") {
+                    return selectedMass.position.ToAstronomicalUnits().ToRoundedString(3);
+                }
+                else {
+                    return selectedMass.position.ToScientificString();
+                }
+
             case "velocity":
                 return selectedMass.velocity.ToRoundedString(digits: 3);
             case "mass":
                 return selectedMass.mass.ToString("E2");
+            case "positionLabel":
+                return "Position (" + se.positionDisplayUnits + ")";
             default:
                 return "";
         }
@@ -241,6 +256,13 @@ public class OrbitInfo : Gtk.ListBox {
                 row.Text = UIString(s);
             }
         }
+
+        Label positionLabel = (Label)UpdatableWidgets["positionLabel"]!;
+        
+        if(positionLabel.Text != UIString("positionLabel")) {
+            positionLabel.Text = UIString("positionLabel");
+        }
+
     }
 
     internal void InitHide() {
