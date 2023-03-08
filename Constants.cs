@@ -6,6 +6,7 @@ public static class Constant{
     public static readonly double G = originalG / 1000; // * Math.Pow(10, -6) * Math.Pow(10, -6);
 
     public static readonly double MassOfSun = 1.989  * Math.Pow(10,24);
+    public static readonly double MassOfEarth = 5.9736 * Math.Pow(10,18);
 }
 
 public struct Vector2d

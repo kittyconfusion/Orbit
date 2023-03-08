@@ -105,21 +105,47 @@ public class OrbitSettings : Gtk.ListBox {
         Menu positionUnitsMenu = new();
         positionUnits.Submenu = positionUnitsMenu;
 
-        MenuItem kmOption = new("km");
-        kmOption.Activated += (object? o, EventArgs e) => {
-            se.positionDisplayUnits = "km";
-        };
-        MenuItem auOption = new("AU");
-        auOption.Activated += (object? o, EventArgs e) => {
-            se.positionDisplayUnits = "AU";
-        };
+            MenuItem kmPositionOption = new("km");
+            kmPositionOption.Activated += (object? o, EventArgs e) => {
+                se.positionDisplayUnits = "km";
+            };
+            MenuItem auPositionOption = new("AU");
+            auPositionOption.Activated += (object? o, EventArgs e) => {
+                se.positionDisplayUnits = "AU";
+            };
 
-        positionUnitsMenu.Append(auOption);
-        positionUnitsMenu.Append(kmOption);
+            positionUnitsMenu.Append(auPositionOption);
+            positionUnitsMenu.Append(kmPositionOption);
+
+        MenuItem massUnits = new("Set Mass Unit");
+        Menu massUnitsMenu = new();
+        massUnits.Submenu = massUnitsMenu;
+
+            MenuItem ggMassOption = new("Gg");
+            ggMassOption.Activated += (object? o, EventArgs e) => {
+                se.massDisplayUnits = "Gg";
+            };
+            MenuItem kgMassOption = new("kg");
+            kgMassOption.Activated += (object? o, EventArgs e) => {
+                se.massDisplayUnits = "kg";
+            };
+            MenuItem eaMassOption = new("Earth");
+            eaMassOption.Activated += (object? o, EventArgs e) => {
+                se.massDisplayUnits = "Earth";
+            };
+            MenuItem soMassOption = new("Solar");
+            soMassOption.Activated += (object? o, EventArgs e) => {
+                se.massDisplayUnits = "Solar";
+            };
+
+            massUnitsMenu.Append(eaMassOption);
+            massUnitsMenu.Append(soMassOption);
+            massUnitsMenu.Append(ggMassOption);
+            massUnitsMenu.Append(kgMassOption);
 
         //globalDrawTrails.AddAccelerator("activate", agr, new AccelKey(Gdk.Key.t, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
 
-        CheckMenuItem drawTrails        = new("Set All Trail Draw");
+        CheckMenuItem drawTrails = new("Toggle All Trails");
         drawTrails.Active = true;
         drawTrails.Toggled += (object? o, EventArgs a) => {
             for(int i = 0; i < Shared.massObjects; i++) {
@@ -140,6 +166,7 @@ public class OrbitSettings : Gtk.ListBox {
 
         viewMenu.Append(globalDrawTrails);
         viewMenu.Append(positionUnits);
+        viewMenu.Append(massUnits);
         viewMenu.Append(drawTrails);
         viewMenu.Append(resetTrailsToMass);
 

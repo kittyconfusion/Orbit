@@ -27,10 +27,24 @@ internal class PhysicsRunner {
                 case "velocity":
                     mass.velocity = ParseVector2dFromString(change[1], mass.velocity);
                     break;
-                case "mass":
-                    if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newMass)) {
-                        mass.mass = newMass;
-                        //mass.mass = Double.Parse(change[1] , System.Globalization.NumberStyles.Float);
+                case "massGg":
+                    if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newGgMass)) {
+                        mass.mass = newGgMass;
+                    }
+                    break;
+                case "masskg":
+                    if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newkgMass)) {
+                        mass.mass = newkgMass / Math.Pow(10,6);
+                    }
+                    break;
+                case "massEarth":
+                    if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newEarthMass)) {
+                        mass.mass = newEarthMass * Constant.MassOfEarth;
+                    }
+                    break;
+                case "massSolar":
+                    if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newSolarMass)) {
+                        mass.mass = newSolarMass * Constant.MassOfSun;
                     }
                     break;
                 case "new mass":
@@ -163,7 +177,7 @@ internal class PhysicsRunner {
                 
                 AddMass(new Mass (0.330 * Math.Pow(10,18), new Vector2d(47.4, 0),  new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50, followingIndex: 0));
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSteps: 100, followingIndex: 0));
-                AddMass(new Mass (5.9736* Math.Pow(10,18), new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
+                AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
                 AddMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSteps: 200, trailSkip: 32, followingIndex: 0));
 

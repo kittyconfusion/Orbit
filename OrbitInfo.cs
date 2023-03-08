@@ -78,13 +78,16 @@ public class OrbitInfo : Gtk.ListBox {
             Shared.changesToMake.Push(new string[] {"velocity", velocity.Text, Shared.selectedMassIndex.ToString()});
         };
 
-        PrimaryWidgets.Add(new Label("Mass (Gg)"));
+        Label massLabel = new("Mass (Earth)");
+        UpdatableWidgets.Add("massLabel", massLabel);
+        PrimaryWidgets.Add(massLabel);
+        
         Entry mass = new();
         UpdatableWidgets.Add("mass", mass);
         PrimaryWidgets.Add(mass);
         mass.Activated += (object? o, EventArgs a) => {
             GetRowAtIndex(11).GrabFocus();
-            Shared.changesToMake.Push(new string[] {"mass", mass.Text, Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"mass" + se.massDisplayUnits, mass.Text, Shared.selectedMassIndex.ToString()});
         };
 
         PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
@@ -233,9 +236,22 @@ public class OrbitInfo : Gtk.ListBox {
             case "velocity":
                 return selectedMass.velocity.ToRoundedString(digits: 3);
             case "mass":
-                return selectedMass.mass.ToString("E2");
+                switch(se.massDisplayUnits) {
+                    case "Earth":
+                        return (selectedMass.mass / Constant.MassOfEarth).ToString("E2");
+                    case "Solar":
+                        return (selectedMass.mass / Constant.MassOfSun).ToString("E2");
+                    case "Gg":
+                        return selectedMass.mass.ToString("E2");
+                    case "kg":
+                        return (selectedMass.mass * Math.Pow(10,6)).ToString("E2");
+                    default:
+                        return selectedMass.mass.ToString("E2");
+                }
             case "positionLabel":
                 return "Position (" + se.positionDisplayUnits + ")";
+            case "massLabel":
+                return "Mass (" + se.massDisplayUnits + ")";
             default:
                 return "";
         }
@@ -258,11 +274,14 @@ public class OrbitInfo : Gtk.ListBox {
         }
 
         Label positionLabel = (Label)UpdatableWidgets["positionLabel"]!;
-        
         if(positionLabel.Text != UIString("positionLabel")) {
             positionLabel.Text = UIString("positionLabel");
         }
 
+        Label massLabel = (Label)UpdatableWidgets["massLabel"]!;
+        if(massLabel.Text != UIString("massLabel")) {
+            massLabel.Text = UIString("massLabel");
+        }
     }
 
     internal void InitHide() {
