@@ -14,12 +14,14 @@ internal static class Shared {
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentStack<string[]> changesToMake = new();
+    internal static int ignoreNextUpdates = 0;
     internal static void AddMass(MassInfo m) {
         m.index = massObjects;
         massInfos.AddOrUpdate(massObjects, m, (key, oldValue) => m);
         drawingCopy.AddOrUpdate(massObjects, m.FullCopy(), (key, oldValue) => m.FullCopy());
         massObjects++;
     }
+
     internal static void RemoveMass(int index) {
         massInfos.Remove(index, out _);
         drawingCopy.Remove(index, out _);

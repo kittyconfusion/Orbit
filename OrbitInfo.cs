@@ -180,6 +180,7 @@ public class OrbitInfo : Gtk.ListBox {
     }
 
     private void OnChooseMass() {
+        Shared.ignoreNextUpdates = 3;
         //Would otherwise be set to -2 during initialization
         Shared.selectedMassIndex = Math.Max(-1, massChoose.Active - 1);
         
@@ -188,7 +189,7 @@ public class OrbitInfo : Gtk.ListBox {
                 w.Show();
             }
             selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];
-            ((Entry)UpdatableWidgets["name"]!).Text = selectedMass.name;
+            ((Entry)UpdatableWidgets["name"]!).Text = selectedMass.name + Shared.drawingCopy[selectedMass.orbitingBodyIndex].name;
             ((ToggleButton)UpdatableWidgets["trailDraw"]!).Active = selectedMass.hasTrail;
 
             //Update the follow trail mass list
@@ -238,9 +239,9 @@ public class OrbitInfo : Gtk.ListBox {
             case "mass":
                 switch(se.massDisplayUnits) {
                     case "Earth":
-                        return (selectedMass.mass / Constant.MassOfEarth).ToString("E2");
+                        return (selectedMass.mass / Constant.MassOfEarth).ToString("E3");
                     case "Solar":
-                        return (selectedMass.mass / Constant.MassOfSun).ToString("E2");
+                        return (selectedMass.mass / Constant.MassOfSun).ToString("E3");
                     case "Gg":
                         return selectedMass.mass.ToString("E2");
                     case "kg":

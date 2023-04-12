@@ -126,7 +126,9 @@ public class OrbitDraw : Gtk.DrawingArea {
 			//Draw mass circles
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
-				Vector2d point = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
+				Vector2d position = m.satellite && !m.currentlyUpdatingPhysics 
+					? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
+				Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
 
 				cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
 				cr.StrokePreserve(); //Saves circle for filling in

@@ -7,6 +7,22 @@ public static class Constant{
 
     public static readonly double MassOfSun = 1.989  * Math.Pow(10,24);
     public static readonly double MassOfEarth = 5.9736 * Math.Pow(10,18);
+
+    public const int MINUTES = 60;
+    public const int HOURS   = 60 * 60;
+    public const int DAYS    = 60 * 60 * 24;
+    public const int WEEKS   = 60 * 60 * 24 * 7;
+    public const int YEARS   = (int)(60 * 60 * 24 * 365.25);
+
+    internal static double kgToGg(double kg)
+    {
+        return kg / 1000000;
+    }
+
+    internal static double AUtokm(double au)
+    {
+        return au * 149597870.7;
+    }
 }
 
 public struct Vector2d

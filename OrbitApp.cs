@@ -12,7 +12,7 @@ class App : Gtk.Window
     {
 		se = new();
 
-        SetDefaultSize(950, 600);
+        SetDefaultSize(1050, 650);
         SetPosition(WindowPosition.Center);
         DeleteEvent += delegate { Shared.Running = false; Application.Quit(); };
 		
@@ -66,6 +66,9 @@ class App : Gtk.Window
     internal bool UpdateData() {
 		da.QueueDraw();
 		li.Refresh();
+		if(Shared.ignoreNextUpdates > 0) {
+			Shared.ignoreNextUpdates -= 1;
+		}
 		return true;
 	}
 	private void OnKeyRelease(object o, KeyReleaseEventArgs args) {

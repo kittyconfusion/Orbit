@@ -16,7 +16,8 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSteps = 150, int trailSkip = 4, int followingIndex = -1) {
+        bool hasTrail = true, bool stationary = false, int trailSteps = 150, int trailSkip = 4, int followingIndex = -1,
+        int precisionPriorityLimit = -1, bool satellite = false) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;
@@ -27,8 +28,13 @@ internal class Mass{
         mi.followingIndex = followingIndex;
         mi.name = name == "" ? GenerateName() : name;
         mi.trail = new Vector2d[trailSteps];
+        mi.precisionPriorityLimit = precisionPriorityLimit;
+        mi.semiMajorAxisLength = mi.position.Magnitude();
+        mi.satellite = satellite;
+        mi.currentlyUpdatingPhysics = true;
         for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
     }
+    
 
     private string GenerateName()
     {
@@ -59,6 +65,11 @@ internal class MassInfo {
     internal Vector2d velocity;
     internal double mass;
     internal Vector2d position;
+    internal int precisionPriorityLimit;
+    internal double semiMajorAxisLength;
+    internal bool satellite;
+    internal int orbitingBodyIndex;
+    internal bool currentlyUpdatingPhysics;
 
     public MassInfo() {
         trail = new Vector2d[0];
@@ -78,6 +89,8 @@ internal class MassInfo {
         trailOffset = m.trailOffset;
         followingIndex = m.followingIndex;
         trailSkip = m.trailSkip;
+        orbitingBodyIndex = m.orbitingBodyIndex;
+        currentlyUpdatingPhysics = m.currentlyUpdatingPhysics;
     }
     internal void CopyNewInfo(MassInfo m) {
         velocity = m.velocity;
@@ -103,6 +116,10 @@ internal class MassInfo {
         m.mass = mass;
         m.position = position;
         m.followingIndex = followingIndex;
+        m.precisionPriorityLimit = precisionPriorityLimit;
+        m.semiMajorAxisLength = semiMajorAxisLength;
+        m.satellite = satellite;
+        m.orbitingBodyIndex = orbitingBodyIndex;
         
         return m;
     }
