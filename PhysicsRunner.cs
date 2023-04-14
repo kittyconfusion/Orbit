@@ -179,7 +179,7 @@ internal class PhysicsRunner {
         foreach(Mass m in minorMasses) {
             MassInfo mi = m.mi;
             if(deltaTime > mi.precisionPriorityLimit && mi.precisionPriorityLimit != -1) { continue; }
-            if(mi.stationary) { continue; }
+            if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
 
             foreach(Mass n in masses) {
 
@@ -200,18 +200,22 @@ internal class PhysicsRunner {
                 //Save the current position/velocity to be relative to the orbited object
                 if(mi.currentlyUpdatingPhysics && mi.orbitingBodyIndex > -1) {
                     mi.position = mi.position - masses[mi.orbitingBodyIndex].mi.position;
-                    mi.position = mi.velocity - masses[mi.orbitingBodyIndex].mi.velocity;
+                    mi.velocity = mi.velocity - masses[mi.orbitingBodyIndex].mi.velocity;
                 }
+                mi.currentlyUpdatingPhysics = false;
                 continue;
             }
             else {
+                //Unpause the object if need be
                 if(!mi.currentlyUpdatingPhysics) {
                     mi.currentlyUpdatingPhysics = true;
+                    //m.ClearForces();
                     //Place back the object in global coordinates with appropriate
                     //position and velocity relative to orbited object
                     mi.position = mi.position + masses[mi.orbitingBodyIndex].mi.position;
-                    mi.position = mi.velocity + masses[mi.orbitingBodyIndex].mi.velocity;
-                    continue;
+                    mi.velocity = mi.velocity + masses[mi.orbitingBodyIndex].mi.velocity;
+                    //Reset the object's trail
+                    Array.Fill(mi.trail, mi.position);
                 }
             }
             if(mi.stationary) { continue; }
@@ -298,7 +302,7 @@ internal class PhysicsRunner {
                 break;
 
             case "solar system":
-                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: false));
+                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true));
                 
                 //AddMass(new Mass (0.330 * Math.Pow(10,18), new Vector2d(47.4, 0),  new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50, followingIndex: 0));
                 Mass MercuryMass = new(0.33010 * Math.Pow(10,18), new Vector2d(38.86, 0),  new Vector2d(0, 69818000), name: "Mercury", trailSteps: 50, followingIndex: 0);
@@ -306,7 +310,7 @@ internal class PhysicsRunner {
                 AddMass(MercuryMass);
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSteps: 100, followingIndex: 0));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
-                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, satellite: true));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, satellite: true, precisionPriorityLimit: Constant.HOURS));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSteps: 200, trailSkip: 32, followingIndex: 0));
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSteps: 200, trailSkip: 64, followingIndex: 0));

@@ -189,7 +189,7 @@ public class OrbitInfo : Gtk.ListBox {
                 w.Show();
             }
             selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];
-            ((Entry)UpdatableWidgets["name"]!).Text = selectedMass.name + Shared.drawingCopy[selectedMass.orbitingBodyIndex].name;
+            ((Entry)UpdatableWidgets["name"]!).Text = selectedMass.name;
             ((ToggleButton)UpdatableWidgets["trailDraw"]!).Active = selectedMass.hasTrail;
 
             //Update the follow trail mass list
@@ -227,15 +227,19 @@ public class OrbitInfo : Gtk.ListBox {
     internal string UIString(string key) {
         switch(key) {
             case "position":
+                Vector2d position = selectedMass.position + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics 
+                    ? Shared.drawingCopy[selectedMass.orbitingBodyIndex].position : new Vector2d(0,0));
                 if(se.positionDisplayUnits == "AU") {
-                    return selectedMass.position.ToAstronomicalUnits().ToRoundedString(3);
+                    return position.ToAstronomicalUnits().ToRoundedString(3);
                 }
                 else {
-                    return selectedMass.position.ToScientificString();
+                    return position.ToScientificString();
                 }
 
             case "velocity":
-                return selectedMass.velocity.ToRoundedString(digits: 3);
+                Vector2d velocity = selectedMass.velocity  + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics 
+                    ? Shared.drawingCopy[selectedMass.orbitingBodyIndex].velocity : new Vector2d(0,0));
+                return velocity.ToRoundedString(digits: 3);
             case "mass":
                 switch(se.massDisplayUnits) {
                     case "Earth":

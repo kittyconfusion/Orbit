@@ -62,10 +62,19 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 		double inverseScale = 1 / scale;
 
-		if (Shared.trackedMass > -1) {
-			offset = Shared.drawingCopy[Shared.trackedMass].position;
+		if(Shared.trackedMass > -1) {
+			
+
 		}
 		Vector2d drawOffset = offset;
+		if(Shared.trackedMass > -1) {
+			MassInfo tracked = Shared.drawingCopy[Shared.trackedMass];
+			drawOffset = tracked.position;
+			if(!tracked.currentlyUpdatingPhysics) {
+				drawOffset += Shared.drawingCopy[tracked.orbitingBodyIndex].position;
+			}
+		}
+		
 		Vector2d windowCenter = new Vector2d(AllocatedWidth, AllocatedHeight) / 2 + 0.5;
 		
 		//A new CairoHelper should be created every draw call according to documentation
@@ -76,7 +85,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
-				if(!m.hasTrail) { continue; }
+				if(!m.hasTrail || m.stationary || !m.currentlyUpdatingPhysics) { continue; }
 
 				Vector2d[] trail = m.trail;
 				int trailOffset = m.trailOffset;
@@ -86,9 +95,11 @@ public class OrbitDraw : Gtk.DrawingArea {
 				
 				int perUpdate = trailLength / 10;
 				int counter = 0;
-
+				
 				if(m.followingIndex != -1 && se.drawTrails) {
-					Vector2d followingPosition = Shared.drawingCopy[m.followingIndex].position;
+					MassInfo ms = Shared.drawingCopy[m.followingIndex];
+					Vector2d followingPosition = ms.position;
+
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
 						cr.LineTo(point.X, point.Y);
@@ -102,11 +113,15 @@ public class OrbitDraw : Gtk.DrawingArea {
 						}
 						counter++;
 					}
+					Vector2d finalPoint = WorldToScreen(m.position + followingPosition, inverseScale, drawOffset, windowCenter);
+					cr.LineTo(finalPoint.X, finalPoint.Y);
+					cr.Stroke();
 				}
 				else if(se.drawTrails) {
 					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
 						Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
 						cr.LineTo(point.X, point.Y);
+
 						if(counter > perUpdate) {
 							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
 							cr.Stroke();
@@ -115,13 +130,13 @@ public class OrbitDraw : Gtk.DrawingArea {
 							i--;
 						}
 						counter++;
-						
 					}
+					Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
+					cr.LineTo(finalPoint.X, finalPoint.Y);
+					cr.Stroke();
 				}
-				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
-				cr.LineTo(finalPoint.X, finalPoint.Y);
-				cr.Stroke();
 			}
+			
 			cr.SetSourceRGB(0,0,0);
 			//Draw mass circles
 			for(int index = 0; index < Shared.massObjects; index++) {
