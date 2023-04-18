@@ -17,7 +17,7 @@ internal class Mass{
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
         bool hasTrail = true, bool stationary = false, int trailSteps = 150, int trailSkip = 4, int followingIndex = -1,
-        int precisionPriorityLimit = -1, bool satellite = false) {
+        int precisionPriorityLimit = -1, bool satellite = true) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
         mi.stationary = stationary;

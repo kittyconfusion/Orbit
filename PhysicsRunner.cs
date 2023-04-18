@@ -31,6 +31,7 @@ internal class PhysicsRunner {
         int bestMassIndex = -1;
         double bestMassDistance = -1;
         foreach(Mass n in masses) {
+            if(m.mi.index == n.mi.index) { continue; }
             double hillSphereRadius = n.mi.semiMajorAxisLength * Math.Pow(n.mi.mass / (3 * Constant.MassOfSun), 1f / 3);
 
             double distance = CalculateDistance(m.mi.position.X - n.mi.position.X, m.mi.position.Y - n.mi.position.Y);
@@ -150,9 +151,11 @@ internal class PhysicsRunner {
     }
     internal void ClearAllMasses() {
         for(int i = Shared.massObjects - 1; i >= 0; i--) {
-            masses.RemoveAt(i);
+            allMasses.RemoveAt(i);
             Shared.RemoveMass(i);
         }
+        masses.Clear();
+        minorMasses.Clear();
     }
     internal Vector2d ParseVector2dFromString(string s, Vector2d ifNull) {
         char[] toTrim = {' ', '(', ')'};
@@ -168,84 +171,49 @@ internal class PhysicsRunner {
         
     }
     internal void Update(double deltaTime) {
-        UpdateMajor(deltaTime);
-        UpdateMinor(deltaTime);
+        SatellitePauseUnpause(deltaTime);
+        UpdateForces(deltaTime);
 
         //Update positions
-        UpdateMajorPositions(deltaTime);
-        UpdateMinorPositions(deltaTime);
+        UpdatePositions(deltaTime);
     }
-    internal void UpdateMinor(double deltaTime) {
-        foreach(Mass m in minorMasses) {
+    internal void SatellitePauseUnpause(double deltaTime) {
+        foreach(Mass m in allMasses) {
             MassInfo mi = m.mi;
-            if(deltaTime > mi.precisionPriorityLimit && mi.precisionPriorityLimit != -1) { continue; }
-            if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
-
-            foreach(Mass n in masses) {
-
-                double x = mi.position.X - n.mi.position.X;
-                double y = mi.position.Y - n.mi.position.Y;
-
-                double dist2 = Math.Pow(CalculateDistance(x, y), 3);
-                double force = (Constant.G * mi.mass * n.mi.mass) / dist2;
-
-                m.forces.Add(new Vector2d(x, y) * -force);
-            }
-        }
-    }
-    internal void UpdateMinorPositions(double deltaTime) {
-        foreach(Mass m in minorMasses) {
-            MassInfo mi = m.mi;
-            if(deltaTime > mi.precisionPriorityLimit && mi.precisionPriorityLimit != -1) {
-                //Save the current position/velocity to be relative to the orbited object
-                if(mi.currentlyUpdatingPhysics && mi.orbitingBodyIndex > -1) {
-                    mi.position = mi.position - masses[mi.orbitingBodyIndex].mi.position;
-                    mi.velocity = mi.velocity - masses[mi.orbitingBodyIndex].mi.velocity;
-                }
+            if(!mi.satellite || mi.precisionPriorityLimit == -1) { continue; }
+            
+            //Pause the object if need be
+            if(mi.currentlyUpdatingPhysics && deltaTime > mi.precisionPriorityLimit) {
                 mi.currentlyUpdatingPhysics = false;
-                continue;
+                //Save the current position/velocity to be relative to the orbited object if needed
+                if(mi.orbitingBodyIndex > -1) {
+                    mi.position -= allMasses[mi.orbitingBodyIndex].mi.position;
+                    mi.velocity -= allMasses[mi.orbitingBodyIndex].mi.velocity;
+                }
             }
-            else {
-                //Unpause the object if need be
-                if(!mi.currentlyUpdatingPhysics) {
-                    mi.currentlyUpdatingPhysics = true;
-                    //m.ClearForces();
-                    //Place back the object in global coordinates with appropriate
-                    //position and velocity relative to orbited object
-                    mi.position = mi.position + masses[mi.orbitingBodyIndex].mi.position;
-                    mi.velocity = mi.velocity + masses[mi.orbitingBodyIndex].mi.velocity;
-                    //Reset the object's trail
+            //Unpause the object if need be
+            else if(!mi.currentlyUpdatingPhysics && deltaTime <= mi.precisionPriorityLimit) {
+                mi.currentlyUpdatingPhysics = true;
+                //Place back the object in global coordinates with appropriate
+                //position and velocity relative to orbited object
+                if(mi.orbitingBodyIndex > -1) {
+                    mi.position += allMasses[mi.orbitingBodyIndex].mi.position;
+                    mi.velocity += allMasses[mi.orbitingBodyIndex].mi.velocity;
+                }
+                //Reset the object's trail upon restart
+                if(mi.followingIndex == -1) {
                     Array.Fill(mi.trail, mi.position);
                 }
-            }
-            if(mi.stationary) { continue; }
-            
-            mi.velocity += (m.SumForces() / mi.mass) * deltaTime;
-            
-            m.ClearForces();
-
-            mi.position += (mi.velocity * deltaTime);
-
-            if(!mi.hasTrail || !mi.currentlyUpdatingPhysics) { continue; }
-
-            mi.trailCounter++;
-
-            if(mi.trailCounter >= mi.trailSkip) {
-                if(mi.followingIndex != -1) {
-                    mi.trail[mi.trailOffset] = mi.position - masses[mi.followingIndex].mi.position;
-                }
                 else {
-                    mi.trail[mi.trailOffset] = mi.position;
+                    Array.Fill(mi.trail, mi.position - allMasses[mi.orbitingBodyIndex].mi.position);
                 }
-                mi.trailOffset = (mi.trailOffset + 1) % mi.trail.Length;
-                mi.trailCounter = 0;
             }
         }
     }
-    internal void UpdateMajor(double deltaTime) {
-        foreach(Mass m in masses) {
+    internal void UpdateForces(double deltaTime) {
+        foreach(Mass m in allMasses) {
             MassInfo mi = m.mi;
-            if(mi.stationary) { continue; }
+            if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
             
             foreach(Mass n in masses) {
                 if(mi.index == n.mi.index) { continue; } //Skip calculations if the same object
@@ -260,9 +228,10 @@ internal class PhysicsRunner {
             }
         }
     }
-    internal void UpdateMajorPositions(double deltaTime) {
-        foreach(Mass m in masses) {
+    internal void UpdatePositions(double deltaTime) {
+        foreach(Mass m in allMasses) {
             MassInfo mi = m.mi;
+            if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
 
             mi.velocity += (m.SumForces() / mi.mass) * deltaTime;
             
@@ -286,23 +255,22 @@ internal class PhysicsRunner {
             }
         }
     }
-
     private double CalculateDistance(double x, double y)
     {
         return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
     }
     internal void LoadPreset(string name) {
         switch (name){
-            case "solar system test":
+            case "solar systemm":
             //Added at aphelion
-                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true));
-                Mass Mercury = new(0.33010 * Math.Pow(10,18), new Vector2d(38.86, 0),  new Vector2d(0, 69818000), name: "Mercury", trailSteps: 50, followingIndex: 0);
-                FixMassAngle(Mercury, 255, new Vector2d(0,0));
-                AddMass(Mercury);
+                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true, satellite: false));
+                AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 1, satellite: true, precisionPriorityLimit: Constant.HOURS * 3));
+                
                 break;
 
             case "solar system":
-                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true));
+                AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true, satellite: false));
                 
                 //AddMass(new Mass (0.330 * Math.Pow(10,18), new Vector2d(47.4, 0),  new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50, followingIndex: 0));
                 Mass MercuryMass = new(0.33010 * Math.Pow(10,18), new Vector2d(38.86, 0),  new Vector2d(0, 69818000), name: "Mercury", trailSteps: 50, followingIndex: 0);
@@ -310,7 +278,7 @@ internal class PhysicsRunner {
                 AddMass(MercuryMass);
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSteps: 100, followingIndex: 0));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
-                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, satellite: true, precisionPriorityLimit: Constant.HOURS));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, precisionPriorityLimit: Constant.HOURS));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSteps: 200, trailSkip: 32, followingIndex: 0));
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSteps: 200, trailSkip: 64, followingIndex: 0));

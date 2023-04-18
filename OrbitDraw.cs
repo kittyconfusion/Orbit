@@ -73,6 +73,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			if(!tracked.currentlyUpdatingPhysics) {
 				drawOffset += Shared.drawingCopy[tracked.orbitingBodyIndex].position;
 			}
+			offset = drawOffset;
 		}
 		
 		Vector2d windowCenter = new Vector2d(AllocatedWidth, AllocatedHeight) / 2 + 0.5;
@@ -83,6 +84,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			cr.LineWidth = 2;
 			cr.SetSourceRGB(0.6, 0.6, 0.6);
 			
+			//Draw trails
 			for(int index = 0; index < Shared.massObjects; index++) {
 				MassInfo m = Shared.drawingCopy[index];
 				if(!m.hasTrail || m.stationary || !m.currentlyUpdatingPhysics) { continue; }
@@ -95,69 +97,50 @@ public class OrbitDraw : Gtk.DrawingArea {
 				
 				int perUpdate = trailLength / 10;
 				int counter = 0;
+
+				//Add the offset if the object is drawn relative to another
+				Vector2d followingPosition = m.followingIndex > -1 ? 
+					Shared.drawingCopy[m.followingIndex].position : new Vector2d(0,0);
 				
-				if(m.followingIndex != -1 && se.drawTrails) {
-					MassInfo ms = Shared.drawingCopy[m.followingIndex];
-					Vector2d followingPosition = ms.position;
+				for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
+					Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
+					cr.LineTo(point.X, point.Y);
 
-					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
-						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
-						cr.LineTo(point.X, point.Y);
-
-						if(counter > perUpdate) {
-							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
-							cr.Stroke();
-							counter = -1;
-							transparency += 0.1;
-							i--;
-						}
-						counter++;
+					if(counter > perUpdate) {
+						cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+						cr.Stroke();
+						counter = -1;
+						transparency += 0.1;
+						i--;
 					}
-					Vector2d finalPoint = WorldToScreen(m.position + followingPosition, inverseScale, drawOffset, windowCenter);
-					cr.LineTo(finalPoint.X, finalPoint.Y);
-					cr.Stroke();
+					counter++;
 				}
-				else if(se.drawTrails) {
-					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
-						Vector2d point = WorldToScreen(trail[i % trailLength], inverseScale, drawOffset, windowCenter);
-						cr.LineTo(point.X, point.Y);
-
-						if(counter > perUpdate) {
-							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
-							cr.Stroke();
-							counter = -1;
-							transparency += 0.1;
-							i--;
-						}
-						counter++;
-					}
-					Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
-					cr.LineTo(finalPoint.X, finalPoint.Y);
-					cr.Stroke();
-				}
+				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
+				cr.LineTo(finalPoint.X, finalPoint.Y);
+				cr.Stroke();
 			}
+		
+		cr.SetSourceRGB(0,0,0);
+		//Draw mass circles
+		for(int index = 0; index < Shared.massObjects; index++) {
+			MassInfo m = Shared.drawingCopy[index];
+			Vector2d position = !m.currentlyUpdatingPhysics 
+				? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
+			Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
+
+			cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
+			cr.StrokePreserve(); //Saves circle for filling in
 			
-			cr.SetSourceRGB(0,0,0);
-			//Draw mass circles
-			for(int index = 0; index < Shared.massObjects; index++) {
-				MassInfo m = Shared.drawingCopy[index];
-				Vector2d position = m.satellite && !m.currentlyUpdatingPhysics 
-					? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
-				Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
-
-				cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
-				cr.StrokePreserve(); //Saves circle for filling in
-				
-				double radius = MassToGlyphSize(m.mass, inverseScale);
-				if (radius > 0) {		
-					cr.SetFontSize((int)Math.Min(30, radius));
-					cr.ShowText(m.name);
-				}
-
-				cr.Fill(); //Currently fills with same color as outline				
+			double radius = MassToGlyphSize(m.mass, inverseScale);
+			if (radius > 0) {		
+				cr.SetFontSize((int)Math.Min(30, radius));
+				cr.ShowText(m.name);
 			}
-			
-			cr.GetTarget().Dispose();
+
+			cr.Fill(); //Currently fills with same color as outline				
+		}
+		
+		cr.GetTarget().Dispose();
         }
     }
 	private int MassToRadius(double mass, double inverseScale)
