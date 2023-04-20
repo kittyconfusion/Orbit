@@ -101,7 +101,11 @@ internal class PhysicsRunner {
                     break;
                 case "remove mass":
                     int index = Convert.ToInt32(change[2]);
-                    masses.RemoveAt(index);
+                    Mass toRemove = allMasses[index];
+                    masses.Remove(toRemove);
+                    minorMasses.Remove(toRemove);
+                    allMasses.RemoveAt(index);
+
                     Shared.RemoveMass(index);
                     break;
                 case "remove all masses":

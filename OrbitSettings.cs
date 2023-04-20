@@ -96,6 +96,10 @@ public class OrbitSettings : Gtk.ListBox {
             ChangeTime();
         };
 
+        CheckMenuItem highResolutionMode = new("High Resolution Mode");
+        highResolutionMode.Toggled += (object? o, EventArgs a) => { ChangeTime(); };
+        MenuButtons.Add("High Resolution Mode", highResolutionMode);
+
         CheckMenuItem globalDrawTrails = new("Draw Trails");
         globalDrawTrails.Active = se.drawTrails;
         globalDrawTrails.Toggled += (object? o, EventArgs a) => {se.drawTrails = globalDrawTrails.Active;};
@@ -163,7 +167,7 @@ public class OrbitSettings : Gtk.ListBox {
             }
             
         };
-
+        viewMenu.Append(highResolutionMode);
         viewMenu.Append(globalDrawTrails);
         viewMenu.Append(positionUnits);
         viewMenu.Append(massUnits);
@@ -182,6 +186,8 @@ public class OrbitSettings : Gtk.ListBox {
         timeUnits.AppendText("Hours");
         timeUnits.AppendText("Days");
         timeUnits.AppendText("Weeks");
+        timeUnits.AppendText("Years");
+        timeUnits.AppendText("Decades");
         timeUnits.Changed += UnitChange;
 
         paused = new("Pause");
@@ -227,8 +233,21 @@ public class OrbitSettings : Gtk.ListBox {
             timeScale.SetRange(1, 52);
             multiplier = timeScale.Value * 604800;
         }
+        else if(timeUnits.Active == 5) {
+            timeScale.SetRange(1, 20);
+            multiplier = timeScale.Value * 31449600;
+        }
+        else if(timeUnits.Active == 6) {
+            timeScale.SetRange(1, 6);
+            multiplier = timeScale.Value * 314496000;
+        }
         Shared.multiplier = multiplier;
-        Shared.deltaTime = Math.Min(3600 * 8, multiplier / 30);
+        if(((CheckMenuItem)MenuButtons["High Resolution Mode"]).Active) {
+            Shared.deltaTime = Math.Min(3600 * 8, multiplier / 30);
+        }
+        else {
+            Shared.deltaTime = multiplier / 60;
+        }
     }
     private void UnitChange(object? o, EventArgs args) {
         ChangeTime();
