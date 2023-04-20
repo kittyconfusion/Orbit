@@ -216,6 +216,7 @@ internal class PhysicsRunner {
     }
     internal void UpdateForces(double deltaTime) {
         foreach(Mass m in allMasses) {
+            m.ClearForces();
             MassInfo mi = m.mi;
             if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
             
@@ -228,7 +229,7 @@ internal class PhysicsRunner {
                 double dist2 = Math.Pow(CalculateDistance(x, y), 3);
                 double force = (Constant.G * mi.mass * n.mi.mass) / dist2;
 
-                m.forces.Add(new Vector2d(x, y) * -force);
+                mi.forces.Add(new Vector2d(x, y) * -force);
             }
         }
     }
@@ -238,8 +239,6 @@ internal class PhysicsRunner {
             if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
 
             mi.velocity += (m.SumForces() / mi.mass) * deltaTime;
-            
-            m.ClearForces();
 
             mi.position += (mi.velocity * deltaTime);
             
@@ -276,13 +275,12 @@ internal class PhysicsRunner {
             case "solar system":
                 AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true, satellite: false));
                 
-                //AddMass(new Mass (0.330 * Math.Pow(10,18), new Vector2d(47.4, 0),  new Vector2d(0, 57900000), name: "Mercury", trailSteps: 50, followingIndex: 0));
                 Mass MercuryMass = new(0.33010 * Math.Pow(10,18), new Vector2d(38.86, 0),  new Vector2d(0, 69818000), name: "Mercury", trailSteps: 50, followingIndex: 0);
                 FixMassAngle(MercuryMass, 255, new Vector2d(0,0));
                 AddMass(MercuryMass);
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSteps: 100, followingIndex: 0));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSkip: 16, followingIndex: 0));
-                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, precisionPriorityLimit: Constant.HOURS));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSteps: 50, trailSkip: 2, followingIndex: 3, precisionPriorityLimit: Constant.HOURS * 8));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSteps: 200, trailSkip: 32, followingIndex: 0));
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSteps: 200, trailSkip: 64, followingIndex: 0));

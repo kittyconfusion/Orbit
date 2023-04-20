@@ -1,18 +1,16 @@
 namespace Orbit;
 internal class Mass{
-    
     internal MassInfo mi;
-    internal List<Vector2d> forces = new();
 
     internal Vector2d SumForces() {
         Vector2d sum = new();
-        foreach(Vector2d v in forces) {
+        foreach(Vector2d v in mi.forces) {
             sum += v;
         }
         return sum;
     }
     internal void ClearForces() {
-        forces.Clear();
+        mi.forces.Clear();
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
@@ -33,8 +31,7 @@ internal class Mass{
         mi.satellite = satellite;
         mi.currentlyUpdatingPhysics = true;
         for(int i = 0; i < mi.trail.Length; i++) { mi.trail[i] = new Vector2d(position.X, position.Y);}
-    }
-    
+    } 
 
     private string GenerateName()
     {
@@ -48,10 +45,10 @@ internal class Mass{
         if(r.Next(100) == 0) { mi.mass = 6.66 * Math.Pow(10,6); return "Illuminati Secret Base"; }
         return adjective + " " + animal;
     }
-
 }
 
 internal class MassInfo {
+    internal List<Vector2d> forces = new();
     internal int index;
     internal string name;
     internal int trailSkip;
@@ -91,6 +88,7 @@ internal class MassInfo {
         trailSkip = m.trailSkip;
         orbitingBodyIndex = m.orbitingBodyIndex;
         currentlyUpdatingPhysics = m.currentlyUpdatingPhysics;
+        forces = new List<Vector2d>(m.forces);
     }
     internal void CopyNewInfo(MassInfo m) {
         velocity = m.velocity;

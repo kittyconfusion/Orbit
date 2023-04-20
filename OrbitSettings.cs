@@ -209,6 +209,18 @@ public class OrbitSettings : Gtk.ListBox {
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
         Add(sensitivity);
+
+        Add(new Label("Show Vectors"));
+        HBox vectorBox = new();
+
+        CheckButton drawVelocityVectors = new("Velocity");
+        CheckButton drawForceVectors = new("Forces");
+        drawVelocityVectors.Toggled += (object? o, EventArgs a) => { se.drawVelocityVectors = drawVelocityVectors.Active; };
+        drawForceVectors.Toggled += (object? o, EventArgs a) => { se.drawForceVectors = drawForceVectors.Active; };
+
+        vectorBox.Add(drawVelocityVectors);
+        vectorBox.Add(drawForceVectors);
+        Add(vectorBox);
     }
 
     private void ChangeTime() {

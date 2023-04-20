@@ -10,6 +10,14 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private Vector2d lastMouse = new();
 	private bool moved = false;
 	OrbitSessionSettings se;
+	//https://coolors.co/ace4aa-b26e63-4d243d-136f63-e9d6ec
+	private static Cairo.Color[] colors = {
+		new Cairo.Color(0.79, 0.73, 0.41),
+		new Cairo.Color(0.70, 0.43, 0.39),
+		new Cairo.Color(0.55, 0.25, 0.43),
+		new Cairo.Color(0.07, 0.44, 0.39),
+		new Cairo.Color(0.45, 0.66, 0.84)
+		};
 
     public OrbitDraw(OrbitInfo infoWindow, OrbitSessionSettings se)
     {
@@ -68,7 +76,6 @@ public class OrbitDraw : Gtk.DrawingArea {
 		cr.RelLineTo(arrowheadLength * Math.Cos(arrowAngle - arrowheadAngle), arrowheadLength * Math.Sin(arrowAngle - arrowheadAngle));
 		cr.RelLineTo(-arrowheadLength * Math.Cos(arrowAngle + arrowheadAngle), -arrowheadLength * Math.Sin(arrowAngle + arrowheadAngle));
 
-		cr.SetSourceRGB(0,0,0);
 		cr.LineWidth = arrowLineWidth;
 		cr.Stroke();
 	}
@@ -137,10 +144,10 @@ public class OrbitDraw : Gtk.DrawingArea {
 					cr.Stroke();
 				}
 			}
-		
+		int colorIndex = 0;
 		//Draw mass circles
-		cr.SetSourceRGB(0,0,0);
 		for(int index = 0; index < Shared.massObjects; index++) {
+			cr.SetSourceRGB(0,0,0);
 			MassInfo m = Shared.drawingCopy[index];
 			Vector2d position = !m.currentlyUpdatingPhysics 
 				? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
@@ -156,11 +163,21 @@ public class OrbitDraw : Gtk.DrawingArea {
 			}
 
 			cr.Fill(); //Currently fills with same color as outline
-			double massRadius = MassToGlyphSize(m.mass, inverseScale);
-			if(massRadius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
-				DrawArrow(cr, point, (m.velocity) * 1.1, (int)(massRadius / 5 - 0.5));
+			
+			//Draw velocity arrows
+			if(se.drawVelocityVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
+				cr.SetSourceRGB(0.89, 0.34, 0.3);
+				DrawArrow(cr, point, (m.velocity) * 1.1, (int)(radius / 5 - 0.5));
 			}
-					
+			
+			//Draw scaled force arrows
+			if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
+				foreach(Vector2d force in m.forces) {	
+					cr.SetSourceColor(colors[colorIndex]);
+					colorIndex = (colorIndex + 1) % 5;			
+					DrawArrow(cr, point,force.Normalize() *  Math.Log(force.Magnitude()) *2, (int)(radius / 8));
+				}
+			}		
 		}
 		cr.GetTarget().Dispose();
         }
