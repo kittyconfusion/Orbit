@@ -92,6 +92,8 @@ class App : Gtk.Window
 
 public class OrbitSessionSettings {
 	public bool drawTrails = true;
+	public bool drawVelocityVectors = false;
+	public bool drawForceVectors = false;
 	public string positionDisplayUnits = "AU";
 	public string massDisplayUnits = "Earth";
 }

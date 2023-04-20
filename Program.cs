@@ -27,7 +27,7 @@ static void StartPhysics() {
             }   
         }
 
-        Thread.Sleep(10);
+        Thread.Sleep(5);
         if(!Shared.Paused) {
             timeTook += time.ElapsedMilliseconds;
         }

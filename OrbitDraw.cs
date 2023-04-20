@@ -45,7 +45,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	}
 	private void Click(double x, double y) {
 
-		Console.WriteLine(scale + " " + offset);
+		Console.WriteLine(Shared.deltaTime);
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
@@ -55,7 +55,23 @@ public class OrbitDraw : Gtk.DrawingArea {
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
 	}
+	private void DrawArrow(Cairo.Context cr, Vector2d startScreenPosition, Vector2d screenArrowSize, int arrowLineWidth) {
+		//Adapted from https://stackoverflow.com/a/57924851
+		double arrowAngle = Math.Atan2(screenArrowSize.Y, screenArrowSize.X);
+		const double arrowheadAngle = Math.PI/6;
+		const double arrowheadLength = 8;
 
+		cr.MoveTo(startScreenPosition.X, startScreenPosition.Y);
+
+		cr.RelLineTo(screenArrowSize.X, screenArrowSize.Y);
+		cr.RelMoveTo(-arrowheadLength * Math.Cos(arrowAngle - arrowheadAngle), -arrowheadLength * Math.Sin(arrowAngle - arrowheadAngle));
+		cr.RelLineTo(arrowheadLength * Math.Cos(arrowAngle - arrowheadAngle), arrowheadLength * Math.Sin(arrowAngle - arrowheadAngle));
+		cr.RelLineTo(-arrowheadLength * Math.Cos(arrowAngle + arrowheadAngle), -arrowheadLength * Math.Sin(arrowAngle + arrowheadAngle));
+
+		cr.SetSourceRGB(0,0,0);
+		cr.LineWidth = arrowLineWidth;
+		cr.Stroke();
+	}
     private void Draw(object sender, DrawnArgs args)
     {
 		Shared.ReadyDrawingCopy();
@@ -85,43 +101,45 @@ public class OrbitDraw : Gtk.DrawingArea {
 			cr.SetSourceRGB(0.6, 0.6, 0.6);
 			
 			//Draw trails
-			for(int index = 0; index < Shared.massObjects; index++) {
-				MassInfo m = Shared.drawingCopy[index];
-				if(!m.hasTrail || m.stationary || !m.currentlyUpdatingPhysics) { continue; }
+			if(se.drawTrails) {
+				for(int index = 0; index < Shared.massObjects; index++) {
+					MassInfo m = Shared.drawingCopy[index];
+					if(!m.hasTrail || m.stationary || !m.currentlyUpdatingPhysics) { continue; }
 
-				Vector2d[] trail = m.trail;
-				int trailOffset = m.trailOffset;
-				int trailLength = trail.Length;
+					Vector2d[] trail = m.trail;
+					int trailOffset = m.trailOffset;
+					int trailLength = trail.Length;
 
-				double transparency = 0;
-				
-				int perUpdate = trailLength / 10;
-				int counter = 0;
+					double transparency = 0;
+					
+					int perUpdate = trailLength / 10;
+					int counter = 0;
 
-				//Add the offset if the object is drawn relative to another
-				Vector2d followingPosition = m.followingIndex > -1 ? 
-					Shared.drawingCopy[m.followingIndex].position : new Vector2d(0,0);
-				
-				for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
-					Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
-					cr.LineTo(point.X, point.Y);
+					//Add the offset if the object is drawn relative to another
+					Vector2d followingPosition = m.followingIndex > -1 ? 
+						Shared.drawingCopy[m.followingIndex].position : new Vector2d(0,0);
+					
+					for(int i = trailOffset + 1; i < trailOffset + trailLength; i++) {
+						Vector2d point = WorldToScreen(trail[i % trailLength] + followingPosition, inverseScale, drawOffset, windowCenter);
+						cr.LineTo(point.X, point.Y);
 
-					if(counter > perUpdate) {
-						cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
-						cr.Stroke();
-						counter = -1;
-						transparency += 0.1;
-						i--;
+						if(counter > perUpdate) {
+							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+							cr.Stroke();
+							counter = -1;
+							transparency += 0.1;
+							i--;
+						}
+						counter++;
 					}
-					counter++;
+					Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
+					cr.LineTo(finalPoint.X, finalPoint.Y);
+					cr.Stroke();
 				}
-				Vector2d finalPoint = WorldToScreen(m.position, inverseScale, drawOffset, windowCenter);
-				cr.LineTo(finalPoint.X, finalPoint.Y);
-				cr.Stroke();
 			}
 		
-		cr.SetSourceRGB(0,0,0);
 		//Draw mass circles
+		cr.SetSourceRGB(0,0,0);
 		for(int index = 0; index < Shared.massObjects; index++) {
 			MassInfo m = Shared.drawingCopy[index];
 			Vector2d position = !m.currentlyUpdatingPhysics 
@@ -137,14 +155,18 @@ public class OrbitDraw : Gtk.DrawingArea {
 				cr.ShowText(m.name);
 			}
 
-			cr.Fill(); //Currently fills with same color as outline				
+			cr.Fill(); //Currently fills with same color as outline
+			double massRadius = MassToGlyphSize(m.mass, inverseScale);
+			if(massRadius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
+				DrawArrow(cr, point, (m.velocity) * 1.1, (int)(massRadius / 5 - 0.5));
+			}
+					
 		}
-		
 		cr.GetTarget().Dispose();
         }
     }
-	private int MassToRadius(double mass, double inverseScale)
-		=> Math.Max(0, (int)(Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
+	private double MassToRadius(double mass, double inverseScale)
+		=> Math.Max(0, (Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));
 	private double MassToGlyphSize(double mass, double inverseScale) {
 		double size = Math.Min(28, Math.Log(mass) + 1.65 * Math.Log(inverseScale) - 4.5);
 		return size >= 10 ? size : 0;
