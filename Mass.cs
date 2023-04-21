@@ -14,7 +14,7 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSteps = 150, int trailSkip = 4, int followingIndex = -1,
+        bool hasTrail = true, bool stationary = false, int trailSeconds = 30, int trailQuality = 8, int followingIndex = -1,
         int precisionPriorityLimit = -1, bool satellite = true) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
@@ -22,10 +22,10 @@ internal class Mass{
         mi.mass = mass;
         mi.velocity = velocity;
         mi.position = position;
-        mi.trailSkip = trailSkip;
+        mi.trailQuality = trailQuality;
         mi.followingIndex = followingIndex;
         mi.name = name == "" ? GenerateName() : name;
-        mi.trail = new Vector2d[trailSteps];
+        mi.trail = new Vector2d[trailSeconds * trailQuality];
         mi.precisionPriorityLimit = precisionPriorityLimit;
         mi.semiMajorAxisLength = mi.position.Magnitude();
         mi.satellite = satellite;
@@ -51,8 +51,8 @@ internal class MassInfo {
     internal List<Vector2d> forces = new();
     internal int index;
     internal string name;
-    internal int trailSkip;
-    internal int trailCounter;
+    internal int trailQuality;
+    internal double trailCounter;
     internal Vector2d[] trail;
     internal int trailOffset;
     internal bool hasTrail;
@@ -85,7 +85,7 @@ internal class MassInfo {
         m.trail.CopyTo(trail, 0);
         trailOffset = m.trailOffset;
         followingIndex = m.followingIndex;
-        trailSkip = m.trailSkip;
+        trailQuality = m.trailQuality;
         orbitingBodyIndex = m.orbitingBodyIndex;
         currentlyUpdatingPhysics = m.currentlyUpdatingPhysics;
         forces = new List<Vector2d>(m.forces);
@@ -105,7 +105,7 @@ internal class MassInfo {
 
         m.name = name;
         m.index = index;
-        m.trailSkip = trailSkip;
+        m.trailQuality = trailQuality;
         m.trail = trail;
         m.trailOffset = trailOffset;
         m.hasTrail = hasTrail;

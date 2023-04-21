@@ -99,23 +99,21 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailBox);
         UpdatableWidgets.Add("followChoose", followChoose);
 
-        Scale trailLength = new(Orientation.Horizontal, 0, 1000, 10);
+        Scale trailLength = new(Orientation.Horizontal, 0.1, 2, 0.1);
         trailLength.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail length", Math.Max(1,trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
-            UpdateTrailTimeEstimate(selectedMass.trailSkip, Math.Max(1,trailLength.Value));
+            Shared.changesToMake.Push(new string[] {"trail length", (60 * trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
         };
 
         HBox trailLengthBox = new();
-        trailLengthBox.Add(new Label("Length"));
-        trailLengthBox.Add(new Label("Quality"));
+        trailLengthBox.Add(new Label("Length (min)"));
+        trailLengthBox.Add(new Label("Ticks (per sec)"));
 
         PrimaryWidgets.Add(trailLengthBox);
         UpdatableWidgets.Add("trailLength", trailLength);
 
-        Scale trailQuality = new(Orientation.Horizontal, 1, 10, 1);
+        Scale trailQuality = new(Orientation.Horizontal, 1, 16, 1);
         trailQuality.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail skip", Math.Pow(2, 10 - trailQuality.Value).ToString(), Shared.selectedMassIndex.ToString()});
-            UpdateTrailTimeEstimate(Math.Pow(2, 10 - trailQuality.Value), selectedMass.trail.Length);
+            Shared.changesToMake.Push(new string[] {"trail skip", trailQuality.Value.ToString(), Shared.selectedMassIndex.ToString()});
         };
 
         HBox trailQualityBox = new();
@@ -125,19 +123,26 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailQualityBox);
         UpdatableWidgets.Add("trailQuality", trailQuality);
 
-        HBox trailInfoDrawBox = new();
+        PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
 
-        CheckButton trailDraw = new("Draw");
+        HBox objectSettingBox = new();
+
+        CheckButton trailDraw = new("Draw Trail");
         trailDraw.Toggled += (object? o, EventArgs a) => {
             selectedMass.hasTrail = trailDraw.Active;
         };
-        Label trailTime = new();
-        trailInfoDrawBox.Add(trailDraw);
-        trailInfoDrawBox.Add(trailTime);
+        CheckButton stationary = new("Stationary");
+        stationary.Toggled += (object? o, EventArgs a) => {
+            selectedMass.stationary = stationary.Active;
+            Shared.changesToMake.Push(new string[] {"stationary", stationary.Active.ToString(), Shared.selectedMassIndex.ToString()});
+        };
+
+        objectSettingBox.Add(trailDraw);
+        objectSettingBox.Add(stationary);
         
-        PrimaryWidgets.Add(trailInfoDrawBox);
+        PrimaryWidgets.Add(objectSettingBox);
         UpdatableWidgets.Add("trailDraw", trailDraw);
-        UpdatableWidgets.Add("trailTime", trailTime);
+        UpdatableWidgets.Add("stationary", stationary);
 
         followChoose.Changed += (object? o, EventArgs args) => {
             if(followChoose.Active != -1 && Shared.selectedMassIndex != -1) {
@@ -207,9 +212,10 @@ public class OrbitInfo : Gtk.ListBox {
             }
             followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            ((Scale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length;
-            ((Scale)UpdatableWidgets["trailQuality"]!).Value = 10 - Math.Log2(selectedMass.trailSkip);
-            UpdateTrailTimeEstimate(selectedMass.trailSkip, selectedMass.trail.Length);
+            ((Scale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length / selectedMass.trailQuality / 60;
+            ((Scale)UpdatableWidgets["trailQuality"]!).Value = selectedMass.trailQuality;
+            ((CheckButton)UpdatableWidgets["stationary"]!).Active = selectedMass.stationary;
+
 
         }
         else {
@@ -220,9 +226,6 @@ public class OrbitInfo : Gtk.ListBox {
         if(((CheckButton)UpdatableWidgets["toFollow"]!).Active) {
             Shared.trackedMass = massChoose.Active - 1;
         }
-    }
-    internal void UpdateTrailTimeEstimate(double trailSkip, double trailLength) {
-        ((Label)UpdatableWidgets["trailTime"]!).Text = (Math.Round(trailSkip * (trailLength - 1) / 30, 1)).ToString() + " weeks";
     }
     internal string UIString(string key) {
         switch(key) {

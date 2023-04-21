@@ -87,7 +87,7 @@ public class OrbitSettings : Gtk.ListBox {
             Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
         };
 
-        MenuItem hulseTaylor = new ("Hulse-Taylor binary (not correct)");
+        MenuItem hulseTaylor = new ("Hulse-Taylor binary");
         presets.Append(hulseTaylor);
         hulseTaylor.Activated += (object? o, EventArgs e) => {
             Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
@@ -162,7 +162,6 @@ public class OrbitSettings : Gtk.ListBox {
             for(int i = 0; i < Shared.massObjects; i++) {
                 if(i != Shared.selectedMassIndex) {
                     Shared.changesToMake.Push(new string[] {"trail follow", Shared.selectedMassIndex.ToString(), i.ToString()});
-                    //Shared.changesToMake.Push(new string[] {"trail follow", i.ToString(), Shared.selectedMassIndex.ToString()});
                 }
             }
             
@@ -202,6 +201,8 @@ public class OrbitSettings : Gtk.ListBox {
 
         timeUnits.Active = 4;
         ChangeTime();
+
+        Add(new Separator(Orientation.Horizontal));
         
         Label sensitivityLabel = new("Zoom Sensitivity");
         Scale sensitivity = new(Orientation.Horizontal, 0.5, 5, 0.1);
@@ -209,6 +210,8 @@ public class OrbitSettings : Gtk.ListBox {
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
         Add(sensitivity);
+
+        Add(new Separator(Orientation.Horizontal));
 
         Add(new Label("Show Vectors"));
         HBox vectorBox = new();
@@ -221,6 +224,10 @@ public class OrbitSettings : Gtk.ListBox {
         vectorBox.Add(drawVelocityVectors);
         vectorBox.Add(drawForceVectors);
         Add(vectorBox);
+
+        CheckButton normalizeVelocity = new("Normalize Velocity");
+        normalizeVelocity.Toggled += (object? o, EventArgs a) => { se.normalizeVelocity = normalizeVelocity.Active; };
+        Add(normalizeVelocity);
     }
 
     private void ChangeTime() {

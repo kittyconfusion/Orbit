@@ -8,7 +8,7 @@ class App : Gtk.Window
 	OrbitSettings os;
 	OrbitSessionSettings se;
 	bool Control = false;
-    public App() : base("Orbit 🐱‍🏍")
+    public App() : base("Orbit 🌌")
     {
 		se = new();
 
@@ -94,6 +94,7 @@ public class OrbitSessionSettings {
 	public bool drawTrails = true;
 	public bool drawVelocityVectors = false;
 	public bool drawForceVectors = false;
+	public bool normalizeVelocity = false;
 	public string positionDisplayUnits = "AU";
 	public string massDisplayUnits = "Earth";
 }

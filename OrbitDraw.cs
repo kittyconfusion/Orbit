@@ -10,7 +10,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private Vector2d lastMouse = new();
 	private bool moved = false;
 	OrbitSessionSettings se;
-	//https://coolors.co/ace4aa-b26e63-4d243d-136f63-e9d6ec
+	//https://coolors.co/caba68-b26e63-8c406e-136f63-72a8d5
 	private static Cairo.Color[] colors = {
 		new Cairo.Color(0.79, 0.73, 0.41),
 		new Cairo.Color(0.70, 0.43, 0.39),
@@ -53,7 +53,6 @@ public class OrbitDraw : Gtk.DrawingArea {
 	}
 	private void Click(double x, double y) {
 
-		Console.WriteLine(Shared.deltaTime);
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
@@ -149,7 +148,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		for(int index = 0; index < Shared.massObjects; index++) {
 			cr.SetSourceRGB(0,0,0);
 			MassInfo m = Shared.drawingCopy[index];
-			Vector2d position = !m.currentlyUpdatingPhysics 
+			Vector2d position = !m.currentlyUpdatingPhysics && m.orbitingBodyIndex > -1
 				? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
 			Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
 
@@ -167,7 +166,13 @@ public class OrbitDraw : Gtk.DrawingArea {
 			//Draw velocity arrows
 			if(se.drawVelocityVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
 				cr.SetSourceRGB(0.89, 0.34, 0.3);
-				DrawArrow(cr, point, (m.velocity) * 1.1, (int)(radius / 5 - 0.5));
+				
+				Vector2d direction;
+				if(m.followingIndex > -1) { direction = (m.velocity - Shared.drawingCopy[m.followingIndex].velocity) * 1.2; }
+				else { direction = (m.velocity) * 1.2; }
+				
+				if(se.normalizeVelocity) {direction = direction.Normalize() * 35; };
+				DrawArrow(cr, point, direction, (int)(radius / 4 - 0.5));
 			}
 			
 			//Draw scaled force arrows
@@ -175,7 +180,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 				foreach(Vector2d force in m.forces) {	
 					cr.SetSourceColor(colors[colorIndex]);
 					colorIndex = (colorIndex + 1) % 5;			
-					DrawArrow(cr, point,force.Normalize() *  Math.Log(force.Magnitude()) *2, (int)(radius / 8));
+					DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
 				}
 			}		
 		}
