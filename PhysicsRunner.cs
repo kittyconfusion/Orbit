@@ -19,7 +19,7 @@ internal class PhysicsRunner {
         allMasses.Add(m);
         Shared.AddMass(m.mi);
     }
-    internal void InitializeMinorMasses() {
+    internal void InitializeMasses() {
         foreach(Mass m in allMasses) {
             //Find the object which it orbits
             if(m.mi.satellite) {
@@ -106,7 +106,7 @@ internal class PhysicsRunner {
                     minorMasses.Remove(toRemove);
                     allMasses.RemoveAt(index);
                     Shared.RemoveMass(index);
-                    InitializeMinorMasses();
+                    InitializeMasses();
                     break;
                 case "remove all masses":
                     ClearAllMasses();
@@ -189,7 +189,7 @@ internal class PhysicsRunner {
             if(mi.currentlyUpdatingPhysics && deltaTime > mi.precisionPriorityLimit) {
                 mi.currentlyUpdatingPhysics = false;
                 //Save the current position/velocity to be relative to the orbited object if needed
-                if(mi.orbitingBodyIndex > -1) {
+                if(mi.orbitingBodyIndex > -1 && mi.orbitingBodyIndex > -1) {
                     mi.position -= allMasses[mi.orbitingBodyIndex].mi.position;
                     mi.velocity -= allMasses[mi.orbitingBodyIndex].mi.velocity;
                 }
@@ -199,7 +199,7 @@ internal class PhysicsRunner {
                 mi.currentlyUpdatingPhysics = true;
                 //Place back the object in global coordinates with appropriate
                 //position and velocity relative to orbited object
-                if(mi.orbitingBodyIndex > -1) {
+                if(mi.orbitingBodyIndex > -1 && mi.orbitingBodyIndex > -1) {
                     mi.position += allMasses[mi.orbitingBodyIndex].mi.position;
                     mi.velocity += allMasses[mi.orbitingBodyIndex].mi.velocity;
                 }
@@ -299,7 +299,7 @@ internal class PhysicsRunner {
                 AddMass(new Mass(Constant.MassOfSun * 1.441, new Vector2d(0, -110), new Vector2d(-746600/2, 0), name: "Pulsar", trailSeconds: 800, trailQuality: 2));
                 break;
         }
-        InitializeMinorMasses();
+        InitializeMasses();
     }
 }
 

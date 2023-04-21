@@ -212,10 +212,9 @@ public class OrbitInfo : Gtk.ListBox {
             }
             followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            ((Scale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length / selectedMass.trailQuality / 60;
+            ((Scale)UpdatableWidgets["trailLength"]!).Value = (double)selectedMass.trail.Length / selectedMass.trailQuality / 60;
             ((Scale)UpdatableWidgets["trailQuality"]!).Value = selectedMass.trailQuality;
             ((CheckButton)UpdatableWidgets["stationary"]!).Active = selectedMass.stationary;
-
 
         }
         else {
