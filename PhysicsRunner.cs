@@ -204,7 +204,7 @@ internal class PhysicsRunner {
                     mi.velocity += allMasses[mi.orbitingBodyIndex].mi.velocity;
                 }
                 //Reset the object's trail upon restart
-                if(mi.followingIndex == -1) {
+                if(mi.followingIndex == -1 || mi.orbitingBodyIndex == -1) {
                     Array.Fill(mi.trail, mi.position);
                 }
                 else {
