@@ -20,7 +20,7 @@ internal class PhysicsRunner {
         Shared.AddMass(m.mi);
     }
     internal void InitializeMasses() {
-        foreach(Mass m in allMasses) {
+        foreach(Mass m in minorMasses) {
             //Find the object which it orbits
             if(m.mi.satellite) {
                 m.mi.orbitingBodyIndex = FindBestOrbitingBody(m);
