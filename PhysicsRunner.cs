@@ -13,8 +13,7 @@ internal class PhysicsRunner {
         allMasses.Add(m);
         Shared.AddMass(m.mi);
     }
-    internal void AddMinorMass(Mass m)
-    {
+    internal void AddMinorMass(Mass m) {
         minorMasses.Add(m);
         allMasses.Add(m);
         Shared.AddMass(m.mi);
@@ -133,6 +132,9 @@ internal class PhysicsRunner {
                     break;
                 case "stationary":
                     mass.stationary = bool.Parse(change[1]);
+                    break;
+                case "save":
+                    MassJsonHelper.SaveMassesToFile(allMasses, change[1]);
                     break;
                 
             }
