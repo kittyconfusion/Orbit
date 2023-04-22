@@ -13,7 +13,7 @@ public class MassJsonHelper {
 
     public bool HasTrail {get; set;}
 	public int TrailLength {get; set;}
-    public int TrailQuality {get; set;}
+    public double TrailQuality {get; set;}
 
     public int FollowingIndex {get; set;}
 	public int OrbitingBodyIndex {get; set;}
@@ -57,7 +57,7 @@ public class MassJsonHelper {
 		Stationary = mass.stationary;
 
 		HasTrail = mass.hasTrail;
-		TrailLength = mass.trail.Length / mass.trailQuality;
+		TrailLength = (int) (mass.trail.Length / mass.trailQuality);
 		TrailQuality = mass.trailQuality;
 
 		FollowingIndex = mass.followingIndex;
