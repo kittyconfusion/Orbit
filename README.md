@@ -2,7 +2,7 @@
 
 This is a gravity sandbox and simulation created for the second semester of LASA's Computer Science Independent Study course.
 
-The program was originally compiled in C# using VS Code. The GtkSharp wrapper for the Gtk toolkit is required to compile.
+The program was originally compiled in C# using .NET 7 and Visual Studio Code. The GtkSharp wrapper for the Gtk toolkit is required to compile.
 
 The code conforms to Gtk version 3.24.
 
