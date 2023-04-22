@@ -247,16 +247,22 @@ internal class PhysicsRunner {
 
             mi.trailCounter += deltaTime;
 
-            while(mi.trailCounter >= 24*60*60/mi.trailQuality) {
-                if(mi.followingIndex != -1) {
-                    mi.trail[mi.trailOffset] = mi.position - masses[mi.followingIndex].mi.position;
-                }
-                else {
-                    mi.trail[mi.trailOffset] = mi.position;
-                }
+            int newVerts = (int)(mi.trailCounter*mi.trailQuality/(24*60*60));
+
+            Vector2d newPos = (mi.followingIndex == -1) ? mi.position : mi.position - masses[mi.followingIndex].mi.position;
+            Vector2d oldPos = mi.trail[mi.trailOffset == 0 ? mi.trail.Length-1 : mi.trailOffset-1];
+
+            for(float i = 0; i < newVerts; i++) {
+
+                Vector2d trailPos = oldPos + (newPos-oldPos) * ((i+1)/newVerts); // Lerp from oldPos to newPos at i/newVerts
+                
+                mi.trail[mi.trailOffset] = trailPos;
+
                 mi.trailOffset = (mi.trailOffset + 1) % mi.trail.Length;
-                mi.trailCounter -= 24*60*60/mi.trailQuality;
+                
             }
+
+            mi.trailCounter %= 24*60*60/mi.trailQuality;
         }
     }
     private double CalculateDistance(double x, double y)

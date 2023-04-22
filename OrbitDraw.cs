@@ -162,7 +162,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 					int trailOffset = m.trailOffset;
 					int trailLength = trail.Length;
 
-					double transparency = 0;
+					double transparency = 0.1;
 					
 					int perUpdate = trailLength / 10;
 					int counter = 0;
@@ -176,10 +176,9 @@ public class OrbitDraw : Gtk.DrawingArea {
 						cr.LineTo(point.X, point.Y);
 
 						if(counter > perUpdate) {
-							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency += 0.1);
 							cr.Stroke();
 							counter = -1;
-							transparency += 0.1;
 							i--;
 						}
 						counter++;
