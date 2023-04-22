@@ -4,9 +4,10 @@ namespace Orbit;
 class App : Gtk.Window
 {
     OrbitDraw da;
-	FileChooserWidget fc;
-	VBox drawBox;
+	FileChooserWidget? fc;
+	Widget currentDrawFrameWidget;
 	Frame drawFrame;
+	Button commitButton;
 	OrbitInfo li;
 	OrbitSettings os;
 	HBox fileButtonBox;
@@ -41,9 +42,12 @@ class App : Gtk.Window
 		settingsBox.Add(fileButtonBox);
 
 		Button cancelButton = new("Cancel");
-		Button commitButton = new("Commit");
+		cancelButton.Pressed += (object? o, EventArgs a) => {
+			ExitBackToDraw();
+		};
+		commitButton = new("Commit");
 		commitButton.Pressed += (object? o, EventArgs a) => {
-			Console.WriteLine(fc!.Filename);
+			CommitButtonPress();
 		};
 
 		fileButtonBox.Add(cancelButton);
@@ -52,9 +56,8 @@ class App : Gtk.Window
 		drawFrame = new Frame();
 		da = new OrbitDraw(li, se);
 
-		drawBox = new();
-		drawBox.Add(da);
-		drawFrame.Add(drawBox);
+		currentDrawFrameWidget = da;
+		drawFrame.Add(da);
 
 		da.WidthRequest = 400;
 
@@ -88,10 +91,32 @@ class App : Gtk.Window
 			Control = true;
 		}
     }
+	internal void CommitButtonPress() {
+		if(fc != null) {
+			string name = fc.Filename;
+			if(Directory.Exists(System.IO.Path.GetPathRoot(name)) && System.IO.Path.GetFileNameWithoutExtension(name) != "") {
+				Shared.changesToMake.Push(new string[] {"save", fc.Filename, "-1"});
+				ExitBackToDraw();
+			}
+		}
+		else {
+			ExitBackToDraw();
+		}
+	}
+	internal void ExitBackToDraw() {
+		fileButtonBox.Hide();
+		fc = null;
+		drawFrame.Remove(currentDrawFrameWidget);
+		drawFrame.Add(da);
+		currentDrawFrameWidget = da;
+	}
 	internal void SwitchToSaveDialog() {
-		//Make the Save/Cancel buttons visible
+		Shared.Paused = true;
 		//Switch out the OrbitDraw widget for a save widget
 		fileButtonBox.Show();
+		commitButton.Label = "Save";
+		
+		//Make the Save/Cancel buttons visibless
 		fc = new(FileChooserAction.Save);
 
 		FileFilter jsonFilter = new();
@@ -105,18 +130,16 @@ class App : Gtk.Window
 		fc.AddFilter(jsonFilter);
 		fc.AddFilter(allFilter);
 		
-		drawFrame.Remove(drawBox);
-		drawBox = new VBox();
-		drawBox.Add(fc);
-		drawFrame.Add(drawBox);
+		drawFrame.Remove(currentDrawFrameWidget);
+		currentDrawFrameWidget = fc;
+		drawFrame.Add(fc);
 		
-		ShowAll();
-		Console.WriteLine(fc.Filename);
+		fc.Show();
 	}
     internal bool UpdateData() {
-		if(se.needToSave) {
+		if(se.middleWidgetState == "Start Save") {
 			SwitchToSaveDialog();
-			se.needToSave = false;
+			se.middleWidgetState = "In Save";
 		}
 		da.QueueDraw();
 		li.Refresh();
@@ -144,7 +167,7 @@ class App : Gtk.Window
 	}
 }
 public class OrbitSessionSettings {
-	public bool needToSave = false;
+	public string middleWidgetState = "Draw";
 	public bool drawTrails = true;
 	public bool drawVelocityVectors = false;
 	public bool drawForceVectors = false;

@@ -94,7 +94,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 	private void Click(double x, double y) {
 		//OnSaveMenuActivated(new object(), new EventArgs());
 		//OnSaveMenuActivated();
-		se.needToSave = true;
+		se.middleWidgetState = "Start Save";
 		//Gtk.FileChooserDialog saveDialog = new Gtk.FileChooserDialog("Save as", null, Gtk.FileChooserAction.Save, "Cancel", Gtk.ResponseType.Cancel, "Save", Gtk.ResponseType.Accept);
 
         //saveDialog.Run();
