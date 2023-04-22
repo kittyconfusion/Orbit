@@ -51,7 +51,7 @@ internal class MassInfo {
     internal List<Vector2d> forces = new();
     internal int index;
     internal string name;
-    internal int trailQuality;
+    internal double trailQuality;
     internal double trailCounter;
     internal Vector2d[] trail;
     internal int trailOffset;

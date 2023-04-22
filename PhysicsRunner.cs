@@ -118,13 +118,13 @@ internal class PhysicsRunner {
                     }
                     break;
                 case "trail skip":
-                    mass.trail = new Vector2d[(mass.trail.Length / mass.trailQuality) * int.Parse(change[1])];
-                    mass.trailQuality = int.Parse(change[1]);
+                    mass.trail = new Vector2d[Math.Max(1,(int)((mass.trail.Length / mass.trailQuality) * double.Parse(change[1])))];
+                    mass.trailQuality = double.Parse(change[1]);
                     ResetTrail(mass);
                     break;
                 case "trail length":
-                    if(mass.trail.Length == int.Parse(change[1])) {break;}
-                    mass.trail = new Vector2d[int.Parse(change[1]) * mass.trailQuality];
+                    if(mass.trail.Length * mass.trailQuality == int.Parse(change[1])) {break;}
+                    mass.trail = new Vector2d[Math.Max(1,(int)(int.Parse(change[1]) * mass.trailQuality))];
                     ResetTrail(mass);
                     break;
                 case "load preset":
@@ -243,9 +243,9 @@ internal class PhysicsRunner {
             
             if(!mi.hasTrail) { continue; }
 
-            mi.trailCounter++;
+            mi.trailCounter += deltaTime;
 
-            if(mi.trailCounter >= mi.trailQuality) {
+            while(mi.trailCounter >= 24*60*60/mi.trailQuality) {
                 if(mi.followingIndex != -1) {
                     mi.trail[mi.trailOffset] = mi.position - masses[mi.followingIndex].mi.position;
                 }
@@ -253,7 +253,7 @@ internal class PhysicsRunner {
                     mi.trail[mi.trailOffset] = mi.position;
                 }
                 mi.trailOffset = (mi.trailOffset + 1) % mi.trail.Length;
-                mi.trailCounter -= 60f / mi.trailQuality;
+                mi.trailCounter -= 24*60*60/mi.trailQuality;
             }
         }
     }

@@ -99,21 +99,21 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailBox);
         UpdatableWidgets.Add("followChoose", followChoose);
 
-        Scale trailLength = new(Orientation.Horizontal, 0.1, 2, 0.1);
+        Scale trailLength = new(Orientation.Horizontal, 1, 365, 1);
         trailLength.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail length", (60 * trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"trail length", (trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
         };
 
         HBox trailLengthBox = new();
-        trailLengthBox.Add(new Label("Length (min)"));
-        trailLengthBox.Add(new Label("Ticks (per sec)"));
+        trailLengthBox.Add(new Label("Length (days)"));
+        trailLengthBox.Add(new Label("Vertices (per day)"));
 
         PrimaryWidgets.Add(trailLengthBox);
         UpdatableWidgets.Add("trailLength", trailLength);
 
-        Scale trailQuality = new(Orientation.Horizontal, 1, 16, 1);
+        Scale trailQuality = new(Orientation.Horizontal, 0.02, 2, 0.01);
         trailQuality.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail skip", trailQuality.Value.ToString(), Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"trail skip", (trailQuality.Value).ToString(), Shared.selectedMassIndex.ToString()});
         };
 
         HBox trailQualityBox = new();
