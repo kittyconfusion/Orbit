@@ -91,16 +91,39 @@ class App : Gtk.Window
 			Control = true;
 		}
     }
+	internal bool AreYouSure(string name) {
+		MessageDialog m = new Gtk.MessageDialog(new Window(WindowType.Popup), 
+			DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel, "Overwrite \"" + name + "\"?");
+		Window.GetOrigin(out int x, out int y);
+		m.Move(x, y);
+		ResponseType result = (ResponseType)m.Run();
+		m.Destroy();
+		return (result == Gtk.ResponseType.Ok);
+	}
 	internal void CommitButtonPress() {
-		if(fc != null) {
-			string name = fc.Filename;
+		if(fc == null) { ExitBackToDraw(); return; }
+	
+		string name = fc.Filename;
+
+		if(se.middleWidgetState == "Save") {
 			if(Directory.Exists(System.IO.Path.GetPathRoot(name)) && System.IO.Path.GetFileNameWithoutExtension(name) != "") {
-				Shared.changesToMake.Push(new string[] {"save", fc.Filename, "-1"});
-				ExitBackToDraw();
+				if(File.Exists(name)) {
+					if(AreYouSure(name)) {
+						Shared.changesToMake.Push(new string[] {"save", name, "-1"});
+						ExitBackToDraw();
+					}
+				}
+				else {
+					Shared.changesToMake.Push(new string[] {"save", name, "-1"});
+					ExitBackToDraw();
+				}
 			}
 		}
-		else {
-			ExitBackToDraw();
+		if(se.middleWidgetState == "Load") {
+			if(File.Exists(name)) {
+				Shared.changesToMake.Push(new string[] {"load", name, "-1"});
+				ExitBackToDraw();
+			}
 		}
 	}
 	internal void ExitBackToDraw() {
@@ -109,15 +132,22 @@ class App : Gtk.Window
 		drawFrame.Remove(currentDrawFrameWidget);
 		drawFrame.Add(da);
 		currentDrawFrameWidget = da;
+		se.middleWidgetState = "Draw";
 	}
-	internal void SwitchToSaveDialog() {
+	internal void SwitchToFileDialog(string type) {
 		Shared.Paused = true;
+		os.paused.Active = true;
 		//Switch out the OrbitDraw widget for a save widget
 		fileButtonBox.Show();
-		commitButton.Label = "Save";
+		commitButton.Label = type;
 		
-		//Make the Save/Cancel buttons visibless
-		fc = new(FileChooserAction.Save);
+		//Make the Commit/Cancel buttons visibles
+		if(type == "Save") {
+			fc = new(FileChooserAction.Save);
+		}
+		else {
+			fc = new(FileChooserAction.Open);
+		}
 
 		FileFilter jsonFilter = new();
 		jsonFilter.Name = "JSON files";
@@ -137,11 +167,18 @@ class App : Gtk.Window
 		fc.Show();
 	}
     internal bool UpdateData() {
-		if(se.middleWidgetState == "Start Save") {
-			SwitchToSaveDialog();
-			se.middleWidgetState = "In Save";
+		if(se.middleWidgetState == "Draw") {
+			da.QueueDraw();
 		}
-		da.QueueDraw();
+		else if(se.middleWidgetState == "Start Save") {
+			SwitchToFileDialog("Save");
+			se.middleWidgetState = "Save";
+		}
+		else if(se.middleWidgetState == "Start Load") {
+			SwitchToFileDialog("Load");
+			se.middleWidgetState = "Load";
+		}
+		
 		li.Refresh();
 		if(Shared.ignoreNextUpdates > 0) {
 			Shared.ignoreNextUpdates -= 1;

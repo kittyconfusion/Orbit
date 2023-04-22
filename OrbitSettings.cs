@@ -14,26 +14,62 @@ public class OrbitSettings : Gtk.ListBox {
         WidthRequest = 100;
         SelectionMode = SelectionMode.None;
 
-        //AccelGroup agr = new AccelGroup();
-
+        //Initialize the menu bar
         MenuBar optionMenu = new MenuBar();
 
+        MenuItem file = new MenuItem("File");
         MenuItem mass = new MenuItem("Mass");
-        MenuItem load = new MenuItem("Load");
         MenuItem view = new MenuItem("View");
 
+        Menu fileMenu = new();
         Menu massMenu = new();
-        Menu loadMenu = new();
         Menu viewMenu = new();
 
+        optionMenu.Append(file);
         optionMenu.Append(mass);
-        optionMenu.Append(load);
         optionMenu.Append(view);
         
+        file.Submenu = fileMenu;
         mass.Submenu = massMenu;
-        load.Submenu = loadMenu;
         view.Submenu = viewMenu;
 
+        //Initialize the file menu
+        MenuItem save = new("Save to file");
+        save.Activated += (object? o, EventArgs a) => {
+            se.middleWidgetState = "Start Save";
+        };
+
+        MenuItem load = new("Load from file");
+        load.Activated += (object? o, EventArgs a) => {
+            se.middleWidgetState = "Start Load";
+        };
+
+        MenuItem loadPreset = new("Load Preset");
+            Menu presets = new();
+            loadPreset.Submenu = presets;
+
+            MenuItem solarSystem = new("Solar System");
+                presets.Append(solarSystem);
+                solarSystem.Activated += (object? o, EventArgs e) => {
+                    LoadPreset("solar system");
+                };
+
+            MenuItem hulseTaylor = new ("Hulse-Taylor binary");
+                presets.Append(hulseTaylor);
+                hulseTaylor.Activated += (object? o, EventArgs e) => {
+                    LoadPreset("hulse-taylor binary");
+                };
+
+        MenuItem about = new("About");
+
+        fileMenu.Append(save);
+        fileMenu.Append(new SeparatorMenuItem());
+        fileMenu.Append(load);
+        fileMenu.Append(loadPreset);
+        fileMenu.Append(new SeparatorMenuItem());
+        fileMenu.Append(about);
+
+        //Initalize the mass menu
         MenuItem add = new("Add Mass");
         MenuItem remove = new("Remove Mass");
 
@@ -47,63 +83,45 @@ public class OrbitSettings : Gtk.ListBox {
         massMenu.Append(remove);
 
         MenuItem newMass = new("New Mass");
-        newMass.Activated += (object? o, EventArgs e) => {
-            paused!.Active = true;
-            Shared.Paused = true;
-            Shared.changesToMake.Push(new string[] {"new mass","","-1"});
-        };
-        addMenu.Append(newMass);
+            newMass.Activated += (object? o, EventArgs e) => {
+                paused!.Active = true;
+                Shared.Paused = true;
+                Shared.changesToMake.Push(new string[] {"new mass","","-1"});
+            };
+            addMenu.Append(newMass);
 
         MenuItem removeCurrentMass = new("Current Mass");
-        removeCurrentMass.Activated += (object? o, EventArgs e) => {
-            if(Shared.selectedMassIndex > -1) {
-                Shared.changesToMake.Push(new string[] {"remove mass", "", Shared.selectedMassIndex.ToString()});
-            }
-        };
+            removeCurrentMass.Activated += (object? o, EventArgs e) => {
+                if(Shared.selectedMassIndex > -1) {
+                    Shared.changesToMake.Push(new string[] {"remove mass", "", Shared.selectedMassIndex.ToString()});
+                }
+            };
         MenuItem removeAllMasses = new("All Masses");
 
-        removeAllMasses.Activated += (object? o, EventArgs e) => {
-            MessageDialog m = new Gtk.MessageDialog(new Window(WindowType.Popup), DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel, "Remove all objects?");
-                Window.GetOrigin(out int x, out int y);
-                m.Move(x, y);
-                ResponseType result = (ResponseType)m.Run();
-                m.Destroy();
-                if (result == Gtk.ResponseType.Ok)
-                {
-                    Shared.changesToMake.Push(new string[] {"remove all masses", "", "-1"});
-                }
-        };
+            removeAllMasses.Activated += (object? o, EventArgs e) => {
+                //Are you sure you want to remove all masses window
+                MessageDialog m = new Gtk.MessageDialog(new Window(WindowType.Popup), DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel, "Remove all objects?");
+                    Window.GetOrigin(out int x, out int y);
+                    m.Move(x, y);
+                    ResponseType result = (ResponseType)m.Run();
+                    m.Destroy();
+                    if (result == Gtk.ResponseType.Ok)
+                    {
+                        Shared.changesToMake.Push(new string[] {"remove all masses", "", "-1"});
+                    }
+            };
         removeMenu.Append(removeCurrentMass);
         removeMenu.Append(removeAllMasses);
 
-        MenuItem loadPreset = new("Preset");
-        Menu presets = new();
-        loadPreset.Submenu = presets;
-        loadMenu.Append(loadPreset);
-
-        MenuItem solarSystem = new("Solar System");
-        presets.Append(solarSystem);
-        solarSystem.Activated += (object? o, EventArgs e) => {
-            Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
-        };
-
-        MenuItem hulseTaylor = new ("Hulse-Taylor binary");
-        presets.Append(hulseTaylor);
-        hulseTaylor.Activated += (object? o, EventArgs e) => {
-            Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
-            timeUnits!.Active = 1;
-            timeScale!.Value = 30;
-            ChangeTime();
-        };
-
+        //Initalize the view menu
         CheckMenuItem highResolutionMode = new("High Resolution Mode");
-        highResolutionMode.Toggled += (object? o, EventArgs a) => { ChangeTime(); };
-        MenuButtons.Add("High Resolution Mode", highResolutionMode);
+            highResolutionMode.Toggled += (object? o, EventArgs a) => { ChangeTime(); };
+            MenuButtons.Add("High Resolution Mode", highResolutionMode);
 
         CheckMenuItem globalDrawTrails = new("Draw Trails");
-        globalDrawTrails.Active = se.drawTrails;
-        globalDrawTrails.Toggled += (object? o, EventArgs a) => {se.drawTrails = globalDrawTrails.Active;};
-        MenuButtons.Add("Global Trail Draw", globalDrawTrails);
+            globalDrawTrails.Active = se.drawTrails;
+            globalDrawTrails.Toggled += (object? o, EventArgs a) => {se.drawTrails = globalDrawTrails.Active;};
+            MenuButtons.Add("Global Trail Draw", globalDrawTrails);
 
         MenuItem positionUnits = new("Set Position Unit");
         Menu positionUnitsMenu = new();
@@ -147,31 +165,32 @@ public class OrbitSettings : Gtk.ListBox {
             massUnitsMenu.Append(ggMassOption);
             massUnitsMenu.Append(kgMassOption);
 
-        //globalDrawTrails.AddAccelerator("activate", agr, new AccelKey(Gdk.Key.t, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
-
+        
         CheckMenuItem drawTrails = new("Toggle All Trails");
-        drawTrails.Active = true;
-        drawTrails.Toggled += (object? o, EventArgs a) => {
-            for(int i = 0; i < Shared.massObjects; i++) {
-                Shared.drawingCopy[i].hasTrail = drawTrails.Active;
-            }
-        };
-        MenuItem resetTrailsToMass = new("Follow Current Mass");
-        resetTrailsToMass.Activated += (object? o, EventArgs a) => {
-
-            for(int i = 0; i < Shared.massObjects; i++) {
-                if(i != Shared.selectedMassIndex) {
-                    Shared.changesToMake.Push(new string[] {"trail follow", Shared.selectedMassIndex.ToString(), i.ToString()});
+            drawTrails.Active = true;
+            drawTrails.Toggled += (object? o, EventArgs a) => {
+                for(int i = 0; i < Shared.massObjects; i++) {
+                    Shared.drawingCopy[i].hasTrail = drawTrails.Active;
                 }
-            }
-            
-        };
+            };
+        MenuItem resetTrailsToMass = new("Follow Current Mass");
+            resetTrailsToMass.Activated += (object? o, EventArgs a) => {
+
+                for(int i = 0; i < Shared.massObjects; i++) {
+                    if(i != Shared.selectedMassIndex) {
+                        Shared.changesToMake.Push(new string[] {"trail follow", Shared.selectedMassIndex.ToString(), i.ToString()});
+                    }
+                }
+                
+            };
         viewMenu.Append(highResolutionMode);
         viewMenu.Append(globalDrawTrails);
         viewMenu.Append(positionUnits);
         viewMenu.Append(massUnits);
         viewMenu.Append(drawTrails);
         viewMenu.Append(resetTrailsToMass);
+
+        //End of menu bar initalization
 
         VBox vbox = new VBox(false, 2);
         vbox.PackStart(optionMenu, false, false, 0);
@@ -180,25 +199,26 @@ public class OrbitSettings : Gtk.ListBox {
 
         HBox time = new();
         timeUnits = new();
-        timeUnits.AppendText("Seconds");
-        timeUnits.AppendText("Minutes");
-        timeUnits.AppendText("Hours");
-        timeUnits.AppendText("Days");
-        timeUnits.AppendText("Weeks");
-        timeUnits.AppendText("Years");
-        timeUnits.AppendText("Decades");
-        timeUnits.Changed += UnitChange;
+            timeUnits.AppendText("Seconds");
+            timeUnits.AppendText("Minutes");
+            timeUnits.AppendText("Hours");
+            timeUnits.AppendText("Days");
+            timeUnits.AppendText("Weeks");
+            timeUnits.AppendText("Years");
+            timeUnits.AppendText("Decades");
+            timeUnits.Changed += UnitChange;
 
-        paused = new("Pause");
-        paused.Toggled += (object? o, EventArgs a) => {Shared.Paused = paused.Active;};
-        time.Add(timeUnits);
-        time.Add(paused);
-        Add(time);
+            paused = new("Pause");
+            paused.Toggled += (object? o, EventArgs a) => {Shared.Paused = paused.Active;};
+            time.Add(timeUnits);
+            time.Add(paused);
+            Add(time);
         
         timeScale = new(Orientation.Horizontal, 0,52,1);
-        timeScale.ValueChanged += (object? o, EventArgs args) => {ChangeTime();}; 
-        Add(timeScale);
+            timeScale.ValueChanged += (object? o, EventArgs args) => {ChangeTime();}; 
+            Add(timeScale);
 
+        //Start the time at weeks
         timeUnits.Active = 4;
         ChangeTime();
 
@@ -228,6 +248,20 @@ public class OrbitSettings : Gtk.ListBox {
         CheckButton normalizeVelocity = new("Normalize Velocity");
         normalizeVelocity.Toggled += (object? o, EventArgs a) => { se.normalizeVelocity = normalizeVelocity.Active; };
         Add(normalizeVelocity);
+    }
+    private void LoadPreset(string key) {
+        switch(key) {
+            case "solar system":
+                Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
+                break;
+
+            case "hulse-taylor binary":
+                Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
+                timeUnits!.Active = 1;
+                timeScale!.Value = 30;
+                ChangeTime();
+                break;
+        }
     }
 
     private void ChangeTime() {

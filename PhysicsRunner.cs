@@ -134,9 +134,26 @@ internal class PhysicsRunner {
                     mass.stationary = bool.Parse(change[1]);
                     break;
                 case "save":
+                    //Set if each mass is minor or major
+                    foreach(Mass m in allMasses) {
+                        m.mi.minorMass = minorMasses.Contains(m);
+                    }
                     MassJsonHelper.SaveMassesToFile(allMasses, change[1]);
                     break;
-                
+                case "load":
+                    List<Mass>? fileMasses = MassJsonHelper.LoadMassesFromFile(change[1]);
+                    if(fileMasses != null) {
+                        ClearAllMasses();
+                        foreach(Mass m in fileMasses) {
+                            if(m.mi.minorMass) {
+                                AddMinorMass(m);
+                            }
+                            else {
+                                AddMass(m);
+                            }
+                        }
+                    }
+                    break;
             }
         }
     }

@@ -1,10 +1,25 @@
 using Gtk;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Orbit;
+
+    public struct Forecast
+    {
+        public DateTime Date { get; }
+        [JsonPropertyName("celsius")]
+        public int TemperatureC { get; }
+        public string Summary { get; }
+ 
+        [JsonConstructor]
+        public Forecast(DateTime date, int temperatureC, string summary) =>
+            (Date, TemperatureC, Summary) = (date, temperatureC, summary);
+    }
+
 public class MassJsonHelper {
 	public int Index {get; set;}
 	public string Name {get; set;}
+	public bool MinorMass {get; set;}
 
 	public double MassInGg {get; set;}
 	public Vector2d PositionInKm {get; set;}
@@ -12,7 +27,7 @@ public class MassJsonHelper {
 	public bool Stationary {get; set;}
 
     public bool HasTrail {get; set;}
-	public int TrailLength {get; set;}
+	public int TrailSeconds {get; set;}
     public double TrailQuality {get; set;}
 
     public int FollowingIndex {get; set;}
@@ -37,19 +52,28 @@ public class MassJsonHelper {
 			File.WriteAllText(fileName + ".json", jsonString);
 		}
 	}
-	internal static MassJsonList? LoadMassesFromFile(string fileName) {
+	internal static List<Mass>? LoadMassesFromFile(string fileName) {
+		MassJsonList? jsonMasses;
+		List<Mass> masses = new();
 		using (StreamReader file = File.OpenText(@fileName)) {
-			MassJsonList? masses = JsonSerializer.Deserialize<MassJsonList>(file.ReadToEnd());
-			return masses;
+			jsonMasses = JsonSerializer.Deserialize<MassJsonList>(file.ReadToEnd());
 		}
+		if(jsonMasses == null) { return null; }
 		
+		foreach(MassJsonHelper h in jsonMasses.JsonMasses) {
+			masses.Add(h.ToMass());
+		}
+		return masses;
 	}
 	internal Mass ToMass() {
-		return new Mass(1, new Vector2d(), new Vector2d());
+		return new Mass(MassInGg, VelocityInKmS, PositionInKm, name: Name, hasTrail: HasTrail, stationary: Stationary, 
+			trailSeconds: TrailSeconds, trailQuality: TrailQuality, followingIndex: FollowingIndex, 
+			precisionPriorityLimit: PrecisionPriorityLimitInSeconds, satellite: Satellite);
 	}
 	internal MassJsonHelper(MassInfo mass) : base(){
 		Index = mass.index;
 		Name = mass.name;
+		MinorMass = mass.minorMass;
 
 		MassInGg = mass.mass;
 		PositionInKm = mass.position;
@@ -57,7 +81,7 @@ public class MassJsonHelper {
 		Stationary = mass.stationary;
 
 		HasTrail = mass.hasTrail;
-		TrailLength = (int) (mass.trail.Length / mass.trailQuality);
+		TrailSeconds = (int) (mass.trail.Length / mass.trailQuality);
 		TrailQuality = mass.trailQuality;
 
 		FollowingIndex = mass.followingIndex;
@@ -66,38 +90,11 @@ public class MassJsonHelper {
 		Satellite = mass.satellite;
 		SemiMajorAxisLength = mass.semiMajorAxisLength;
 		PrecisionPriorityLimitInSeconds = mass.precisionPriorityLimit;
-
 	}
-	//http://www.java2s.com/Code/CSharp/File-Stream/Isvalidpathname.htm
-	public static bool IsFilePathValid(string a_path) {
-        if (a_path.Trim() == string.Empty) {
-            return false;
-        }
-
-        string pathname;
-        string filename;
-        try {
-            pathname = Path.GetPathRoot(a_path);
-            filename = Path.GetFileName(a_path);
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-        if (filename.Trim() == string.Empty)
-        {
-            return false;
-        }
-        if (pathname.IndexOfAny(Path.GetInvalidPathChars()) >= 0) {
-            return false;
-        }
-        if (filename.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-        {
-            return false;
-        }
-
-        return true;
-    }
+	[JsonConstructor]
+	public MassJsonHelper(){
+		Name = "";
+	}
 }
 public class MassJsonList {
 	public List<MassJsonHelper> JsonMasses {get; set;}

@@ -67,34 +67,11 @@ public class OrbitDraw : Gtk.DrawingArea {
 			fcd.Run (); // This opens the window and waits for the response
 			fcd.Destroy ();
 			var cc = new Gtk.FileChooserWidget(FileChooserAction.Save);
-		/*
-		var fc = new Gtk.FileChooserDialog(
-			"Choose file to save to",
-			new Gtk.Window(Gtk.WindowType.Toplevel),
-			//new Gtk.Window("Save Dialog"),
-			Gtk.FileChooserAction.Save,
-			"Cancel", Gtk.ResponseType.Cancel,
-			"Save", Gtk.ResponseType.Accept
-			);
-		var option = (Gtk.ResponseType)fc.Run();
-		if (option == Gtk.ResponseType.Accept)
-		{
-			await Task.Run(() => {
-				if(!File.Exists(fc.Filename)) {
-					Shared.changesToMake.Push(new string[] {"save", fc.Filename, "-1"});
-				}
-				else {
-
-				}
-			});
-		}
-		fc.Destroy();
-		*/
 		}
 	private void Click(double x, double y) {
 		//OnSaveMenuActivated(new object(), new EventArgs());
 		//OnSaveMenuActivated();
-		se.middleWidgetState = "Start Save";
+		
 		//Gtk.FileChooserDialog saveDialog = new Gtk.FileChooserDialog("Save as", null, Gtk.FileChooserAction.Save, "Cancel", Gtk.ResponseType.Cancel, "Save", Gtk.ResponseType.Accept);
 
         //saveDialog.Run();
