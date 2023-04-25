@@ -3,19 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Orbit;
-
-    public struct Forecast
-    {
-        public DateTime Date { get; }
-        [JsonPropertyName("celsius")]
-        public int TemperatureC { get; }
-        public string Summary { get; }
- 
-        [JsonConstructor]
-        public Forecast(DateTime date, int temperatureC, string summary) =>
-            (Date, TemperatureC, Summary) = (date, temperatureC, summary);
-    }
-
 public class MassJsonHelper {
 	public int Index {get; set;}
 	public string Name {get; set;}

@@ -4,7 +4,7 @@ namespace Orbit;
 class App : Gtk.Window
 {
     OrbitDraw da;
-	FileChooserWidget? fc;
+	FileChooserWidget fc;
 	Widget currentDrawFrameWidget;
 	Frame drawFrame;
 	Button commitButton;
@@ -16,6 +16,18 @@ class App : Gtk.Window
     public App() : base("Orbit 🌌")
     {
 		se = new();
+		fc = new(FileChooserAction.Open);
+		
+		FileFilter jsonFilter = new();
+		jsonFilter.Name = "JSON files";
+		jsonFilter.AddMimeType("application/json");
+
+		FileFilter allFilter = new();
+		allFilter.Name = "All files";
+		allFilter.AddMimeType("*");
+		
+		fc.AddFilter(jsonFilter);
+		fc.AddFilter(allFilter);
 		
         SetDefaultSize(1366, 768);
         SetPosition(WindowPosition.Center);
@@ -101,7 +113,6 @@ class App : Gtk.Window
 		return (result == Gtk.ResponseType.Ok);
 	}
 	internal void CommitButtonPress() {
-		if(fc == null) { ExitBackToDraw(); return; }
 	
 		string name = fc.Filename;
 
@@ -128,10 +139,9 @@ class App : Gtk.Window
 	}
 	internal void ExitBackToDraw() {
 		fileButtonBox.Hide();
-		fc = null;
 		drawFrame.Remove(currentDrawFrameWidget);
-		drawFrame.Add(da);
 		currentDrawFrameWidget = da;
+		drawFrame.Add(da);
 		se.middleWidgetState = "Draw";
 	}
 	internal void SwitchToFileDialog(string type) {
@@ -143,22 +153,11 @@ class App : Gtk.Window
 		
 		//Make the Commit/Cancel buttons visibles
 		if(type == "Save") {
-			fc = new(FileChooserAction.Save);
+			fc.Action = FileChooserAction.Save;
 		}
 		else {
-			fc = new(FileChooserAction.Open);
+			fc.Action = FileChooserAction.Open;
 		}
-
-		FileFilter jsonFilter = new();
-		jsonFilter.Name = "JSON files";
-		jsonFilter.AddMimeType("application/json");
-
-		FileFilter allFilter = new();
-		allFilter.Name = "All files";
-		allFilter.AddMimeType("*");
-		
-		fc.AddFilter(jsonFilter);
-		fc.AddFilter(allFilter);
 		
 		drawFrame.Remove(currentDrawFrameWidget);
 		currentDrawFrameWidget = fc;

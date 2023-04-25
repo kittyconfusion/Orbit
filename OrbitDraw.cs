@@ -51,31 +51,13 @@ public class OrbitDraw : Gtk.DrawingArea {
 		offset += (lastMouse-new Vector2d(args.Event.X,args.Event.Y)) * scale;
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}
-	private  void OnSaveMenuActivated() {
-		MessageDialog m = new Gtk.MessageDialog(new Gtk.Window(Gtk.WindowType.Popup), DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel, "Remove all objects?");
-			Window.GetOrigin(out int x, out int y);
-			m.Move(x, y);
-			ResponseType result = (ResponseType)m.Run();
-			m.Destroy();
-			if (result == Gtk.ResponseType.Ok)
-			{
-				//Shared.changesToMake.Push(new string[] {"save", fc.Filename, "-1"});
-			}
+	private void Click(double x, double y) {
+
 			FileChooserDialog fcd = new FileChooserDialog ("Choose files", new Gtk.Window(Gtk.WindowType.Popup), 
 				FileChooserAction.Open, "Select", ResponseType.Ok, "Cancel", ResponseType.Close);
 			fcd.SelectMultiple = true;
 			fcd.Run (); // This opens the window and waits for the response
 			fcd.Destroy ();
-			var cc = new Gtk.FileChooserWidget(FileChooserAction.Save);
-		}
-	private void Click(double x, double y) {
-		//OnSaveMenuActivated(new object(), new EventArgs());
-		//OnSaveMenuActivated();
-		
-		//Gtk.FileChooserDialog saveDialog = new Gtk.FileChooserDialog("Save as", null, Gtk.FileChooserAction.Save, "Cancel", Gtk.ResponseType.Cancel, "Save", Gtk.ResponseType.Accept);
-
-        //saveDialog.Run();
-		//saveDialog.Destroy();
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;

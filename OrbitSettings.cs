@@ -61,6 +61,9 @@ public class OrbitSettings : Gtk.ListBox {
                 };
 
         MenuItem about = new("About");
+        about.Activated += (object? o, EventArgs a) => {
+            ShowAboutDialog();
+        };
 
         fileMenu.Append(save);
         fileMenu.Append(new SeparatorMenuItem());
@@ -249,6 +252,19 @@ public class OrbitSettings : Gtk.ListBox {
         normalizeVelocity.Toggled += (object? o, EventArgs a) => { se.normalizeVelocity = normalizeVelocity.Active; };
         Add(normalizeVelocity);
     }
+private void ShowAboutDialog() {
+        AboutDialog about = new AboutDialog();
+        about.Decorated = true;
+        about.ProgramName = "Orbit";
+        //about.Version = "0.1";
+        about.Copyright = "(c) Jan Bodnar";
+        about.Comments = @"Battery is a simple tool for 
+battery checking";
+        //about.Website = "http://www.zetcode.com";
+        //about.Logo = new Gdk.Pixbuf("battery.png");
+        about.Run();
+        //about.Destroy();
+}
     private void LoadPreset(string key) {
         switch(key) {
             case "solar system":
