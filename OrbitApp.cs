@@ -8,13 +8,20 @@ class App : Gtk.Window
 	OrbitSettings os;
 	OrbitSessionSettings se;
 	bool Control = false;
+
     public App() : base("Orbit 🌌")
     {
 		se = new();
 
-        SetDefaultSize(1050, 650);
+        SetDefaultSize(1366, 768);
         SetPosition(WindowPosition.Center);
         DeleteEvent += delegate { Shared.Running = false; Application.Quit(); };
+
+		if(File.Exists("orbiticon.png")) {
+			SetIconFromFile("orbiticon.png");
+		}
+		
+		//GLib.Idle.Add(GLib.Priority.Low, OpenFile);
 		
 		Paned p1 = new(Orientation.Horizontal);
 		Paned p2 = new(Orientation.Horizontal);
@@ -42,7 +49,6 @@ class App : Gtk.Window
 		outerFrame.ShadowType = ShadowType.EtchedIn;
 		outerFrame.MarginStart = 8;
 		outerFrame.MarginEnd = 8;
-		//outerFrame.MarginBottom = 4;
 		outerFrame.Add(p1);
 
 		Add(outerFrame);
@@ -51,7 +57,8 @@ class App : Gtk.Window
 		p1.KeyPressEvent   += (object o, KeyPressEventArgs   args) => {OnKeyPress  (o, args);};
 		
 		ShowAll ();
-		li.InitHide();		
+		li.InitHide();
+		os.saveLoadFrame.Hide();		
 
 		GLib.Timeout.Add(33, new GLib.TimeoutHandler(() => UpdateData()));
     }
@@ -69,6 +76,7 @@ class App : Gtk.Window
 		if(Shared.ignoreNextUpdates > 0) {
 			Shared.ignoreNextUpdates -= 1;
 		}
+
 		return true;
 	}
 	private void OnKeyRelease(object o, KeyReleaseEventArgs args) {
@@ -87,6 +95,16 @@ class App : Gtk.Window
 			se.drawTrails = !se.drawTrails;
 			((CheckMenuItem)os.MenuButtons["Global Trail Draw"]!).Active = se.drawTrails;
 		}
+	}
+}
+
+public class FileDialog : Gtk.Dialog{
+	public FileDialog() : base("Save/Load",new Window(WindowType.Popup), DialogFlags.Modal) {
+		AddButton("Cancel", ResponseType.Cancel);
+		AddButton("Yes", ResponseType.Yes);
+
+		Entry address = new();
+		ContentArea.Add(address);
 	}
 }
 

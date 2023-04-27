@@ -14,7 +14,7 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSeconds = 30, int trailQuality = 8, int followingIndex = -1,
+        bool hasTrail = true, bool stationary = false, int trailSeconds = 30, double trailQuality = 8, int followingIndex = -1,
         int precisionPriorityLimit = -1, bool satellite = true) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
@@ -25,7 +25,7 @@ internal class Mass{
         mi.trailQuality = trailQuality;
         mi.followingIndex = followingIndex;
         mi.name = name == "" ? GenerateName() : name;
-        mi.trail = new Vector2d[trailSeconds * trailQuality];
+        mi.trail = new Vector2d[Math.Max(1, (int)(trailSeconds * trailQuality))];
         mi.precisionPriorityLimit = precisionPriorityLimit;
         mi.semiMajorAxisLength = mi.position.Magnitude();
         mi.satellite = satellite;
@@ -34,7 +34,10 @@ internal class Mass{
     } 
 
     private string GenerateName()
-    {
+    {   
+        if(!(File.Exists("adjectives.txt") && File.Exists("animals.txt"))) {
+            return "New Mass";
+        }
         string[] adjectives = File.ReadAllLines("adjectives.txt");
         string[] animals = File.ReadAllLines("animals.txt");
         
@@ -51,7 +54,8 @@ internal class MassInfo {
     internal List<Vector2d> forces = new();
     internal int index;
     internal string name;
-    internal int trailQuality;
+    internal bool minorMass;
+    internal double trailQuality;
     internal double trailCounter;
     internal Vector2d[] trail;
     internal int trailOffset;

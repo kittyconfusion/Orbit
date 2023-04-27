@@ -24,6 +24,7 @@ internal class PhysicsRunner {
             //Find the object which it orbits
             if(m.mi.satellite) {
                 m.mi.orbitingBodyIndex = FindBestOrbitingBody(m);
+                ResetTrail(m.mi);
             }
         }
     }
@@ -97,7 +98,8 @@ internal class PhysicsRunner {
                     }
                     break;
                 case "new mass":
-                    AddMass(new Mass(1e+18,new Vector2d(), new Vector2d()));
+                    Random r = new();
+                    AddMass(new Mass(Constant.MassOfEarth, new Vector2d(), new Vector2d(r.NextDouble(), r.NextDouble()) * Constant.AUtokm(1)));
                     break;
                 case "remove mass":
                     int index = Convert.ToInt32(change[2]);
@@ -118,13 +120,13 @@ internal class PhysicsRunner {
                     }
                     break;
                 case "trail skip":
-                    mass.trail = new Vector2d[(mass.trail.Length / mass.trailQuality) * int.Parse(change[1])];
-                    mass.trailQuality = int.Parse(change[1]);
+                    mass.trail = new Vector2d[Math.Max(1,(int)((mass.trail.Length / mass.trailQuality) * double.Parse(change[1])))];
+                    mass.trailQuality = double.Parse(change[1]);
                     ResetTrail(mass);
                     break;
                 case "trail length":
-                    if(mass.trail.Length == int.Parse(change[1])) {break;}
-                    mass.trail = new Vector2d[int.Parse(change[1]) * mass.trailQuality];
+                    if(mass.trail.Length * mass.trailQuality == int.Parse(change[1])) {break;}
+                    mass.trail = new Vector2d[Math.Max(1,(int)(int.Parse(change[1]) * mass.trailQuality))];
                     ResetTrail(mass);
                     break;
                 case "load preset":
@@ -133,6 +135,27 @@ internal class PhysicsRunner {
                     break;
                 case "stationary":
                     mass.stationary = bool.Parse(change[1]);
+                    break;
+                case "save":
+                    //Set if each mass is minor or major
+                    foreach(Mass m in allMasses) {
+                        m.mi.minorMass = minorMasses.Contains(m);
+                    }
+                    MassJsonHelper.SaveMassesToFile(allMasses, change[1]);
+                    break;
+                case "load":
+                    List<Mass>? fileMasses = MassJsonHelper.LoadMassesFromFile(change[1]);
+                    if(fileMasses != null) {
+                        ClearAllMasses();
+                        foreach(Mass m in fileMasses) {
+                            if(m.mi.minorMass) {
+                                AddMinorMass(m);
+                            }
+                            else {
+                                AddMass(m);
+                            }
+                        }
+                    }
                     break;
                 
             }
@@ -280,7 +303,7 @@ internal class PhysicsRunner {
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailSeconds: 18, trailQuality: 14, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailSeconds: 24, trailQuality: 12, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 2));
                 AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailSeconds: 12, trailQuality: 10, followingIndex: 3, precisionPriorityLimit: Constant.DAYS));
-                AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSeconds: 36, trailQuality: 10, followingIndex: 0));
+                AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailSeconds: 36, trailQuality: 10, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 4));
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailSeconds: 90, trailQuality: 6, followingIndex: 0));
                 AddMass(new Mass ( 568  * Math.Pow(10,18), new Vector2d( 9.7, 0), new Vector2d(0,1432000000), name: "Saturn",  trailSeconds: 102, trailQuality: 5, followingIndex: 0));
@@ -288,7 +311,7 @@ internal class PhysicsRunner {
                 AddMass(new Mass ( 102  * Math.Pow(10,18), new Vector2d( 5.4, 0), new Vector2d(0,4515000000), name: "Neptune", trailSeconds: 108, trailQuality: 4, followingIndex: 0));
                 
                 //AddMinorMass(new Mass(Constant.kgToGg(420000), new Vector2d(0, 7.66), new Vector2d(0 + 4212.8, 149600000 + 0), name: "International Space Station", hasTrail: false, precisionPriorityLimit: Constant.HOURS, satellite: true));
-                Mass Bennu = new Mass(Constant.kgToGg(7.329 * Math.Pow(10,10)), new Vector2d(22.828, 0), new Vector2d(0, Constant.AUtokm(1.3559)), name: "Bennu");
+                Mass Bennu = new Mass(Constant.kgToGg(7.329 * Math.Pow(10,10)), new Vector2d(22.828, 0), new Vector2d(0, Constant.AUtokm(1.3559)), name: "Bennu", trailSeconds: 6);
                 FixMassAngle(Bennu, 265, new Vector2d(0,0));
                 AddMinorMass(Bennu);
                 

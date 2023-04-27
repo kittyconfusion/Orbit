@@ -52,7 +52,8 @@ public class OrbitDraw : Gtk.DrawingArea {
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}
 	private void Click(double x, double y) {
-
+		
+		//GLib.Idle.Add(GLib.Priority.Low, App. OpenFile);
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
@@ -84,10 +85,6 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 		double inverseScale = 1 / scale;
 
-		if(Shared.trackedMass > -1) {
-			
-
-		}
 		Vector2d drawOffset = offset;
 		if(Shared.trackedMass > -1) {
 			MassInfo tracked = Shared.drawingCopy[Shared.trackedMass];
@@ -116,7 +113,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 					int trailOffset = m.trailOffset;
 					int trailLength = trail.Length;
 
-					double transparency = 0;
+					double transparency = 0.1;
 					
 					int perUpdate = trailLength / 10;
 					int counter = 0;
@@ -130,10 +127,9 @@ public class OrbitDraw : Gtk.DrawingArea {
 						cr.LineTo(point.X, point.Y);
 
 						if(counter > perUpdate) {
-							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency);
+							cr.SetSourceRGBA(0.6, 0.6, 0.6, transparency += 0.1);
 							cr.Stroke();
 							counter = -1;
-							transparency += 0.1;
 							i--;
 						}
 						counter++;
@@ -168,10 +164,10 @@ public class OrbitDraw : Gtk.DrawingArea {
 				cr.SetSourceRGB(0.89, 0.34, 0.3);
 				
 				Vector2d direction;
-				if(m.followingIndex > -1) { direction = (m.velocity - Shared.drawingCopy[m.followingIndex].velocity) * 1.2; }
-				else { direction = (m.velocity) * 1.2; }
+				if(m.followingIndex > -1) { direction = (m.velocity - Shared.drawingCopy[m.followingIndex].velocity) * 1.25; }
+				else { direction = (m.velocity) * 1.25; }
 				
-				if(se.normalizeVelocity) {direction = direction.Normalize() * 35; };
+				if(se.normalizeVelocity) {direction = direction.Normalize() * 38; };
 				DrawArrow(cr, point, direction, (int)(radius / 4 - 0.5));
 			}
 			

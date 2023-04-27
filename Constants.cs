@@ -27,8 +27,8 @@ public static class Constant{
 
 public struct Vector2d
 {
-    public double X;
-    public double Y;
+    public double X {get; set;}
+    public double Y {get; set;}
 
     public Vector2d(double X, double Y)
     {
