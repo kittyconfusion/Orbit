@@ -53,7 +53,6 @@ public class OrbitDraw : Gtk.DrawingArea {
 	}
 	private void Click(double x, double y) {
 		
-		//GLib.Idle.Add(GLib.Priority.Low, App. OpenFile);
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;

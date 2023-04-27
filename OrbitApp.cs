@@ -21,8 +21,6 @@ class App : Gtk.Window
 			SetIconFromFile("orbiticon.png");
 		}
 		
-		//GLib.Idle.Add(GLib.Priority.Low, OpenFile);
-		
 		Paned p1 = new(Orientation.Horizontal);
 		Paned p2 = new(Orientation.Horizontal);
 		p1.Pack2(p2,true,true);
@@ -95,16 +93,6 @@ class App : Gtk.Window
 			se.drawTrails = !se.drawTrails;
 			((CheckMenuItem)os.MenuButtons["Global Trail Draw"]!).Active = se.drawTrails;
 		}
-	}
-}
-
-public class FileDialog : Gtk.Dialog{
-	public FileDialog() : base("Save/Load",new Window(WindowType.Popup), DialogFlags.Modal) {
-		AddButton("Cancel", ResponseType.Cancel);
-		AddButton("Yes", ResponseType.Yes);
-
-		Entry address = new();
-		ContentArea.Add(address);
 	}
 }
 
