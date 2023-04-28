@@ -27,7 +27,21 @@ public class MassJsonHelper {
 	internal static void SaveMassesToFile(List<Mass> masses, string fileName) {
 		MassJsonList JList = new();
 		foreach(Mass m in masses) {
-			JList.JsonMasses.Add(new MassJsonHelper(m.mi));
+			JList.Masses.Add(new MassJsonHelper(m.mi));
+		}
+		switch(Shared.resolutionMode) {
+			case 1:
+				JList.ResolutionMode = "Low";
+				break;
+			case 2:
+				JList.ResolutionMode = "Medium";
+				break;
+			case 3:
+				JList.ResolutionMode = "High";
+				break;
+			default:
+				JList.ResolutionMode = "None";
+				break;
 		}
 		var options = new JsonSerializerOptions { WriteIndented = true };
 		string jsonString = JsonSerializer.Serialize(JList, options);
@@ -43,12 +57,31 @@ public class MassJsonHelper {
 		MassJsonList? jsonMasses;
 		List<Mass> masses = new();
 		using (StreamReader file = File.OpenText(@fileName)) {
-			jsonMasses = JsonSerializer.Deserialize<MassJsonList>(file.ReadToEnd());
+			try {
+				jsonMasses = JsonSerializer.Deserialize<MassJsonList>(file.ReadToEnd());
+			}
+			catch {
+				return null;
+			}
 		}
 		if(jsonMasses == null) { return null; }
 		
-		foreach(MassJsonHelper h in jsonMasses.JsonMasses) {
+		foreach(MassJsonHelper h in jsonMasses.Masses) {
 			masses.Add(h.ToMass());
+		}
+		switch(jsonMasses.ResolutionMode) {
+			case "Low":
+				Shared.resolutionMode = 1;
+				break;
+			case "Medium":
+				Shared.resolutionMode = 2;
+				break;
+			case "High":
+				Shared.resolutionMode = 3;
+				break;
+			default:
+				Shared.resolutionMode = 0;
+				break;
 		}
 		return masses;
 	}
@@ -84,8 +117,10 @@ public class MassJsonHelper {
 	}
 }
 public class MassJsonList {
-	public List<MassJsonHelper> JsonMasses {get; set;}
+	public String ResolutionMode {get; set;}
+	public List<MassJsonHelper> Masses {get; set;}
 	public MassJsonList() {
-		JsonMasses = new();
+		ResolutionMode = "None";
+		Masses = new();
 	}
 }

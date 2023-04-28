@@ -24,7 +24,7 @@ class App : Gtk.Window
 		Paned p1 = new(Orientation.Horizontal);
 		Paned p2 = new(Orientation.Horizontal);
 		p1.Pack2(p2,true,true);
-		p2.WidthRequest = 650;
+		p2.WidthRequest = 820;
 		
 		Frame infoFrame = new Frame();
 		li = new OrbitInfo(se);
@@ -37,7 +37,7 @@ class App : Gtk.Window
 		Frame drawFrame = new Frame();
 		da = new OrbitDraw(li, se);
 		drawFrame.Add (da);
-		da.WidthRequest = 400;
+		da.WidthRequest = 540;
 
 		p1.Pack1(settingsFrame, true, true);
 		p2.Pack1(drawFrame, true, true);
@@ -54,7 +54,7 @@ class App : Gtk.Window
 		p1.KeyReleaseEvent += (object o, KeyReleaseEventArgs args) => {OnKeyRelease(o, args);};
 		p1.KeyPressEvent   += (object o, KeyPressEventArgs   args) => {OnKeyPress  (o, args);};
 		
-		ShowAll ();
+		ShowAll();
 		li.InitHide();
 		os.saveLoadFrame.Hide();		
 
@@ -74,7 +74,9 @@ class App : Gtk.Window
 		if(Shared.ignoreNextUpdates > 0) {
 			Shared.ignoreNextUpdates -= 1;
 		}
-
+		if(Shared.resolutionMode !=  os.expectedResolutionMode) {
+			os.SetResolutionMode(Shared.resolutionMode);
+		}
 		return true;
 	}
 	private void OnKeyRelease(object o, KeyReleaseEventArgs args) {

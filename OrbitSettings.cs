@@ -8,12 +8,13 @@ public class OrbitSettings : Gtk.ListBox {
     internal CheckButton paused;
     internal Frame saveLoadFrame;
     bool saving;
+    internal int expectedResolutionMode;
     internal static double ZoomSensitivity = 1;
     OrbitSessionSettings se;
     internal Dictionary<string, Widget> MenuButtons = new();
     public OrbitSettings(OrbitSessionSettings se) {
         this.se = se;
-        WidthRequest = 100;
+        WidthRequest = 140;
         SelectionMode = SelectionMode.None;
 
         MenuBar optionMenu = new MenuBar();
@@ -59,17 +60,17 @@ public class OrbitSettings : Gtk.ListBox {
 
             MenuItem solarSystem = new("Solar System");
                 presets.Append(solarSystem);
-                solarSystem.Activated += (object? o, EventArgs e) => {
-                    LoadPreset("solar system");
-                };
+                solarSystem.Activated += delegate { LoadPreset("solar system"); };
+
+            MenuItem innerSolarSystem = new("Inner Solar System");
+                presets.Append(innerSolarSystem);
+                innerSolarSystem.Activated += delegate { LoadPreset("inner solar system"); };
 
             MenuItem hulseTaylor = new ("Hulse-Taylor binary");
                 presets.Append(hulseTaylor);
-                hulseTaylor.Activated += (object? o, EventArgs e) => {
-                    LoadPreset("hulse-taylor binary");
-                };
+                hulseTaylor.Activated += delegate { LoadPreset("hulse-taylor binary"); };
 
-        
+
         MenuItem about = new("About");
         
         about.Activated += (object? o, EventArgs a) => {
@@ -85,33 +86,20 @@ public class OrbitSettings : Gtk.ListBox {
         fileMenu.Append(about);
 
         //Initalize the mass menu
-        MenuItem add = new("Add Mass");
-        MenuItem remove = new("Remove Mass");
-
-        Menu addMenu = new();
-        Menu removeMenu = new();
-
-        add.Submenu = addMenu;
-        remove.Submenu = removeMenu;
-
-        massMenu.Append(add);
-        massMenu.Append(remove);
-
         MenuItem newMass = new("New Mass");
             newMass.Activated += (object? o, EventArgs e) => {
                 paused!.Active = true;
                 Shared.Paused = true;
                 Shared.changesToMake.Push(new string[] {"new mass","","-1"});
             };
-            addMenu.Append(newMass);
 
-        MenuItem removeCurrentMass = new("Current Mass");
+        MenuItem removeCurrentMass = new("Remove Current");
             removeCurrentMass.Activated += (object? o, EventArgs e) => {
                 if(Shared.selectedMassIndex > -1) {
                     Shared.changesToMake.Push(new string[] {"remove mass", "", Shared.selectedMassIndex.ToString()});
                 }
             };
-        MenuItem removeAllMasses = new("All Masses");
+        MenuItem removeAllMasses = new("Remove All");
 
             removeAllMasses.Activated += (object? o, EventArgs e) => {
                 //Are you sure you want to remove all masses window
@@ -125,14 +113,13 @@ public class OrbitSettings : Gtk.ListBox {
                         Shared.changesToMake.Push(new string[] {"remove all masses", "", "-1"});
                     }
             };
-        removeMenu.Append(removeCurrentMass);
-        removeMenu.Append(removeAllMasses);
+            
+        massMenu.Append(newMass);
+        massMenu.Append(new SeparatorMenuItem());
+        massMenu.Append(removeCurrentMass);
+        massMenu.Append(removeAllMasses);
 
         //Initalize the view menu
-        CheckMenuItem highResolutionMode = new("High Resolution Mode");
-            highResolutionMode.Active = true;
-            highResolutionMode.Toggled += (object? o, EventArgs a) => { ChangeTime(); };
-            MenuButtons.Add("High Resolution Mode", highResolutionMode);
 
         CheckMenuItem globalDrawTrails = new("Draw Trails");
             globalDrawTrails.Active = se.drawTrails;
@@ -189,7 +176,7 @@ public class OrbitSettings : Gtk.ListBox {
                     Shared.drawingCopy[i].hasTrail = drawTrails.Active;
                 }
             };
-        MenuItem resetTrailsToMass = new("Follow Current Mass");
+        MenuItem resetTrailsToMass = new("Global Follow Current Mass");
             resetTrailsToMass.Activated += (object? o, EventArgs a) => {
 
                 for(int i = 0; i < Shared.massObjects; i++) {
@@ -199,12 +186,15 @@ public class OrbitSettings : Gtk.ListBox {
                 }
                 
             };
-        viewMenu.Append(highResolutionMode);
+
+        viewMenu.Append(new SeparatorMenuItem());
         viewMenu.Append(globalDrawTrails);
+        viewMenu.Append(drawTrails);
+        viewMenu.Append(new SeparatorMenuItem());
+        viewMenu.Append(resetTrailsToMass);
+        viewMenu.Append(new SeparatorMenuItem());
         viewMenu.Append(positionUnits);
         viewMenu.Append(massUnits);
-        viewMenu.Append(drawTrails);
-        viewMenu.Append(resetTrailsToMass);
 
         //End of menu bar initalization
 
@@ -279,6 +269,8 @@ public class OrbitSettings : Gtk.ListBox {
 
         Add(new Separator(Orientation.Horizontal));
         
+        //Zoom sensitivity
+
         Label sensitivityLabel = new("Zoom Sensitivity");
         Scale sensitivity = new(Orientation.Horizontal, 0.5, 5, 0.1);
         sensitivity.Value = 1;
@@ -287,22 +279,74 @@ public class OrbitSettings : Gtk.ListBox {
         Add(sensitivity);
 
         Add(new Separator(Orientation.Horizontal));
+        
+        //Vectors
 
         Add(new Label("Show Vectors"));
-        HBox vectorBox = new();
+        HBox velocityBox = new();
+        HBox forceBox = new();
 
         CheckButton drawVelocityVectors = new("Velocity");
+        CheckButton normalizeVelocity = new("Normalize");
         CheckButton drawForceVectors = new("Forces");
-        drawVelocityVectors.Toggled += (object? o, EventArgs a) => { se.drawVelocityVectors = drawVelocityVectors.Active; };
-        drawForceVectors.Toggled += (object? o, EventArgs a) => { se.drawForceVectors = drawForceVectors.Active; };
 
-        vectorBox.Add(drawVelocityVectors);
-        vectorBox.Add(drawForceVectors);
-        Add(vectorBox);
+        RadioButton logForces = new("Log");
+        RadioButton linearForces = new(logForces, "Linear");
 
-        CheckButton normalizeVelocity = new("Normalize Velocity");
+        drawVelocityVectors.Toggled += (object? o, EventArgs a) => { 
+            se.drawVelocityVectors = drawVelocityVectors.Active; 
+            if(drawVelocityVectors.Active) { normalizeVelocity.Show(); }
+            else { normalizeVelocity.Hide(); }
+        };
+        drawForceVectors.Toggled += (object? o, EventArgs a) => { 
+            se.drawForceVectors = drawForceVectors.Active;
+            if(drawForceVectors.Active) { logForces.Show(); linearForces.Show(); }
+            else { logForces.Hide(); linearForces.Hide(); }
+        };
         normalizeVelocity.Toggled += (object? o, EventArgs a) => { se.normalizeVelocity = normalizeVelocity.Active; };
-        Add(normalizeVelocity);
+
+        velocityBox.Add(drawVelocityVectors);
+        velocityBox.Add(normalizeVelocity);
+        forceBox.Add(drawForceVectors);
+        forceBox.Add(logForces);
+        forceBox.Add(linearForces);
+        Add(velocityBox);
+        Add(forceBox);
+
+        Add(new Separator(Orientation.Horizontal));
+
+        //Resolution mode
+        Label resolution = new("Resolution Mode");
+        RadioButton noRestriction = new(                 "No Restriction");
+        RadioButton lowRestriction = new(noRestriction,  "Low    (1 week)");
+        RadioButton midRestriction = new(noRestriction,  "Medium (8 hours)");
+        RadioButton highRestriction = new(noRestriction, "High   (10 minutes)");
+
+        MenuButtons.Add("resolution0", noRestriction);
+        MenuButtons.Add("resolution1", lowRestriction);
+        MenuButtons.Add("resolution2", midRestriction);
+        MenuButtons.Add("resolution3", highRestriction);
+
+        noRestriction.Pressed += delegate { SetResolutionMode(0); };
+        lowRestriction.Pressed += delegate { SetResolutionMode(1); };
+        midRestriction.Pressed += delegate { SetResolutionMode(2); };
+        highRestriction.Pressed += delegate { SetResolutionMode(3); };
+
+        Add(resolution);
+        Add(noRestriction);
+        Add(lowRestriction);
+        Add(midRestriction);
+        Add(highRestriction);
+        
+        Add(new Separator(Orientation.Horizontal));
+    }
+    internal void SetResolutionMode(int mode) {
+        if(MenuButtons.ContainsKey("resolution" + mode)) {
+            ((RadioButton)MenuButtons["resolution" + mode]).Active = true;
+            Shared.resolutionMode = mode;
+            expectedResolutionMode = mode;
+            ChangeTime();
+        }
     }
     internal void SetWarningLabel(string text, string color) {
         ((Label)MenuButtons["warningLabel"]).Markup = $"<span foreground='{color}' font-weight= 'bold'>{text} </span>";
@@ -373,9 +417,14 @@ public class OrbitSettings : Gtk.ListBox {
             case "solar system":
                 Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
                 break;
+            
+            case "inner solar system":
+                Shared.changesToMake.Push(new string[] {"load preset", "inner solar system", "-1"});
+                break;
 
             case "hulse-taylor binary":
                 Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
+                //Turn down the time scale
                 timeUnits!.Active = 1;
                 timeScale!.Value = 30;
                 ChangeTime();
@@ -414,11 +463,20 @@ public class OrbitSettings : Gtk.ListBox {
             multiplier = timeScale.Value * 314496000;
         }
         Shared.multiplier = multiplier;
-        if(((CheckMenuItem)MenuButtons["High Resolution Mode"]).Active) {
-            Shared.deltaTime = Math.Min(3600 * 8, multiplier / 30);
-        }
-        else {
-            Shared.deltaTime = multiplier / 60;
+
+        switch(Shared.resolutionMode) {
+            case 0:
+                Shared.deltaTime = multiplier / 60;
+                break;
+            case 1:
+                Shared.deltaTime = Math.Min(Constant.WEEKS, multiplier / 60);
+                break;
+            case 2:
+                Shared.deltaTime = Math.Min(Constant.HOURS * 8, multiplier / 60);
+                break;
+            case 3:
+                Shared.deltaTime = Math.Min(Constant.MINUTES * 10, multiplier / 60);
+                break;
         }
     }
     private void UnitChange(object? o, EventArgs args) {

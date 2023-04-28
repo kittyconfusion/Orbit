@@ -30,6 +30,9 @@ static void StartPhysics() {
         Thread.Sleep(5);
         if(!Shared.Paused) {
             timeTook += time.ElapsedMilliseconds;
+            //Stop the program from completely hanging if too far behind
+            //while also giving the user noticable slowdown to notify
+            if(timeTook > 250) { Console.WriteLine(timeTook); timeTook = 100; }
         }
         
         time.Restart();
