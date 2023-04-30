@@ -286,6 +286,13 @@ internal class PhysicsRunner {
     }
     internal void LoadPreset(string name) {
         switch (name){
+            case "proxima centauri":
+                AddMass(new Mass(0.1221*Constant.MassOfSun, new Vector2d(0, 0), new Vector2d(0, 0), name: "Proxima Centauri", stationary: true));
+                AddMass(new Mass(0.26*Constant.MassOfEarth, new Vector2d(58.87, 0), new Vector2d(0, Constant.AUtokm(0.030004)), name: "Proxima Centauri d", trailQuality: 14));
+                AddMass(new Mass(1.07*Constant.MassOfEarth, new Vector2d(42.35, 0), new Vector2d(0, Constant.AUtokm(0.05386)), name: "Proxima Centauri b"));
+
+                Shared.resolutionMode = 3;
+                break;
             case "inner solar system":
                 AddMass(new Mass (Constant.MassOfSun, new Vector2d(), new Vector2d(), name: "Sun", stationary: true, satellite: false));
                 

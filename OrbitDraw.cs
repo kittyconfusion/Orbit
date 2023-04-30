@@ -52,13 +52,14 @@ public class OrbitDraw : Gtk.DrawingArea {
 		lastMouse = new Vector2d(args.Event.X, args.Event.Y);
 	}
 	private void Click(double x, double y) {
-		
+
 	}
 	private void ScrollZoom (object o, ScrollEventArgs args) {
 		double oldscale = scale;
 		if(args.Event.Direction == ScrollDirection.Up || args.Event.Direction == ScrollDirection.Down) {
 			scale *= 1 + ((args.Event.Direction == ScrollDirection.Up ? -0.08 : 0.08) * OrbitSettings.ZoomSensitivity);
 			scale = Math.Max(5, scale); //Limit to 1px per 5km
+			scale = Math.Min(Double.MaxValue, scale);
 			offset += (new Vector2d(args.Event.X, args.Event.Y) - new Vector2d(AllocatedWidth, AllocatedHeight) / 2) * (oldscale - scale);
 		}
 	}
@@ -175,6 +176,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			//Draw scaled force arrows
 			if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
 				if(se.linearForces) {
+					//Scale relative to the largest force on a per object basis
 					double scale = m.forces.Max().Magnitude() / 45;
 
 					foreach(Vector2d force in m.forces) {	
@@ -187,6 +189,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 					}
 				}
 				else {
+					//Scale relative to a log10 scale
 					foreach(Vector2d force in m.forces) {	
 						cr.SetSourceColor(colors[colorIndex]);
 						colorIndex = (colorIndex + 1) % 5;			

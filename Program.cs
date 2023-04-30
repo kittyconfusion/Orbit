@@ -12,7 +12,7 @@ static void StartPhysics() {
 
     PhysicsRunner fr = new();
     
-    fr.LoadPreset("solar system");
+    fr.LoadPreset("proxima centauri");
     Stopwatch time = Stopwatch.StartNew();
     double wantedDelta, timeTook = 0;
 

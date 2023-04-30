@@ -31,13 +31,19 @@ class App : Gtk.Window
 		infoFrame.Add(li);
 
 		Frame settingsFrame = new Frame();
+		VBox leftBox = new();
 		os = new(se);
-		settingsFrame.Add(os);
+		leftBox.Add(os);
+		Label about = new("By Nathan Williams 2023");
+		about.Justify = Justification.Left;
+		leftBox.PackEnd(about, false, false, 2);
+
+		settingsFrame.Add(leftBox);
 
 		Frame drawFrame = new Frame();
 		da = new OrbitDraw(li, se);
 		drawFrame.Add (da);
-		da.WidthRequest = 540;
+		da.WidthRequest = 750;
 
 		p1.Pack1(settingsFrame, true, true);
 		p2.Pack1(drawFrame, true, true);
@@ -67,9 +73,6 @@ class App : Gtk.Window
         if(args.Event.Key == Gdk.Key.Control_L || args.Event.Key == Gdk.Key.Control_R) {
 			Control = true;
 		}
-		if(args.Event.Key == Gdk.Key.q || args.Event.Key == Gdk.Key.Q) {
-				Console.WriteLine(args.Event.State);
-			}
 		if(args.Event.State == (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod2Mask)  || args.Event.State == Gdk.ModifierType.ControlMask) {
 			if(args.Event.Key == Gdk.Key.q || args.Event.Key == Gdk.Key.Q) {
 				Shared.Running = false; 

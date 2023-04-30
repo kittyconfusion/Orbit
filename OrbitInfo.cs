@@ -172,8 +172,8 @@ public class OrbitInfo : Gtk.ListBox {
 
         for(int i = 0; i < Shared.massObjects; i++) {
             MassInfo m = Shared.drawingCopy[i];
-            if(m.name.Length > 15) {
-                massChoose.AppendText(m.name.Substring(0,13) + "..");
+            if(m.name.Length > 22) {
+                massChoose.AppendText(m.name.Substring(0,20) + "..");
             }
             else {
                 massChoose.AppendText(m.name);

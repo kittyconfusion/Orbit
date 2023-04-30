@@ -66,25 +66,18 @@ public class OrbitSettings : Gtk.ListBox {
                 presets.Append(innerSolarSystem);
                 innerSolarSystem.Activated += delegate { LoadPreset("inner solar system"); };
 
+            MenuItem proximaCentauri = new("Proxima Centauri");
+                presets.Append(proximaCentauri);
+                proximaCentauri.Activated += delegate {LoadPreset("proxima centauri"); };
+
             MenuItem hulseTaylor = new ("Hulse-Taylor binary");
                 presets.Append(hulseTaylor);
                 hulseTaylor.Activated += delegate { LoadPreset("hulse-taylor binary"); };
-
-
-        MenuItem about = new("About");
-        
-        about.Activated += (object? o, EventArgs a) => {
-            ShowAboutDialog();
-        };
 
         fileMenu.Append(save);
         fileMenu.Append(new SeparatorMenuItem());
         fileMenu.Append(load);
         fileMenu.Append(loadPreset);
-        fileMenu.Append(new SeparatorMenuItem());
-        fileMenu.Append(new SeparatorMenuItem());
-        fileMenu.Append(about);
-
         //Initalize the mass menu
         MenuItem newMass = new("New Mass");
             newMass.Activated += (object? o, EventArgs e) => {
@@ -272,7 +265,7 @@ public class OrbitSettings : Gtk.ListBox {
         //Zoom sensitivity
 
         Label sensitivityLabel = new("Zoom Sensitivity");
-        Scale sensitivity = new(Orientation.Horizontal, 0.5, 5, 0.1);
+        Scale sensitivity = new(Orientation.Horizontal, 0.5, 4, 0.1);
         sensitivity.Value = 1;
         sensitivity.ValueChanged += (object? o, EventArgs a) => {ZoomSensitivity = sensitivity.Value;};
         Add(sensitivityLabel);
@@ -413,30 +406,22 @@ public class OrbitSettings : Gtk.ListBox {
             }
         }
     }
-    internal void ShowAboutDialog() {
-            AboutDialog about = new AboutDialog();
-            about.Decorated = true;
-            about.ProgramName = "Orbit";
-            about.Copyright = "Nathan Williams 2023";
-            about.Comments = @"The gravity thing that works-ish";
-            if(File.Exists("orbiticon.png")) {
-                about.Logo = new Gdk.Pixbuf("orbiticon.png");
-            }
-            about.Run();
-            about.Destroy();
-    }
     private void LoadPreset(string key) {
+
+        Shared.changesToMake.Push(new string[] {"load preset", key, "-1"});
         switch(key) {
+            case "proxima centauri":
+                timeUnits!.Active = 3;
+                timeScale!.Value = 1;
+                break;
+
             case "solar system":
-                Shared.changesToMake.Push(new string[] {"load preset", "solar system", "-1"});
                 break;
             
             case "inner solar system":
-                Shared.changesToMake.Push(new string[] {"load preset", "inner solar system", "-1"});
                 break;
 
             case "hulse-taylor binary":
-                Shared.changesToMake.Push(new string[] {"load preset", "hulse-taylor binary", "-1"});
                 //Turn down the time scale
                 timeUnits!.Active = 1;
                 timeScale!.Value = 30;
