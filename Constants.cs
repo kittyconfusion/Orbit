@@ -25,7 +25,7 @@ public static class Constant{
     }
 }
 
-public struct Vector2d
+public struct Vector2d : IComparable<Vector2d>
 {
     public double X {get; set;}
     public double Y {get; set;}
@@ -72,4 +72,9 @@ public struct Vector2d
         => new Vector2d(X / 149600000, Y / 149600000);
     public Vector2d ToKmUnits()
         => new Vector2d(X * 149600000, Y * 149600000);
+
+    public int CompareTo(Vector2d other)
+    {
+        return Magnitude().CompareTo(other.Magnitude());
+    }
 }

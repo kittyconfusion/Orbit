@@ -288,10 +288,17 @@ public class OrbitSettings : Gtk.ListBox {
 
         CheckButton drawVelocityVectors = new("Velocity");
         CheckButton normalizeVelocity = new("Normalize");
-        CheckButton drawForceVectors = new("Forces");
 
+        CheckButton drawForceVectors = new("Forces");
         RadioButton logForces = new("Log");
         RadioButton linearForces = new(logForces, "Linear");
+
+        logForces.Pressed += delegate { se.linearForces = false; };
+        linearForces.Pressed += delegate { se.linearForces = true; };
+
+        MenuButtons.Add("Normalize", normalizeVelocity);
+        MenuButtons.Add("Log", logForces);
+        MenuButtons.Add("Linear", linearForces);
 
         drawVelocityVectors.Toggled += (object? o, EventArgs a) => { 
             se.drawVelocityVectors = drawVelocityVectors.Active; 
@@ -339,6 +346,12 @@ public class OrbitSettings : Gtk.ListBox {
         Add(highRestriction);
         
         Add(new Separator(Orientation.Horizontal));
+    }
+    internal void InitHide() {
+        MenuButtons["Normalize"].Hide();
+        MenuButtons["Log"].Hide();
+        MenuButtons["Linear"].Hide();
+        saveLoadFrame.Hide();
     }
     internal void SetResolutionMode(int mode) {
         if(MenuButtons.ContainsKey("resolution" + mode)) {

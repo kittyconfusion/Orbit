@@ -55,16 +55,23 @@ class App : Gtk.Window
 		p1.KeyPressEvent   += (object o, KeyPressEventArgs   args) => {OnKeyPress  (o, args);};
 		
 		ShowAll();
-		li.InitHide();
-		os.saveLoadFrame.Hide();		
+		li.InitHide();		
+		os.InitHide();
 
 		GLib.Timeout.Add(33, new GLib.TimeoutHandler(() => UpdateData()));
     }
 
+	[GLib.ConnectBefore]
     private void OnKeyPress(object o, KeyPressEventArgs args)
     {
         if(args.Event.Key == Gdk.Key.Control_L || args.Event.Key == Gdk.Key.Control_R) {
 			Control = true;
+		}
+		if(args.Event.State == Gdk.ModifierType.SuperMask || args.Event.State == Gdk.ModifierType.ControlMask) {
+			if(args.Event.Key == Gdk.Key.q || args.Event.Key == Gdk.Key.Q) {
+				Shared.Running = false; 
+				Application.Quit(); 
+			}
 		}
     }
 
@@ -103,6 +110,7 @@ public class OrbitSessionSettings {
 	public bool drawVelocityVectors = false;
 	public bool drawForceVectors = false;
 	public bool normalizeVelocity = false;
+	public bool linearForces = false;
 	public string positionDisplayUnits = "AU";
 	public string massDisplayUnits = "Earth";
 }

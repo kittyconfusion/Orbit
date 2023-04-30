@@ -139,6 +139,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 				}
 			}
 		int colorIndex = 0;
+
 		//Draw mass circles
 		for(int index = 0; index < Shared.massObjects; index++) {
 			cr.SetSourceRGB(0,0,0);
@@ -170,13 +171,29 @@ public class OrbitDraw : Gtk.DrawingArea {
 				DrawArrow(cr, point, direction, (int)(radius / 4 - 0.5));
 			}
 			
+
 			//Draw scaled force arrows
 			if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
-				foreach(Vector2d force in m.forces) {	
-					cr.SetSourceColor(colors[colorIndex]);
-					colorIndex = (colorIndex + 1) % 5;			
-					DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
+				if(se.linearForces) {
+					double scale = m.forces.Max().Magnitude() / 45;
+
+					foreach(Vector2d force in m.forces) {	
+						cr.SetSourceColor(colors[colorIndex]);
+						double len = force.Magnitude() / scale;
+						if(len > 0.002) {
+							colorIndex = (colorIndex + 1) % 5;
+							DrawArrow(cr, point, force.Normalize() * len, (int)(radius / 8));
+						}			
+					}
 				}
+				else {
+					foreach(Vector2d force in m.forces) {	
+						cr.SetSourceColor(colors[colorIndex]);
+						colorIndex = (colorIndex + 1) % 5;			
+						DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
+					}
+				}
+
 			}		
 		}
 		cr.GetTarget().Dispose();
