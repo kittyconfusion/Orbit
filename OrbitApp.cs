@@ -67,7 +67,10 @@ class App : Gtk.Window
         if(args.Event.Key == Gdk.Key.Control_L || args.Event.Key == Gdk.Key.Control_R) {
 			Control = true;
 		}
-		if(args.Event.State == Gdk.ModifierType.SuperMask || args.Event.State == Gdk.ModifierType.ControlMask) {
+		if(args.Event.Key == Gdk.Key.q || args.Event.Key == Gdk.Key.Q) {
+				Console.WriteLine(args.Event.State);
+			}
+		if(args.Event.State == (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod2Mask)  || args.Event.State == Gdk.ModifierType.ControlMask) {
 			if(args.Event.Key == Gdk.Key.q || args.Event.Key == Gdk.Key.Q) {
 				Shared.Running = false; 
 				Application.Quit(); 
