@@ -7,6 +7,7 @@ public static class Constant{
 
     public static readonly double MassOfSun = 1.989  * Math.Pow(10,24);
     public static readonly double MassOfEarth = 5.9736 * Math.Pow(10,18);
+    public static readonly double MassOfJupiter = 1.89813 * Math.Pow(10, 21);
 
     public const int MINUTES = 60;
     public const int HOURS   = 60 * 60;

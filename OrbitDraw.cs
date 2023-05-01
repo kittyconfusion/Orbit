@@ -193,7 +193,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 					foreach(Vector2d force in m.forces) {	
 						cr.SetSourceColor(colors[colorIndex]);
 						colorIndex = (colorIndex + 1) % 5;			
-						DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
+						DrawArrow(cr, point, force.Normalize() * (Math.Log10(force.Magnitude())-1) * 5, (int)(radius / 8));
 					}
 				}
 

@@ -286,10 +286,22 @@ internal class PhysicsRunner {
     }
     internal void LoadPreset(string name) {
         switch (name){
+            case "gliese 876":
+                AddMass(new Mass(0.346 * Constant.MassOfSun,     new Vector2d(0, 0), new Vector2d(0, 0), stationary: true, name: "Gliese 876"));
+                AddMass(new Mass(7.55  * Constant.MassOfEarth,   new Vector2d(115.8, 0), new Vector2d(0, Constant.AUtokm(0.023083)), name: "d"));
+                AddMass(new Mass(0.8357*Constant.MassOfJupiter,  new Vector2d(37.8 , 0), new Vector2d(0, Constant.AUtokm(0.17102) ), name: "c"));
+                AddMass(new Mass(2.660 * Constant.MassOfJupiter, new Vector2d(37.68, 0), new Vector2d(0, Constant.AUtokm(0.22573) ), name: "b"));
+                AddMass(new Mass(15.8  * Constant.MassOfEarth,   new Vector2d(29.85, 0), new Vector2d(0, Constant.AUtokm(0.3606)  ), name: "e"));
+                
+                FixMassAngle(allMasses[2], 90, new Vector2d(0,0));
+                FixMassAngle(allMasses[3], 180, new Vector2d(0,0));
+                FixMassAngle(allMasses[4], 270, new Vector2d(0,0));
+                Shared.resolutionMode = 3;
+                break;
             case "proxima centauri":
                 AddMass(new Mass(0.1221*Constant.MassOfSun, new Vector2d(0, 0), new Vector2d(0, 0), name: "Proxima Centauri", stationary: true));
-                AddMass(new Mass(0.26*Constant.MassOfEarth, new Vector2d(58.87, 0), new Vector2d(0, Constant.AUtokm(0.030004)), name: "Proxima Centauri d", trailQuality: 14));
-                AddMass(new Mass(1.07*Constant.MassOfEarth, new Vector2d(42.35, 0), new Vector2d(0, Constant.AUtokm(0.05386)), name: "Proxima Centauri b"));
+                AddMass(new Mass(0.26*Constant.MassOfEarth, new Vector2d(58.87, 0), new Vector2d(0, Constant.AUtokm(0.030004)), name: "d", trailQuality: 14));
+                AddMass(new Mass(1.07*Constant.MassOfEarth, new Vector2d(42.35, 0), new Vector2d(0, Constant.AUtokm(0.05386)), name: "b"));
 
                 Shared.resolutionMode = 3;
                 break;
@@ -334,8 +346,8 @@ internal class PhysicsRunner {
                 break;
 
             case "hulse-taylor binary":
-                AddMass(new Mass(Constant.MassOfSun * 1.387, new Vector2d(0, 110), new Vector2d(7466000/2, 0), name: "Neutron Star", trailSeconds: 12, trailQuality: 16));
-                AddMass(new Mass(Constant.MassOfSun * 1.441, new Vector2d(0, -110), new Vector2d(-746600/2, 0), name: "Pulsar", trailSeconds: 12, trailQuality: 16));
+                AddMass(new Mass(Constant.MassOfSun * 1.387, new Vector2d(0, 110), new Vector2d(3153600/2, 0), name: "Neutron Star", trailSeconds: 12, trailQuality: 16));
+                AddMass(new Mass(Constant.MassOfSun * 1.441, new Vector2d(0, -110), new Vector2d(-3153600/2, 0), name: "Pulsar", trailSeconds: 12, trailQuality: 16));
                 
                 Shared.resolutionMode = 3;
                 break;

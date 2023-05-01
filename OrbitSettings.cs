@@ -74,6 +74,10 @@ public class OrbitSettings : Gtk.ListBox {
                 presets.Append(hulseTaylor);
                 hulseTaylor.Activated += delegate { LoadPreset("hulse-taylor binary"); };
 
+            MenuItem gliese876 = new ("Gliese 876");
+                presets.Append(gliese876);
+                gliese876.Activated += delegate { LoadPreset("gliese 876"); };
+
         fileMenu.Append(save);
         fileMenu.Append(new SeparatorMenuItem());
         fileMenu.Append(load);
@@ -410,9 +414,16 @@ public class OrbitSettings : Gtk.ListBox {
 
         Shared.changesToMake.Push(new string[] {"load preset", key, "-1"});
         switch(key) {
+            case "gliese 876":
+                timeUnits!.Active = 3;
+                timeScale!.Value = 4;
+                ChangeTime();
+                break;
+
             case "proxima centauri":
                 timeUnits!.Active = 3;
                 timeScale!.Value = 1;
+                ChangeTime();
                 break;
 
             case "solar system":
@@ -423,8 +434,8 @@ public class OrbitSettings : Gtk.ListBox {
 
             case "hulse-taylor binary":
                 //Turn down the time scale
-                timeUnits!.Active = 1;
-                timeScale!.Value = 30;
+                timeUnits!.Active = 2;
+                timeScale!.Value = 1;
                 ChangeTime();
                 break;
         }
