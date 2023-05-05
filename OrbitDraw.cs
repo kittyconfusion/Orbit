@@ -154,7 +154,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			
 			double radius = MassToGlyphSize(m.mass, inverseScale);
 			if (radius > 0) {		
-				cr.SetFontSize((int)Math.Min(30, radius));
+				cr.SetFontSize((int)radius);
 				cr.ShowText(m.name);
 			}
 
@@ -175,7 +175,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 
 			//Draw scaled force arrows
 			if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
-				if(se.linearForces) {
+				if(se.linearForces && m.forces.Count > 0) {
 					//Scale relative to the largest force on a per object basis
 					double scale = m.forces.Max().Magnitude() / 45;
 
@@ -188,12 +188,12 @@ public class OrbitDraw : Gtk.DrawingArea {
 						}			
 					}
 				}
-				else {
+				else if(m.forces.Count > 0){
 					//Scale relative to a log10 scale
 					foreach(Vector2d force in m.forces) {	
 						cr.SetSourceColor(colors[colorIndex]);
 						colorIndex = (colorIndex + 1) % 5;			
-						DrawArrow(cr, point, force.Normalize() * (Math.Log10(force.Magnitude())-1) * 5, (int)(radius / 8));
+						DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
 					}
 				}
 

@@ -2,13 +2,26 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <RootNamespace>VS_Code</RootNamespace>
+    <RootNamespace>Orbit</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
     <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
-  <ItemGroup>&#xD;&#xD;
+  <ItemGroup>
+
+
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GtkSharp" Version="3.24.24.38"/>
+    <PackageReference Include="GtkSharp" Version="3.24.24.38" />
+    <PackageReference Include="GLibSharp" Version="3.24.24.38" />
+    <PackageReference Include="GdkSharp" Version="3.24.24.38" />
+    <PackageReference Include="CairoSharp" Version="3.24.24.38" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="orbiticon.png" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="adjectives.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="animals.txt" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Orbit;
 using Gtk;
+
 using System.Diagnostics;
 
 static void StartApplication() {
@@ -32,7 +33,7 @@ static void StartPhysics() {
             timeTook += time.ElapsedMilliseconds;
             //Stop the program from completely hanging if too far behind
             //while also giving the user noticable slowdown to notify
-            if(timeTook > 250) { Console.WriteLine(timeTook); timeTook = 100; }
+            if(timeTook > 250) { timeTook = 100; }
         }
         
         time.Restart();

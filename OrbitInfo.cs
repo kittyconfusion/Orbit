@@ -9,7 +9,7 @@ public class OrbitInfo : Gtk.ListBox {
     List<Widget> PrimaryWidgets = new();
     OrderedDictionary UpdatableWidgets = new();
     MassInfo selectedMass = new();
-    int expectedNumberOfMasses = 0;
+
     static readonly string[] UpdateKeys = {"position", "velocity", "mass"};
     OrbitSessionSettings se;
     public OrbitInfo(OrbitSessionSettings se) {
@@ -203,8 +203,8 @@ public class OrbitInfo : Gtk.ListBox {
 
             for(int i = 0; i < Shared.massObjects; i++) {
                 MassInfo m = Shared.drawingCopy[i];
-                if(m.name.Length > 15 && m.index != Shared.selectedMassIndex) {
-                    followChoose.AppendText(m.name.Substring(0,13) + "..");
+                if(m.name.Length > 20 && m.index != Shared.selectedMassIndex) {
+                    followChoose.AppendText(m.name.Substring(0,18) + "..");
                 }
                 else if (m.index != Shared.selectedMassIndex) {
                     followChoose.AppendText(m.name);
@@ -266,9 +266,9 @@ public class OrbitInfo : Gtk.ListBox {
 
     internal void Refresh() {
         //Checks if a mass has been added or removed
-        if(expectedNumberOfMasses != Shared.massObjects) {
+        if(Shared.needToRefresh) {
             RefreshMassChoose();
-            expectedNumberOfMasses = Shared.massObjects;
+            Shared.needToRefresh = false;
         }
         if(Shared.selectedMassIndex == -1) { return; }
         selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];

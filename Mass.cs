@@ -45,7 +45,7 @@ internal class Mass{
         string adjective = adjectives[r.Next(adjectives.Length)];
         string animal = animals[r.Next(animals.Length)];
 
-        if(r.Next(100) == 0) { mi.mass = 6.66 * Math.Pow(10,6); return "Illuminati Secret Base"; }
+        if(r.Next(100) == 0) { mi.mass = 5.9736 * Math.Pow(10,18) * 6.66 * Math.Pow(10,6); return "Illuminati Secret Base"; }
         return adjective + " " + animal;
     }
 }

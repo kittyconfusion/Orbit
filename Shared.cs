@@ -11,6 +11,7 @@ internal static class Shared {
     internal static object DataLock = new();
     internal static int trackedMass = -1;
     internal static int selectedMassIndex = -1;
+    internal static bool needToRefresh = true;
     internal static ConcurrentDictionary<int, MassInfo>massInfos = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentDictionary<int, MassInfo>drawingCopy = new ConcurrentDictionary<int, MassInfo>();
     internal static ConcurrentStack<string[]> changesToMake = new();
