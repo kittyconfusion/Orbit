@@ -8,6 +8,8 @@
     <TrimMode>partial</TrimMode>
     <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
+
+    <ApplicationIcon>orbiticon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
 

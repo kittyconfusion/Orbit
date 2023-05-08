@@ -164,13 +164,13 @@ public class OrbitInfo : Gtk.ListBox {
     {
         int currentlySelected = massChoose.Active;
         //If the selected mass number is no longer valid
-        if(currentlySelected > Shared.massObjects) {currentlySelected = Shared.massObjects;}
+        if(currentlySelected > Shared.drawingCopy.Count) { currentlySelected = Shared.drawingCopy.Count; }
         
         massChoose.RemoveAll();
 
         massChoose.AppendText("");
 
-        for(int i = 0; i < Shared.massObjects; i++) {
+        for(int i = 0; i < Shared.drawingCopy.Count; i++) {
             MassInfo m = Shared.drawingCopy[i];
             if(m.name.Length > 22) {
                 massChoose.AppendText(m.name.Substring(0,20) + "..");
@@ -201,7 +201,7 @@ public class OrbitInfo : Gtk.ListBox {
             followChoose.RemoveAll();
             followChoose.AppendText("No follow");
 
-            for(int i = 0; i < Shared.massObjects; i++) {
+            for(int i = 0; i < Shared.drawingCopy.Count; i++) {
                 MassInfo m = Shared.drawingCopy[i];
                 if(m.name.Length > 20 && m.index != Shared.selectedMassIndex) {
                     followChoose.AppendText(m.name.Substring(0,18) + "..");
@@ -267,8 +267,10 @@ public class OrbitInfo : Gtk.ListBox {
     internal void Refresh() {
         //Checks if a mass has been added or removed
         if(Shared.needToRefresh) {
-            RefreshMassChoose();
-            Shared.needToRefresh = false;
+            lock(Shared.DataLock) {
+                RefreshMassChoose();
+                Shared.needToRefresh = false;
+            }
         }
         if(Shared.selectedMassIndex == -1) { return; }
         selectedMass = Shared.drawingCopy[Shared.selectedMassIndex];

@@ -62,44 +62,51 @@ internal class PhysicsRunner {
         string[] change;
         while (Shared.changesToMake.TryPop(out change!)) {
             MassInfo mass = new();
-            if(Shared.ignoreNextUpdates > 0) { continue; }
+            
             if(change[2] != "-1") {
                 mass = allMasses[Int32.Parse(change[2])].mi;
             }
             
             switch(change[0]) {
                 case "positionkm":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     mass.position = ParseVector2dFromString(change[1], mass.position);
                     break;
                 case "positionAU":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     mass.position = ParseVector2dFromString(change[1], mass.position.ToAstronomicalUnits()).ToKmUnits();
                     break;
                 case "velocity":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     mass.velocity = ParseVector2dFromString(change[1], mass.velocity);
                     break;
                 case "massGg":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newGgMass)) {
                         mass.mass = newGgMass;
                     }
                     break;
                 case "masskg":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newkgMass)) {
                         mass.mass = newkgMass / Math.Pow(10,6);
                     }
                     break;
                 case "massEarth":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newEarthMass)) {
                         mass.mass = newEarthMass * Constant.MassOfEarth;
                     }
                     break;
                 case "massSolar":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(double.TryParse(change[1], System.Globalization.NumberStyles.Float, null, out double newSolarMass)) {
                         mass.mass = newSolarMass * Constant.MassOfSun;
                     }
                     break;
                 case "new mass":
                     Random r = new();
-                    AddMass(new Mass(Constant.MassOfEarth, new Vector2d(), new Vector2d(r.NextDouble(), r.NextDouble()) * Constant.AUtokm(1)));
+                    AddMass(new Mass(Constant.MassOfEarth, new Vector2d(), (new Vector2d(r.NextDouble(), r.NextDouble()) * 2 - 1) * Constant.AUtokm(1)));
                     Shared.needToRefresh = true;
                     break;
                 case "remove mass":
@@ -110,24 +117,25 @@ internal class PhysicsRunner {
                     allMasses.RemoveAt(index);
                     Shared.RemoveMass(index);
                     InitializeMasses();
-                    Shared.needToRefresh = true;
                     break;
                 case "remove all masses":
                     ClearAllMasses();
-                    Shared.needToRefresh = true;
                     break;
                 case "trail follow":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(mass.followingIndex != Convert.ToInt32(change[1])) {
                         mass.followingIndex = Convert.ToInt32(change[1]);
                         ResetTrail(mass);
                     }
                     break;
                 case "trail skip":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     mass.trail = new Vector2d[Math.Max(1,(int)((mass.trail.Length / mass.trailQuality) * double.Parse(change[1])))];
                     mass.trailQuality = double.Parse(change[1]);
                     ResetTrail(mass);
                     break;
                 case "trail length":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     if(mass.trail.Length * mass.trailQuality == int.Parse(change[1])) {break;}
                     mass.trail = new Vector2d[Math.Max(1,(int)(int.Parse(change[1]) * mass.trailQuality))];
                     ResetTrail(mass);
@@ -137,6 +145,7 @@ internal class PhysicsRunner {
                     LoadPreset(change[1]);
                     break;
                 case "stationary":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
                     mass.stationary = bool.Parse(change[1]);
                     break;
                 case "save":

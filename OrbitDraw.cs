@@ -105,7 +105,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			
 			//Draw trails
 			if(se.drawTrails) {
-				for(int index = 0; index < Shared.massObjects; index++) {
+				for(int index = 0; index < Shared.drawingCopy.Count; index++) {
 					MassInfo m = Shared.drawingCopy[index];
 					if(!m.hasTrail || m.stationary || !m.currentlyUpdatingPhysics) { continue; }
 
@@ -142,7 +142,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		int colorIndex = 0;
 
 		//Draw mass circles
-		for(int index = 0; index < Shared.massObjects; index++) {
+		for(int index = 0; index < Shared.drawingCopy.Count; index++) {
 			cr.SetSourceRGB(0,0,0);
 			MassInfo m = Shared.drawingCopy[index];
 			Vector2d position = !m.currentlyUpdatingPhysics && m.orbitingBodyIndex > -1

@@ -8,7 +8,7 @@ internal static class Shared {
     internal static bool Running = true;
     internal static bool Paused = false;
     internal static int massObjects = 0;
-    internal static object DataLock = new();
+    internal readonly static object DataLock = new();
     internal static int trackedMass = -1;
     internal static int selectedMassIndex = -1;
     internal static bool needToRefresh = true;
@@ -23,30 +23,71 @@ internal static class Shared {
         drawingCopy.AddOrUpdate(massObjects, m.FullCopy(), (key, oldValue) => m.FullCopy());
         massObjects++;
     }
+    internal static void RemoveDrawingMass(int index) {
+        drawingCopy.Remove(Shared.selectedMassIndex, out _);
 
-    internal static void RemoveMass(int index) {
-        massInfos.Remove(index, out _);
-        drawingCopy.Remove(index, out _);
+        trackedMass = Math.Max(trackedMass - 1, -1);
 
-        for(int i = index + 1; i < massObjects; i++) {
-            massInfos.Remove(i, out MassInfo? m);
-            m!.index = i-1;
-            m!.followingIndex = Math.Max(-1, m!.followingIndex - 1);
-            massInfos.AddOrUpdate(i-1, m, (key, oldValue) => m);
-            
+        for(int i = index + 1; i < drawingCopy.Count + 1; i++) {
+            MassInfo drawing = drawingCopy[i];
+            drawing.index -= 1;
             drawingCopy.Remove(i, out MassInfo? mm);
-            mm!.index = i-1;
-            m!.followingIndex = Math.Max(-1, m!.followingIndex - 1);
-            drawingCopy.AddOrUpdate(i-1, mm, (key, oldValue) => mm);
+            drawingCopy.AddOrUpdate(i-1, mm!, (key, oldValue) => mm!);
 
         }
-        massObjects -= 1;
-        trackedMass -= 1;
+        for(int i = 0; i < drawingCopy.Count; i++) {
+            MassInfo drawing = drawingCopy[i];
+
+            if(drawing.orbitingBodyIndex >= index) {
+                drawing.orbitingBodyIndex -= 1;
+            }
+
+            if(drawing.followingIndex == index ) {
+                drawing.followingIndex = -1;
+            }
+            if(drawing.followingIndex > index) {
+                drawing.followingIndex -= 1;
+            }
+        }
+    }
+    internal static void RemoveMass(int index) {
+        lock(DataLock) {
+            massInfos.Remove(index, out _);
+            
+            massObjects -= 1;
+            
+            for(int i = index + 1; i < massObjects + 1; i++) {
+                MassInfo working = massInfos[i];
+
+                working.index -= 1;
+                massInfos.Remove(i, out MassInfo? m);
+                massInfos.AddOrUpdate(i-1, m!, (key, oldValue) => m!);
+            }
+            for(int i = 0; i < massObjects; i++) {
+                MassInfo working = massInfos[i];
+
+                if(working.orbitingBodyIndex >= index) {
+                    working.orbitingBodyIndex -= 1;
+                }
+
+                if(working.followingIndex == index ) {
+                    working.followingIndex = -1;
+                }
+                if(working.followingIndex > index) {
+                    working.followingIndex -= 1;
+                }
+            }
+        }
     }
     internal static void ReadyDrawingCopy() {
         lock(DataLock) {
-            for(int i = 0; i < massObjects; i++) {
-                drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
+            if(drawingCopy.Count == massObjects) {
+                for(int i = 0; i < massObjects; i++) {
+                    drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
+                }
+            }
+            else {
+                Console.WriteLine("BROKE " + drawingCopy.Count + " " + massObjects);
             }
         }
     }

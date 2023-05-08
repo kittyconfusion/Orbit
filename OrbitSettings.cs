@@ -93,7 +93,11 @@ public class OrbitSettings : Gtk.ListBox {
         MenuItem removeCurrentMass = new("Remove Current");
             removeCurrentMass.Activated += (object? o, EventArgs e) => {
                 if(Shared.selectedMassIndex > -1) {
-                    Shared.changesToMake.Push(new string[] {"remove mass", "", Shared.selectedMassIndex.ToString()});
+                    lock(Shared.DataLock) {
+                        Shared.changesToMake.Push(new string[] {"remove mass", "", Shared.selectedMassIndex.ToString()});
+                        Shared.RemoveDrawingMass(Shared.selectedMassIndex);
+                        Shared.needToRefresh = true;
+                    }
                 }
             };
         MenuItem removeAllMasses = new("Remove All");
@@ -104,9 +108,13 @@ public class OrbitSettings : Gtk.ListBox {
                     Window.GetOrigin(out int x, out int y);
                     m.Move(x, y);
                     ResponseType result = (ResponseType)m.Run();
-                    m.Destroy();
+                    m.Dispose();
                     if (result == Gtk.ResponseType.Ok)
                     {
+                        lock(Shared.DataLock) {
+                            Shared.drawingCopy.Clear();
+                            Shared.needToRefresh = true;
+                        }
                         Shared.changesToMake.Push(new string[] {"remove all masses", "", "-1"});
                     }
             };
