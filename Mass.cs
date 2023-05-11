@@ -14,7 +14,7 @@ internal class Mass{
     }
 
     public Mass(double mass, Vector2d velocity, Vector2d position, string name = "",
-        bool hasTrail = true, bool stationary = false, int trailSeconds = 30, double trailQuality = 8, int followingIndex = -1,
+        bool hasTrail = true, bool stationary = false, int trailLength = 5, double trailQuality = 5, int followingIndex = -1,
         int precisionPriorityLimit = -1, bool satellite = true) {
         mi = new MassInfo();
         mi.hasTrail = hasTrail;
@@ -22,10 +22,11 @@ internal class Mass{
         mi.mass = mass;
         mi.velocity = velocity;
         mi.position = position;
-        mi.trailQuality = trailQuality;
+        //Excessive trailQuality values cause the program to freeze. Better to not break.
+        mi.trailQuality = Math.Pow(10, 8 - Math.Clamp(trailQuality, 1, 8)) * 60;
         mi.followingIndex = followingIndex;
         mi.name = name == "" ? GenerateName() : name;
-        mi.trail = new Vector2d[Math.Max(1, (int)(trailSeconds * trailQuality))];
+        mi.trail = new Vector2d[trailLength * 100];
         mi.precisionPriorityLimit = precisionPriorityLimit;
         mi.semiMajorAxisLength = mi.position.Magnitude();
         mi.satellite = satellite;

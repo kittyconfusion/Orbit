@@ -14,7 +14,7 @@ public static class Constant{
     public const int DAYS    = 60 * 60 * 24;
     public const int WEEKS   = 60 * 60 * 24 * 7;
     public const int YEARS   = (int)(60 * 60 * 24 * 365.25);
-
+    public const int DECADES   = (int)(60 * 60 * 24 * 365.25 * 10);
     internal static double kgToGg(double kg)
     {
         return kg / 1000000;

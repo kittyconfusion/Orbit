@@ -64,7 +64,7 @@ class App : Gtk.Window
 		li.InitHide();		
 		os.InitHide();
 
-		GLib.Timeout.Add(33, new GLib.TimeoutHandler(() => UpdateData()));
+		GLib.Timeout.Add(16, new GLib.TimeoutHandler(() => UpdateData()));
     }
 
 	[GLib.ConnectBefore]
@@ -113,6 +113,7 @@ class App : Gtk.Window
 
 public class OrbitSessionSettings {
 	public bool drawTrails = true;
+	public bool drawMasses = true;
 	public bool drawVelocityVectors = false;
 	public bool drawForceVectors = false;
 	public bool normalizeVelocity = false;

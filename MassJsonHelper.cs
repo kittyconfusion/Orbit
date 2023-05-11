@@ -14,7 +14,7 @@ public class MassJsonHelper {
 	public bool Stationary {get; set;}
 
     public bool HasTrail {get; set;}
-	public int TrailSeconds {get; set;}
+	public int TrailLength {get; set;}
     public double TrailQuality {get; set;}
 
     public int FollowingIndex {get; set;}
@@ -87,7 +87,7 @@ public class MassJsonHelper {
 	}
 	internal Mass ToMass() {
 		return new Mass(MassInGg, VelocityInKmS, PositionInKm, name: Name, hasTrail: HasTrail, stationary: Stationary, 
-			trailSeconds: TrailSeconds, trailQuality: TrailQuality, followingIndex: FollowingIndex, 
+			trailLength: TrailLength, trailQuality: TrailQuality, followingIndex: FollowingIndex, 
 			precisionPriorityLimit: PrecisionPriorityLimitInSeconds, satellite: Satellite);
 	}
 	internal MassJsonHelper(MassInfo mass) : base(){
@@ -101,8 +101,8 @@ public class MassJsonHelper {
 		Stationary = mass.stationary;
 
 		HasTrail = mass.hasTrail;
-		TrailSeconds = (int) (mass.trail.Length / mass.trailQuality);
-		TrailQuality = mass.trailQuality;
+		TrailLength = mass.trail.Length / 100;
+		TrailQuality = 8 - Math.Log10(mass.trailQuality / 60);
 
 		FollowingIndex = mass.followingIndex;
 		OrbitingBodyIndex = mass.orbitingBodyIndex;

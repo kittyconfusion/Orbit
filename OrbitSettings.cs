@@ -131,6 +131,10 @@ public class OrbitSettings : Gtk.ListBox {
             globalDrawTrails.Toggled += (object? o, EventArgs a) => {se.drawTrails = globalDrawTrails.Active;};
             MenuButtons.Add("Global Trail Draw", globalDrawTrails);
 
+        CheckMenuItem drawMassesAndLabels = new("Draw Masses");
+            drawMassesAndLabels.Active = se.drawMasses;
+            drawMassesAndLabels.Toggled += delegate { se.drawMasses = drawMassesAndLabels.Active; };
+
         MenuItem positionUnits = new("Set Position Unit");
         Menu positionUnitsMenu = new();
         positionUnits.Submenu = positionUnitsMenu;
@@ -195,6 +199,7 @@ public class OrbitSettings : Gtk.ListBox {
         viewMenu.Append(new SeparatorMenuItem());
         viewMenu.Append(globalDrawTrails);
         viewMenu.Append(drawTrails);
+        viewMenu.Append(drawMassesAndLabels);
         viewMenu.Append(new SeparatorMenuItem());
         viewMenu.Append(resetTrailsToMass);
         viewMenu.Append(new SeparatorMenuItem());
@@ -421,6 +426,10 @@ public class OrbitSettings : Gtk.ListBox {
     private void LoadPreset(string key) {
 
         Shared.changesToMake.Push(new string[] {"load preset", key, "-1"});
+        lock(Shared.DataLock) {
+            Shared.drawingCopy.Clear();
+            Shared.needToRefresh = true;
+        }
         switch(key) {
             case "gliese 876":
                 timeUnits!.Active = 3;

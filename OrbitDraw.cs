@@ -142,62 +142,64 @@ public class OrbitDraw : Gtk.DrawingArea {
 		int colorIndex = 0;
 
 		//Draw mass circles
-		for(int index = 0; index < Shared.drawingCopy.Count; index++) {
-			cr.SetSourceRGB(0,0,0);
-			MassInfo m = Shared.drawingCopy[index];
-			Vector2d position = !m.currentlyUpdatingPhysics && m.orbitingBodyIndex > -1
-				? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
-			Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
+		if(se.drawMasses) {
+			for(int index = 0; index < Shared.drawingCopy.Count; index++) {
+				cr.SetSourceRGB(0,0,0);
+				MassInfo m = Shared.drawingCopy[index];
+				Vector2d position = !m.currentlyUpdatingPhysics && m.orbitingBodyIndex > -1
+					? Shared.drawingCopy[m.orbitingBodyIndex].position + m.position : m.position;
+				Vector2d point = WorldToScreen(position, inverseScale, drawOffset, windowCenter);
 
-			cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
-			cr.StrokePreserve(); //Saves circle for filling in
-			
-			double radius = MassToGlyphSize(m.mass, inverseScale);
-			if (radius > 0) {		
-				cr.SetFontSize((int)radius);
-				cr.ShowText(m.name);
-			}
-
-			cr.Fill(); //Currently fills with same color as outline
-			
-			//Draw velocity arrows
-			if(se.drawVelocityVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
-				cr.SetSourceRGB(0.89, 0.34, 0.3);
+				cr.Arc(point.X, point.Y, MassToRadius(m.mass, inverseScale), 0, 2 * Math.PI);
+				cr.StrokePreserve(); //Saves circle for filling in
 				
-				Vector2d direction;
-				if(m.followingIndex > -1) { direction = (m.velocity - Shared.drawingCopy[m.followingIndex].velocity) * 1.25; }
-				else { direction = (m.velocity) * 1.25; }
-				
-				if(se.normalizeVelocity) {direction = direction.Normalize() * 38; };
-				DrawArrow(cr, point, direction, (int)(radius / 4 - 0.5));
-			}
-			
-
-			//Draw scaled force arrows
-			if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
-				if(se.linearForces && m.forces.Count > 0) {
-					//Scale relative to the largest force on a per object basis
-					double scale = m.forces.Max().Magnitude() / 45;
-
-					foreach(Vector2d force in m.forces) {	
-						cr.SetSourceColor(colors[colorIndex]);
-						double len = force.Magnitude() / scale;
-						if(len > 0.002) {
-							colorIndex = (colorIndex + 1) % 5;
-							DrawArrow(cr, point, force.Normalize() * len, (int)(radius / 8));
-						}			
-					}
-				}
-				else if(m.forces.Count > 0){
-					//Scale relative to a log10 scale
-					foreach(Vector2d force in m.forces) {	
-						cr.SetSourceColor(colors[colorIndex]);
-						colorIndex = (colorIndex + 1) % 5;			
-						DrawArrow(cr, point, force.Normalize() * Math.Log10(force.Magnitude()) * 5, (int)(radius / 8));
-					}
+				double radius = MassToGlyphSize(m.mass, inverseScale);
+				if (radius > 0) {		
+					cr.SetFontSize((int)radius);
+					cr.ShowText(m.name);
 				}
 
-			}		
+				cr.Fill(); //Currently fills with same color as outline
+				
+				//Draw velocity arrows
+				if(se.drawVelocityVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
+					cr.SetSourceRGB(0.89, 0.34, 0.3);
+					
+					Vector2d direction;
+					if(m.followingIndex > -1) { direction = (m.velocity - Shared.drawingCopy[m.followingIndex].velocity) * 1.25; }
+					else { direction = (m.velocity) * 1.25; }
+					
+					if(se.normalizeVelocity) {direction = direction.Normalize() * 38; };
+					DrawArrow(cr, point, direction, (int)(radius / 4 - 0.5));
+				}
+				
+
+				//Draw scaled force arrows
+				if(se.drawForceVectors && radius > 0 && !m.stationary && m.currentlyUpdatingPhysics) {
+					if(se.linearForces && m.forces.Count > 0) {
+						//Scale relative to the largest force on a per object basis
+						double scale = m.forces.Max().Magnitude() / 45;
+
+						foreach(Vector2d force in m.forces) {	
+							cr.SetSourceColor(colors[colorIndex]);
+							double len = force.Magnitude() / scale;
+							if(len > 0.002) {
+								colorIndex = (colorIndex + 1) % 5;
+								DrawArrow(cr, point, force.Normalize() * len, (int)(radius / 8));
+							}			
+						}
+					}
+					else if(m.forces.Count > 0){
+						//Scale relative to a log10 scale
+						foreach(Vector2d force in m.forces) {	
+							cr.SetSourceColor(colors[colorIndex]);
+							colorIndex = (colorIndex + 1) % 5;			
+							DrawArrow(cr, point, force.Normalize() * Math.Log(force.Magnitude()) * 2.25, (int)(radius / 8));
+						}
+					}
+
+				}
+			}
 		}
 		cr.GetTarget().Dispose();
         }

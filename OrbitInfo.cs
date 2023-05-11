@@ -99,21 +99,23 @@ public class OrbitInfo : Gtk.ListBox {
         PrimaryWidgets.Add(trailBox);
         UpdatableWidgets.Add("followChoose", followChoose);
 
-        Scale trailLength = new(Orientation.Horizontal, 0.1, 2, 0.1);
+        Scale trailLength = new(Orientation.Horizontal, 1, 20, 1);
         trailLength.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail length", (60 * trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"trail length", (trailLength.Value).ToString(), Shared.selectedMassIndex.ToString()});
+            RealTrailLengthLabel(trailLength.Value * 100 * selectedMass.trailQuality);
         };
 
         HBox trailLengthBox = new();
-        trailLengthBox.Add(new Label("Length (min)"));
-        trailLengthBox.Add(new Label("Ticks (per sec)"));
+        trailLengthBox.Add(new Label("Length"));
+        trailLengthBox.Add(new Label("Quality"));
 
         PrimaryWidgets.Add(trailLengthBox);
         UpdatableWidgets.Add("trailLength", trailLength);
 
-        Scale trailQuality = new(Orientation.Horizontal, 1, 16, 1);
+        Scale trailQuality = new(Orientation.Horizontal, 1, 8, 1);
         trailQuality.ValueChanged += (object? o, EventArgs args) => {
-            Shared.changesToMake.Push(new string[] {"trail skip", trailQuality.Value.ToString(), Shared.selectedMassIndex.ToString()});
+            Shared.changesToMake.Push(new string[] {"trail quality", trailQuality.Value.ToString(), Shared.selectedMassIndex.ToString()});
+            RealTrailLengthLabel(selectedMass.trail.Length * Math.Pow(10, 8 - trailQuality.Value) * 60);
         };
 
         HBox trailQualityBox = new();
@@ -122,6 +124,10 @@ public class OrbitInfo : Gtk.ListBox {
 
         PrimaryWidgets.Add(trailQualityBox);
         UpdatableWidgets.Add("trailQuality", trailQuality);
+
+        Label realTrailLength = new("Real Len: ");
+        PrimaryWidgets.Add(realTrailLength);
+        UpdatableWidgets.Add("realTrailLengthLabel", realTrailLength);
 
         PrimaryWidgets.Add(new Separator(Orientation.Horizontal));
 
@@ -212,8 +218,9 @@ public class OrbitInfo : Gtk.ListBox {
             }
             followChoose.Active = selectedMass.followingIndex <= Shared.selectedMassIndex ? selectedMass.followingIndex + 1 : selectedMass.followingIndex;
             
-            ((Scale)UpdatableWidgets["trailLength"]!).Value = (double)selectedMass.trail.Length / selectedMass.trailQuality / 60;
-            ((Scale)UpdatableWidgets["trailQuality"]!).Value = selectedMass.trailQuality;
+            ((Scale)UpdatableWidgets["trailLength"]!).Value = selectedMass.trail.Length / 100;
+            ((Scale)UpdatableWidgets["trailQuality"]!).Value = 8 - Math.Log10(selectedMass.trailQuality / 60);
+            RealTrailLengthLabel(selectedMass.trail.Length * selectedMass.trailQuality);
             ((CheckButton)UpdatableWidgets["stationary"]!).Active = selectedMass.stationary;
 
         }
@@ -259,9 +266,37 @@ public class OrbitInfo : Gtk.ListBox {
                 return "Position (" + se.positionDisplayUnits + ")";
             case "massLabel":
                 return "Mass (" + se.massDisplayUnits + ")";
+
             default:
                 return "";
         }
+    }
+    internal void RealTrailLengthLabel(double seconds) {
+        
+        double scale = 60;
+        string units = "MINUTES";
+
+        if(seconds >= Constant.DECADES) {
+            scale = Constant.DECADES;
+            units = "Decades";
+        }
+        else if(seconds >= Constant.YEARS) {
+            scale = Constant.YEARS;
+            units = "Years";
+        }
+        else if(seconds >= Constant.WEEKS) {
+            scale = Constant.WEEKS;
+            units = "Weeks";
+        }
+        else if(seconds >= Constant.DAYS) {
+            scale = Constant.DAYS;
+            units = "Days";
+        }
+        else if(seconds >= Constant.HOURS) {
+            scale = Constant.HOURS;
+            units = "Hours";
+        }
+        ((Label)UpdatableWidgets["realTrailLengthLabel"]!).Text = "Trail Length: " + Math.Round(seconds / scale, 1).ToString() + " " + units;
     }
 
     internal void Refresh() {

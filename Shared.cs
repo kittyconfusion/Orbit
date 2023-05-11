@@ -86,9 +86,13 @@ internal static class Shared {
                     drawingCopy[i].CopyPhysicsInfo(massInfos[i]);
                 }
             }
-            else {
-                Console.WriteLine("BROKE " + drawingCopy.Count + " " + massObjects);
-            }
+        }
+    }
+
+    internal static void ResetDrawingMasses()
+    {
+        lock(DataLock) {
+            drawingCopy.Clear();
         }
     }
 }
