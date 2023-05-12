@@ -133,9 +133,10 @@ public class OrbitInfo : Gtk.ListBox {
 
         HBox objectSettingBox = new();
 
-        CheckButton trailDraw = new("Draw Trail");
+        CheckButton trailDraw = new("Has Trail");
         trailDraw.Toggled += (object? o, EventArgs a) => {
             selectedMass.hasTrail = trailDraw.Active;
+            Shared.changesToMake.Push(new string[] {"has trail", trailDraw.Active.ToString(), Shared.selectedMassIndex.ToString()});
         };
         CheckButton stationary = new("Stationary");
         stationary.Toggled += (object? o, EventArgs a) => {

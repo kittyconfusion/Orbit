@@ -183,6 +183,7 @@ public class OrbitSettings : Gtk.ListBox {
             drawTrails.Toggled += (object? o, EventArgs a) => {
                 for(int i = 0; i < Shared.massObjects; i++) {
                     Shared.drawingCopy[i].hasTrail = drawTrails.Active;
+                    Shared.changesToMake.Push(new string[] {"has trail", drawTrails.Active.ToString(), i.ToString()});
                 }
             };
         MenuItem resetTrailsToMass = new("Global Follow Current Mass");

@@ -139,6 +139,11 @@ internal class PhysicsRunner {
                     mass.trail = new Vector2d[int.Parse(change[1]) * 100];
                     ResetTrail(mass);
                     break;
+                case "has trail":
+                    if(Shared.ignoreNextUpdates > 0) { continue; }
+                    mass.hasTrail = bool.Parse(change[1]);
+                    if(mass.hasTrail) { ResetTrail(mass); }
+                    break;
                 case "load preset":
                     ClearAllMasses();
                     LoadPreset(change[1]);
@@ -339,6 +344,11 @@ internal class PhysicsRunner {
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailLength: 10, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 4));
                 AddMinorMass(new Mass(1.0659 * Math.Pow(10,10), new Vector2d(2.138, 0) + new Vector2d(24.1, 0), new Vector2d(0, 9376) + new Vector2d(0, 228000000), name: "Phobos", trailLength: 5, trailQuality: 8, followingIndex: 5, precisionPriorityLimit: Constant.MINUTES * 20));
                 AddMinorMass(new Mass(1.4762 * Math.Pow(10,9),  new Vector2d(1.3513, 0)+ new Vector2d(24.1, 0), new Vector2d(0, 23463.2)+ new Vector2d(0, 228000000), name: "Deimos", trailLength: 2, trailQuality: 7, followingIndex: 5, precisionPriorityLimit: Constant.HOURS));
+                
+                Mass Bennu = new Mass(Constant.kgToGg(7.329 * Math.Pow(10,10)), new Vector2d(22.828, 0), new Vector2d(0, Constant.AUtokm(1.3559)), name: "Bennu", trailLength: 2, trailQuality: 5);
+                Bennu.mi.hasTrail = false;
+                FixMassAngle(Bennu, 265, new Vector2d(0,0));
+                AddMinorMass(Bennu);
                 Shared.resolutionMode = 3;
                 break;
 
