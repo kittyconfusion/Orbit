@@ -86,7 +86,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 		double inverseScale = 1 / scale;
 
 		Vector2d drawOffset = offset;
-		if(Shared.trackedMass > -1) {
+		if(Shared.trackedMass > -1 && Shared.drawingCopy.ContainsKey(Shared.trackedMass)) {
 			MassInfo tracked = Shared.drawingCopy[Shared.trackedMass];
 			drawOffset = tracked.position;
 			if(!tracked.currentlyUpdatingPhysics) {
@@ -181,10 +181,10 @@ public class OrbitDraw : Gtk.DrawingArea {
 						double scale = m.forces.Max().Magnitude() / 45;
 
 						foreach(Vector2d force in m.forces) {	
-							cr.SetSourceColor(colors[colorIndex]);
 							double len = force.Magnitude() / scale;
 							if(len > 0.002) {
 								colorIndex = (colorIndex + 1) % 5;
+								cr.SetSourceColor(colors[colorIndex]);
 								DrawArrow(cr, point, force.Normalize() * len, (int)(radius / 8));
 							}			
 						}
@@ -202,7 +202,7 @@ public class OrbitDraw : Gtk.DrawingArea {
 			}
 		}
 		cr.GetTarget().Dispose();
-        }
+		}
     }
 	private double MassToRadius(double mass, double inverseScale)
 		=> Math.Max(0, (Math.Log(mass) + 1.25 * Math.Log(inverseScale) - 25));

@@ -78,6 +78,10 @@ public class OrbitSettings : Gtk.ListBox {
                 presets.Append(gliese876);
                 gliese876.Activated += delegate { LoadPreset("gliese 876"); };
 
+            MenuItem pluto = new ("Pluto");
+                presets.Append(pluto);
+                pluto.Activated += delegate { LoadPreset("pluto"); };
+
         fileMenu.Append(save);
         fileMenu.Append(new SeparatorMenuItem());
         fileMenu.Append(load);
@@ -432,6 +436,11 @@ public class OrbitSettings : Gtk.ListBox {
             Shared.needToRefresh = true;
         }
         switch(key) {
+            case "pluto":
+                timeUnits!.Active = 4;
+                timeScale.Value = 1;
+                ChangeTime();
+                break;
             case "gliese 876":
                 timeUnits!.Active = 3;
                 timeScale!.Value = 4;
