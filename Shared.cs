@@ -33,7 +33,6 @@ internal static class Shared {
             drawing.index -= 1;
             drawingCopy.Remove(i, out MassInfo? mm);
             drawingCopy.AddOrUpdate(i-1, mm!, (key, oldValue) => mm!);
-
         }
         for(int i = 0; i < drawingCopy.Count; i++) {
             MassInfo drawing = drawingCopy[i];
