@@ -13,7 +13,7 @@ static void StartPhysics() {
 
     PhysicsRunner fr = new();
     
-    fr.LoadPreset("solar system");
+    fr.LoadPreset("pluto");
     Stopwatch time = Stopwatch.StartNew();
     double wantedDelta, timeTook = 0;
 
