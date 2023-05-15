@@ -103,6 +103,10 @@ The [NuGet Package Manager Extension](https://marketplace.visualstudio.com/items
 
 To install GtkSharp using the extension press `Ctrl/Cmd + Shift + P` and type in and select `NuGet Package Manager: Add Package`. The package name is `GtkSharp`. This should install the Gtk wrapper for C#.
 
-Windows will download Gtk automatically on first compile. 
+Other packages installed just in case are `GLibSharp`, `GdkSharp` and `CairoSharp`.
 
-On MacOS, it may be necessary to download Gtk manually. If brew is installed, in the terminal run `brew install gtk+3`.
+Once installing NuGet, packages may be automatically installed with an on-screen prompt. 
+
+Windows will download Gtk automatically on first compile. If putting into a standalone runner (without having to install gtk or dotnet first), a number of dlls from `%HOMEPATH%\AppData\Local\Gtk\3.24.24` are needed. Those that are needed are present in the premade release. Compiling without a terminal window is done on windows by changing the OutputType within Orbit.csproj to winexe.
+
+On MacOS, it may be necessary to download Gtk manually. If brew is installed, in the terminal run `brew install gtk+3`. The OutputType property within Orbit.csproj should be exe. The menu bar is known to be finicky on MacOS. 

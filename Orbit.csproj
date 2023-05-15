@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Orbit</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -8,6 +8,7 @@
     <TrimMode>partial</TrimMode>
     <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
 
     <ApplicationIcon>orbiticon.ico</ApplicationIcon>
   </PropertyGroup>
