@@ -34,7 +34,7 @@ The **Pause** checkbox pauses the simulation. User changes are still processed w
 ### Vectors ###
 - **Velocity Vectors** show the current direction of motion for all masses either in magnitude (1 km/s == 1 pixel), or in pure direction with a constant length if **Normalize** is selected.
 - **Force Vectors** show the majority of forces acting on each mass, as long as they are above a small minimum threshold. 
-  - If **Log** is selected, the lengths of the arrows are drawn on a natural log scale. This visually means for example that for our solar system the force of the Sun will be noticibily larger for any given planet than any interplanetary forces, but not overwhelmingly large. 
+  - If **Log** is selected, the lengths of the arrows are drawn on a natural log scale. This visually means for example that for our solar system the force of the Sun will be noticably larger for any given planet than any interplanetary forces, but not overwhelmingly large. 
   - If **Linear** is selected, for any given mass, the largest force is given a specific length and all other forces will drawn relative to the largest linearly. The threshold for drawing these other forces is 0.2% the magnitude of the greatest force.
   
 ### Resolution Mode ###
@@ -56,7 +56,36 @@ Toggling **Has Trail** will turn on/off whether the mass has its trail both calc
 
 **Stationary** masses undergo no physics calculations and only move by direct user modification of their position.
 
-
+## Other Features/Explanation of JSON mass properties ##
+If you go poking around the JSON files that Orbit outputs, you may see some unusual options that were unable to be fit into the GUI. These are all fully functional and made use of especially within the normal Solar System preset. One such output for the Moon is shown below.
+```
+      "Index": 4,
+      "Name": "Moon",
+      "MinorMass": true,
+      "MassInGg": 73460000000000000,
+      "PositionInKm": {
+        "X": -9922186565.838379,
+        "Y": 49668100.30043491
+      },
+      "VelocityInKmS": {
+        "X": -19.14995486281277,
+        "Y": -80.27848298535474
+      },
+      "Stationary": false,
+      "HasTrail": true,
+      "TrailLength": 4,
+      "TrailQuality": 6,
+      "FollowingIndex": -1,
+      "OrbitingBodyIndex": -1,
+      "Satellite": true,
+      "PrecisionPriorityLimitInSeconds": 86400
+```
+Some settings are explained below:
+**Index** - Each mass is given a sequentially numbered index that is used to identify every mass in the application and for other masses to be able to refer back to it.
+**MinorMass** - Minor Masses exist for performance and the occasional simulation-breaking reasons. They exert no forces on other objects, as they are deemed insubstantial. Moons are generally classified as Minor Masses, as is Charon in the Pluto preset because its strong influence leads to the ejection of other moons. Due to the limitations of the simulation, Charon was made a minor mass and its mass was added onto Pluto.
+**FollowingIndex** - The Index of the mass which the Trail Follow setting is currently selected for. A value of -1 means none.
+**Satellite** - Enables the PrecisionPriorityLimit to be used. Legacy option.
+**PrecisionPriorityLimit** - If Satellite is true and FollowingIndex > -1, if the resolution is low enough such that simulation delta time falls above the PrecisionPriorityLimit, the mass simulation is deemed no longer accurate an so the mass is frozen and its position and velocity relative to the following mass are stored. When unfrozen (if the delta time decreases), the mass will resume its orbit. This should rarely occur on a preset's default resolution mode.
 
 # Compiling Orbit
 
