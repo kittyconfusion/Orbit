@@ -5,8 +5,8 @@ namespace Orbit;
 
 public class OrbitDraw : Gtk.DrawingArea {
 	private OrbitInfo infoWindow;
-    private double scale = 450000;
-	private Vector2d offset = new();
+    internal double scale = 450000;
+	internal Vector2d offset = new();
 	private Vector2d lastMouse = new();
 	private bool moved = false;
 	OrbitSessionSettings se;

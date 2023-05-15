@@ -43,7 +43,7 @@ Resolution mode sets a hard ceiling for the amount of time that passes between e
 **No Restriction** sets delta time to 1/60 of the expected time to pass every second
 
 ## Drawing Panel ##
-The Drawing panel can be controlled by the mouse to move and zoom and by the keyboard to move. Keyboard shortcuts to Quit (Ctrl/Cmd + Q), Pause (Ctrl/Cmd + P), and Follow (Ctrl/Cmd + F) exist.
+The Drawing panel can be controlled by the mouse to move and zoom and by the keyboard using WASD and Shift to move. Keyboard shortcuts to Quit (Ctrl/Cmd + Q), Pause (Ctrl/Cmd + P), Toggle Trails (Ctrl/Cmd + T), and Follow (Ctrl/Cmd + F) exist.
 
 ## Info Panel ##
 The Info panel allows for viewing and editing various attributes for each individual mass. Press Enter to save any changes. 
