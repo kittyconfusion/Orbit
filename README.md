@@ -64,12 +64,12 @@ If you go poking around the JSON files that Orbit outputs, you may see some unus
       "MinorMass": true,
       "MassInGg": 73460000000000000,
       "PositionInKm": {
-        "X": -9922186565.838379,
-        "Y": 49668100.30043491
+        "X": 148461868.42828664,
+        "Y": -14422447.431730954
       },
       "VelocityInKmS": {
-        "X": -19.14995486281277,
-        "Y": -80.27848298535474
+        "X": -3.845118318245941,
+        "Y": -29.72178132726493
       },
       "Stationary": false,
       "HasTrail": true,
