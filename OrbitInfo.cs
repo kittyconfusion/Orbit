@@ -237,7 +237,7 @@ public class OrbitInfo : Gtk.ListBox {
     internal string UIString(string key) {
         switch(key) {
             case "position":
-                Vector2d position = selectedMass.position + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics 
+                Vector2d position = selectedMass.position + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics && selectedMass.orbitingBodyIndex > -1
                     ? Shared.drawingCopy[selectedMass.orbitingBodyIndex].position : new Vector2d(0,0));
                 if(se.positionDisplayUnits == "AU") {
                     return position.ToAstronomicalUnits().ToRoundedString(3);
@@ -247,7 +247,7 @@ public class OrbitInfo : Gtk.ListBox {
                 }
 
             case "velocity":
-                Vector2d velocity = selectedMass.velocity  + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics 
+                Vector2d velocity = selectedMass.velocity  + (selectedMass.satellite && !selectedMass.currentlyUpdatingPhysics && selectedMass.orbitingBodyIndex > -1
                     ? Shared.drawingCopy[selectedMass.orbitingBodyIndex].velocity : new Vector2d(0,0));
                 return velocity.ToRoundedString(digits: 3);
             case "mass":

@@ -86,9 +86,12 @@ public class MassJsonHelper {
 		return masses;
 	}
 	internal Mass ToMass() {
-		return new Mass(MassInGg, VelocityInKmS, PositionInKm, name: Name, hasTrail: HasTrail, stationary: Stationary, 
+		Mass m = new Mass(MassInGg, VelocityInKmS, PositionInKm, name: Name, hasTrail: HasTrail, stationary: Stationary, 
 			trailLength: TrailLength, trailQuality: TrailQuality, followingIndex: FollowingIndex, 
-			precisionPriorityLimit: PrecisionPriorityLimitInSeconds, satellite: Satellite);
+			precisionPriorityLimit: PrecisionPriorityLimitInSeconds, satellite: Satellite, orbitingBodyIndex: OrbitingBodyIndex);
+
+		m.mi.minorMass = MinorMass;
+		return m;
 	}
 	internal MassJsonHelper(MassInfo mass) : base(){
 		Index = mass.index;
@@ -108,7 +111,6 @@ public class MassJsonHelper {
 		OrbitingBodyIndex = mass.orbitingBodyIndex;
 
 		Satellite = mass.satellite;
-		SemiMajorAxisLength = mass.semiMajorAxisLength;
 		PrecisionPriorityLimitInSeconds = mass.precisionPriorityLimit;
 	}
 	[JsonConstructor]

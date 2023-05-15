@@ -1,15 +1,15 @@
 namespace Orbit;
 internal class PhysicsRunner {
-    List<Mass> masses;
+    List<Mass> majorMasses;
     List<Mass> minorMasses;
     List<Mass> allMasses;
     internal PhysicsRunner() {
-        masses = new();
+        majorMasses = new();
         minorMasses = new();
         allMasses = new();
     }
     internal void AddMass(Mass m) {
-        masses.Add(m);
+        majorMasses.Add(m);
         allMasses.Add(m);
         Shared.AddMass(m.mi);
     }
@@ -20,21 +20,20 @@ internal class PhysicsRunner {
         Shared.AddMass(m.mi);
     }
     internal void InitializeMasses() {
-        foreach(Mass m in masses) {
-            //Find the object which it orbits
-            if(m.mi.satellite) {
-                m.mi.orbitingBodyIndex = FindBestOrbitingBody(m);
+        foreach(Mass m in allMasses) {
+            if(m.mi.orbitingBodyIndex > -1) {
                 ResetTrail(m.mi);
             }
         }
     }
+    /*
+    Needs to be rewritten to be more general and is not too important
     internal int FindBestOrbitingBody(Mass m) {
         int bestMassIndex = -1;
         double bestMassDistance = -1;
         foreach(Mass n in masses) {
             if(m.mi.index == n.mi.index) { continue; }
             double hillSphereRadius = n.mi.semiMajorAxisLength * Math.Pow(n.mi.mass / (3 * Constant.MassOfSun), 1f / 3);
-
             double distance = CalculateDistance(m.mi.position.X - n.mi.position.X, m.mi.position.Y - n.mi.position.Y);
 
             if(distance <= hillSphereRadius) {
@@ -50,6 +49,7 @@ internal class PhysicsRunner {
         }
         return bestMassIndex;
     }
+    */
     internal void FixMassAngle(Mass m, int aphelionOffsetAngle, Vector2d orbitObjectPos) {
         aphelionOffsetAngle = 360 - aphelionOffsetAngle;
         double rad = (Math.PI * aphelionOffsetAngle) / 180;;
@@ -112,7 +112,7 @@ internal class PhysicsRunner {
                 case "remove mass":
                     int index = Convert.ToInt32(change[2]);
                     Mass toRemove = allMasses[index];
-                    masses.Remove(toRemove);
+                    majorMasses.Remove(toRemove);
                     minorMasses.Remove(toRemove);
                     allMasses.RemoveAt(index);
                     Shared.RemoveMass(index);
@@ -147,6 +147,7 @@ internal class PhysicsRunner {
                 case "load preset":
                     ClearAllMasses();
                     LoadPreset(change[1]);
+                    InitializeMasses();
                     break;
                 case "stationary":
                     if(Shared.ignoreNextUpdates > 0) { continue; }
@@ -174,14 +175,13 @@ internal class PhysicsRunner {
                         
                         Shared.needToRefresh = true;
                     }
+                    InitializeMasses();
                     break;
-                
             }
         }
     }
     internal void ResetTrail(MassInfo mass) {
         mass.trailOffset = 0;
-
         if(mass.followingIndex != -1) {
             for(int i = 0; i < mass.trail.Length; i++) { 
                 mass.trail[i] = mass.position - allMasses[mass.followingIndex].mi.position;
@@ -198,7 +198,7 @@ internal class PhysicsRunner {
             allMasses.RemoveAt(i);
             Shared.RemoveMass(i);
         }
-        masses.Clear();
+        majorMasses.Clear();
         minorMasses.Clear();
         Shared.ResetDrawingMasses();
     }
@@ -261,7 +261,7 @@ internal class PhysicsRunner {
             MassInfo mi = m.mi;
             if(mi.stationary || !mi.currentlyUpdatingPhysics) { continue; }
             
-            foreach(Mass n in masses) {
+            foreach(Mass n in majorMasses) {
                 if(mi.index == n.mi.index) { continue; } //Skip calculations if the same object
                 
                 double x = mi.position.X - n.mi.position.X;
@@ -340,10 +340,10 @@ internal class PhysicsRunner {
                 AddMass(InnerMercury);
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailLength: 7, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailLength: 6, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 2));
-                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) + new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailLength: 4, trailQuality: 6, followingIndex: 3, precisionPriorityLimit: Constant.DAYS));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) + new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailLength: 4, trailQuality: 6, followingIndex: 3, orbitingBodyIndex: 3, precisionPriorityLimit: Constant.DAYS));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailLength: 10, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 4));
-                AddMinorMass(new Mass(1.0659 * Math.Pow(10,10), new Vector2d(2.138, 0) + new Vector2d(24.1, 0), new Vector2d(0, 9376) + new Vector2d(0, 228000000), name: "Phobos", trailLength: 5, trailQuality: 8, followingIndex: 5, precisionPriorityLimit: Constant.MINUTES * 20));
-                AddMinorMass(new Mass(1.4762 * Math.Pow(10,9),  new Vector2d(1.3513, 0)+ new Vector2d(24.1, 0), new Vector2d(0, 23463.2)+ new Vector2d(0, 228000000), name: "Deimos", trailLength: 2, trailQuality: 7, followingIndex: 5, precisionPriorityLimit: Constant.HOURS));
+                AddMinorMass(new Mass(1.0659 * Math.Pow(10,10), new Vector2d(2.138, 0) + new Vector2d(24.1, 0), new Vector2d(0, 9376) + new Vector2d(0, 228000000), name: "Phobos", trailLength: 5, trailQuality: 8, followingIndex: 5, orbitingBodyIndex: 5, precisionPriorityLimit: Constant.MINUTES * 20));
+                AddMinorMass(new Mass(1.4762 * Math.Pow(10,9),  new Vector2d(1.3513, 0)+ new Vector2d(24.1, 0), new Vector2d(0, 23463.2)+ new Vector2d(0, 228000000), name: "Deimos", trailLength: 2, trailQuality: 7, followingIndex: 5, orbitingBodyIndex: 5, precisionPriorityLimit: Constant.HOURS));
                 
                 Mass Bennu = new Mass(Constant.kgToGg(7.329 * Math.Pow(10,10)), new Vector2d(22.828, 0), new Vector2d(0, Constant.AUtokm(1.3559)), name: "Bennu", trailLength: 2, trailQuality: 5);
                 Bennu.mi.hasTrail = false;
@@ -360,7 +360,7 @@ internal class PhysicsRunner {
                 AddMass(MercuryMass);
                 AddMass(new Mass (4.87  * Math.Pow(10,18), new Vector2d(35.0, 0),  new Vector2d(0, 108200000), name: "Venus", trailLength: 7, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60));
                 AddMass(new Mass (Constant.MassOfEarth   , new Vector2d(29.76, 0), new Vector2d(0, 149600000), name: "Earth", trailLength: 6, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 2));
-                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailLength: 4, trailQuality: 6, followingIndex: 3, precisionPriorityLimit: Constant.DAYS));
+                AddMinorMass(new Mass (7.346 * Math.Pow(10,16), new Vector2d(1.022, 0) +new Vector2d(29.76, 0), new Vector2d(0, 385000) + new Vector2d(0, 149600000), name: "Moon", trailLength: 4, trailQuality: 6, followingIndex: 3, orbitingBodyIndex: 3, precisionPriorityLimit: Constant.DAYS));
                 AddMass(new Mass (0.642 * Math.Pow(10,18), new Vector2d(24.1, 0),  new Vector2d(0, 228000000), name: "Mars", trailLength: 10, trailQuality: 5, followingIndex: 0, precisionPriorityLimit: Constant.YEARS / 60 * 4));
 
                 AddMass(new Mass (1898  * Math.Pow(10,18), new Vector2d(13.1, 0), new Vector2d(0, 778500000), name: "Jupiter", trailLength: 6, trailQuality: 4, followingIndex: 0, precisionPriorityLimit: Constant.DECADES * 3));

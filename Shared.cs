@@ -37,7 +37,24 @@ internal static class Shared {
         for(int i = 0; i < drawingCopy.Count; i++) {
             MassInfo drawing = drawingCopy[i];
 
-            if(drawing.orbitingBodyIndex >= index) {
+            if(drawing.orbitingBodyIndex == index) {
+                //Orbit the object with the greatest force
+                int newOrbitingIndex = -1;
+                double highestForce = 0;
+                for(int j = 0; j < drawingCopy.Count; j++) {
+                    if(j == drawing.index) { continue; }
+                    MassInfo test = drawingCopy[j];
+                    
+                    double X = test.position.X - drawing.position.X;
+                    double Y = test.position.Y - drawing.position.Y;
+                    double dist2 = Math.Pow(Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2)), 3);
+                    
+                    double force = (Constant.G * test.mass * drawing.mass) / dist2;
+                    if(force > highestForce) { highestForce = force; newOrbitingIndex = j; }
+                }
+                drawing.orbitingBodyIndex = newOrbitingIndex;
+            }
+            else if(drawing.orbitingBodyIndex > index) {
                 drawing.orbitingBodyIndex -= 1;
             }
 
@@ -64,8 +81,25 @@ internal static class Shared {
             }
             for(int i = 0; i < massObjects; i++) {
                 MassInfo working = massInfos[i];
-
-                if(working.orbitingBodyIndex >= index) {
+                
+                if(working.orbitingBodyIndex == index) {
+                    //Orbit the object with the greatest force
+                    int newOrbitingIndex = -1;
+                    double highestForce = 0;
+                    for(int j = 0; j < drawingCopy.Count; j++) {
+                        if(j == working.index) { continue; }
+                        MassInfo test = drawingCopy[j];
+                        
+                        double X = test.position.X - working.position.X;
+                        double Y = test.position.Y - working.position.Y;
+                        double dist2 = Math.Pow(Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2)), 3);
+                        
+                        double force = (Constant.G * test.mass * working.mass) / dist2;
+                        if(force > highestForce) { highestForce = force; newOrbitingIndex = j; }
+                    }
+                    working.orbitingBodyIndex = newOrbitingIndex;
+                }
+                else if(working.orbitingBodyIndex > index) {
                     working.orbitingBodyIndex -= 1;
                 }
 

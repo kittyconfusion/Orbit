@@ -25,5 +25,6 @@
     <Content Include="orbiticon.png" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="adjectives.txt" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="animals.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="README.md" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
