@@ -81,6 +81,7 @@ If you go poking around the JSON files that Orbit outputs, you may see some unus
       "PrecisionPriorityLimitInSeconds": 86400
 ```
 Some settings are explained below:
+
 **Index** - Each mass is given a sequentially numbered index that is used to identify every mass in the application and for other masses to be able to refer back to it. Indexes start at 0.
 
 **MinorMass** - Minor Masses exist for performance and the occasional simulation-breaking reasons. They exert no forces on other objects, as they are deemed insubstantial. Moons are generally classified as Minor Masses, as is Charon in the Pluto preset because its strong influence leads to the ejection of other moons. Due to the limitations of the simulation, Charon was made a minor mass and its mass was added onto Pluto.
