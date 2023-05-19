@@ -21,7 +21,6 @@ public class MassJsonHelper {
 	public int OrbitingBodyIndex {get; set;}
 
     public bool Satellite {get; set;}
-    public double SemiMajorAxisLength {get; set;}
     public int PrecisionPriorityLimitInSeconds {get; set;}
 
 	internal static void SaveMassesToFile(List<Mass> masses, string fileName) {
